@@ -1,0 +1,12 @@
+# 이미지 빌드에 필요 없는 것과 비밀값을 빌드 컨텍스트에서 뺀다.
+# Vite는 .env.local 등을 빌드에 읽어 들이므로 반드시 뺀다. 값은 빌드 인자로만 준다.
+.git
+node_modules
+dist
+coverage
+test-results
+playwright-report
+blob-report
+.env
+.env.*
+docs-repo
