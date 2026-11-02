@@ -11,7 +11,16 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig(
   // lint.md 설정 단위 예외: 생성 코드는 검사하지 않는다.
-  { ignores: ["dist", "coverage", "playwright-report", "test-results", "src/api/generated"] },
+  {
+    ignores: [
+      "dist",
+      "coverage",
+      "playwright-report",
+      "test-results",
+      "docs-repo",
+      "src/api/generated",
+    ],
+  },
   js.configs.recommended,
   // 타입 기반 규칙은 TypeScript 파일에만 건다. 설정 파일(eslint.config.js)은 타입 정보가 없다.
   {
