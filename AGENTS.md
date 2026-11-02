@@ -24,6 +24,13 @@ frontend/
 │   ├── app/                  # 진입점, providers(QueryClient, Router), 전역 스타일, 에러 바운더리
 │   ├── pages/                # 라우트 단위 화면 (조립만, 로직은 features로)
 │   ├── features/<feature>/   # components/, hooks/, api/, model/(타입·스키마), index.ts(공개 API)
+│   │   ├── auth/             # 가입, 로그인, 토큰 갱신, 내 정보
+│   │   ├── upload/           # 업로드 URL 발급, 멀티파트 업로드, 완료, 사전 견적
+│   │   ├── jobs/             # 분석 진행 상태, 재분석
+│   │   ├── player/           # 정규화 사본 재생, 시각 이동, 오버레이, 클릭 조회
+│   │   ├── analysis/         # 구간 결과, 요약, 이벤트 타임라인·상세·검토
+│   │   ├── search/           # 텍스트 구간 탐색, 결과 피드백
+│   │   └── notifications/    # SSE 구독 (단기 티켓)
 │   ├── shared/
 │   │   ├── ui/               # 도메인 무관 공통 컴포넌트
 │   │   ├── lib/              # 유틸, 포맷터
