@@ -7,7 +7,7 @@ pre-commit:
       run: pnpm exec prettier --check {staged_files}
     - name: eslint
       glob: "*.{ts,tsx,js}"
-      run: pnpm exec eslint {staged_files}
+      run: pnpm exec eslint --no-warn-ignored {staged_files}
     - name: actionlint
       glob: ".github/workflows/*.{yml,yaml}"
       run: actionlint {staged_files}
