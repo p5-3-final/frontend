@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import { API_BASE_URL } from "./config";
 import { toApiError } from "./problem";
-import { getAccessToken } from "./session";
+import { getAccessToken, refreshSession } from "./session";
 
 export interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -12,6 +12,7 @@ export interface RequestOptions {
  * api-gateway에 요청하고 응답 본문을 schema로 검증해 돌려준다. 실패 응답은 `ApiError`로 던진다.
  *
  * 로그인 상태면 접근 토큰을 붙이고, 재발급 쿠키가 필요한 인증 API를 위해 항상 자격 증명(쿠키)을 함께 보낸다.
+ * 접근 토큰이 만료되면 재발급받아 한 번 다시 보낸다(SPEC-002 R-9). 재발급이 실패하면 세션은 로그아웃 상태가 된다(R-10).
  */
 export async function apiRequest<T>(
   path: string,
@@ -27,7 +28,11 @@ export async function apiRequestNoContent(path: string, options?: RequestOptions
   await send(path, options);
 }
 
-async function send(path: string, options: RequestOptions = {}): Promise<Response> {
+async function send(
+  path: string,
+  options: RequestOptions = {},
+  retried = false,
+): Promise<Response> {
   const headers = new Headers();
   const token = getAccessToken();
   if (token !== undefined) {
@@ -42,8 +47,12 @@ async function send(path: string, options: RequestOptions = {}): Promise<Respons
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
     credentials: "include",
   });
-  if (!response.ok) {
-    throw await toApiError(response);
+  if (response.ok) {
+    return response;
   }
-  return response;
+  const error = await toApiError(response);
+  if (!retried && error.code === "AUTH_TOKEN_EXPIRED" && (await refreshSession())) {
+    return send(path, options, true);
+  }
+  throw error;
 }

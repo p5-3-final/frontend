@@ -1,9 +1,10 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { handlers } from "../../../../mocks/handlers";
+import { http } from "msw";
+import { API, handlers, problem } from "../../../../mocks/handlers";
 import { renderRoute } from "../../../../tests/render";
 import { server } from "../../../../tests/server";
-import { endSession } from "../../../shared/api/session";
+import { endSession, startSession } from "../../../shared/api/session";
 
 describe("RequireAuth", () => {
   it("[SPEC-002 R-7] 로그인하지 않고 앱 화면에 들어오면 로그인 화면으로 보내고 로그인 뒤 원래 화면으로 돌려보낸다", async () => {
@@ -34,5 +35,17 @@ describe("RequireAuth", () => {
 
     expect(await screen.findByRole("heading", { name: "영상 분석" })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe("/analysis");
+  });
+
+  it("[SPEC-002 R-10] 쓰는 중에 접근 토큰과 재발급이 모두 만료되면 로그인 화면으로 보낸다", async () => {
+    server.use(
+      handlers.refreshFails(),
+      http.get(`${API}/me`, () => problem(401, "AUTH_TOKEN_EXPIRED")),
+    );
+    startSession("expired-access");
+    const { router } = renderRoute("/search");
+
+    expect(await screen.findByRole("heading", { name: "로그인" })).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?redirect=%2Fsearch");
   });
 });

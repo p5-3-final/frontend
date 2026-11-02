@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
+import { SessionBootstrap } from "../features/auth";
 
 export interface AppProvidersProps {
   children: ReactNode;
@@ -10,6 +11,8 @@ export interface AppProvidersProps {
 export function AppProviders({ children, queryClient }: AppProvidersProps) {
   const [defaultClient] = useState(() => new QueryClient());
   return (
-    <QueryClientProvider client={queryClient ?? defaultClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient ?? defaultClient}>
+      <SessionBootstrap>{children}</SessionBootstrap>
+    </QueryClientProvider>
   );
 }

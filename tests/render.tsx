@@ -1,5 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
+import { StrictMode } from "react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -13,10 +14,13 @@ export function renderRoute(path: string, state?: unknown) {
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   const user = userEvent.setup();
+  // 실제 앱(main.tsx)처럼 StrictMode로 감싸 효과가 두 번 실행되는 상황까지 확인한다.
   render(
-    <AppProviders queryClient={queryClient}>
-      <RouterProvider router={router} />
-    </AppProviders>,
+    <StrictMode>
+      <AppProviders queryClient={queryClient}>
+        <RouterProvider router={router} />
+      </AppProviders>
+    </StrictMode>,
   );
   return { router, user, queryClient };
 }

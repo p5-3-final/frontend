@@ -30,17 +30,17 @@ updated: 2026-11-02
 
 ## Phase 3: US-2 로그인과 레이아웃 (P1)
 
-- [x] T008 [R-13] [R-14] 앱 기본 레이아웃(사이드바, 상단 바), 현재 메뉴 선택 표시 — 테스트 `L/AppLayout.test.tsx`, 구현 `L/{AppLayout,Sidebar,TopBar,menu}.tsx`, `src/app/routes.tsx`
-- [x] T009 [R-4] 로그인 성공 시 영상 분석 화면, 상단 바에 닉네임 — 테스트 `src/pages/LogInFlow.test.tsx`, 구현 `A/components/{LogInForm,UserMenu}.tsx`, `A/api/{useLogIn,useMe}.ts`, `A/hooks/useSessionStatus.ts`, MSW 도우미 `mocks/handlers.ts`
-- [x] T010 [R-5] `AUTH_INVALID_CREDENTIALS` 안내 — 테스트 `A/components/LogInForm.test.tsx`, 구현 `LogInForm.tsx`
-- [x] T011 [R-6] `AUTH_ACCOUNT_LOCKED`, `GATEWAY_RATE_LIMITED` 안내 — 테스트 `LogInForm.test.tsx`, 구현 `LogInForm.tsx`
-- [x] T012 [R-7] 로그인 필요 화면 → 로그인 → 원래 주소로 복귀, 외부 주소 `redirect` 무시 — 테스트 `A/components/RequireAuth.test.tsx`, 구현 `A/components/RequireAuth.tsx`, `A/model/redirect.ts`, `LogInPage.tsx`
+- [x] T008 [R-13] [R-14] 앱 기본 레이아웃(사이드바, 상단 바), 현재 메뉴 선택 표시 — 테스트 `L/AppLayout.test.tsx`, 구현 `L/{AppLayout,Sidebar,TopBar,menu}.tsx`, `src/app/routes.tsx` (2059e35)
+- [x] T009 [R-4] 로그인 성공 시 영상 분석 화면, 상단 바에 닉네임 — 테스트 `src/pages/LogInFlow.test.tsx`, 구현 `A/components/{LogInForm,UserMenu}.tsx`, `A/api/{useLogIn,useMe}.ts`, `A/hooks/useSessionStatus.ts`, MSW 도우미 `mocks/handlers.ts` (2059e35)
+- [x] T010 [R-5] `AUTH_INVALID_CREDENTIALS` 안내 — 테스트 `A/components/LogInForm.test.tsx`, 구현 `LogInForm.tsx` (2059e35)
+- [x] T011 [R-6] `AUTH_ACCOUNT_LOCKED`, `GATEWAY_RATE_LIMITED` 안내 — 테스트 `LogInForm.test.tsx`, 구현 `LogInForm.tsx` (2059e35)
+- [x] T012 [R-7] 로그인 필요 화면 → 로그인 → 원래 주소로 복귀, 외부 주소 `redirect` 무시 — 테스트 `A/components/RequireAuth.test.tsx`, 구현 `A/components/RequireAuth.tsx`, `A/model/redirect.ts`, `LogInPage.tsx` (2059e35)
 
 ## Phase 4: US-3 로그인 유지 (P1)
 
-- [ ] T013 [R-8] 앱 시작 시 재발급으로 로그인 복원(StrictMode에서도 재발급 1회) — 테스트 `A/components/SessionBootstrap.test.tsx`, 구현 `A/components/SessionBootstrap.tsx`
-- [ ] T014 [R-9] 401 `AUTH_TOKEN_EXPIRED`면 재발급 후 같은 요청 1회 재시도 — 테스트 `src/shared/api/client.test.ts`, 구현 `client.ts`
-- [ ] T015 [R-10] 재발급 실패 시 로그인 상태를 지우고 로그인 화면 — 테스트 `client.test.ts`, `RequireAuth.test.tsx`, 구현 `client.ts`, `session.ts`
+- [x] T013 [R-8] 앱 시작 시 재발급으로 로그인 복원(StrictMode에서도 재발급 1회) — 테스트 `A/components/SessionBootstrap.test.tsx`, 구현 `A/components/{SessionBootstrap,GuestOnly}.tsx`, `src/app/AppProviders.tsx`, StrictMode 렌더 `tests/render.tsx`
+- [x] T014 [R-9] 401 `AUTH_TOKEN_EXPIRED`면 재발급 후 같은 요청 1회 재시도 — 테스트 `src/shared/api/client.test.ts`, 구현 `client.ts`
+- [x] T015 [R-10] 재발급 실패 시 로그인 상태를 지우고 로그인 화면 — 테스트 `client.test.ts`, `RequireAuth.test.tsx`, 구현 `client.ts`, `session.ts`
 
 ## Phase 5: US-4 내 정보와 로그아웃 (P1)
 
