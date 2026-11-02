@@ -9,4 +9,6 @@ playwright-report
 blob-report
 .env
 .env.*
+# 로컬 compose 빌드 모드의 샘플값. 비밀값이 아니다.
+!.env.compose
 docs-repo

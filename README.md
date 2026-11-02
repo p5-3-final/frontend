@@ -22,7 +22,7 @@ cp local/.env.example local/.env
 docker compose -f local/docker-compose.yml up -d --build
 ```
 
-compose는 frontend도 이미지로 빌드해 `http://localhost:3000`에 띄운다. 코드를 고치면서 볼 때는 `pnpm dev`를, 배포와 같은 빌드 결과를 볼 때는 컨테이너를 쓴다.
+compose는 frontend도 이미지로 빌드해 `http://localhost:3000`에 띄운다. 이 빌드는 모드 `compose`로 `.env.compose`를 읽어 로그인 칸에 로컬 샘플 관리자 계정을 미리 채운다(`pnpm dev`와 배포 빌드는 빈 칸). 코드를 고치면서 볼 때는 `pnpm dev`를, 배포와 같은 빌드 결과를 볼 때는 컨테이너를 쓴다.
 
 ## Docker 이미지
 
@@ -30,6 +30,7 @@ compose는 frontend도 이미지로 빌드해 `http://localhost:3000`에 띄운�
 
 ```bash
 docker build --build-arg VITE_API_BASE_URL=http://localhost:8080 -t vlm/frontend .
+# 로컬 compose처럼 로그인 칸에 샘플 계정을 채우려면 --build-arg BUILD_MODE=compose
 docker run --rm -p 3000:8080 vlm/frontend
 ```
 
