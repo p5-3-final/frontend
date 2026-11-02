@@ -9,13 +9,13 @@ import { useLogIn } from "../api/useLogIn";
 import { logInSchema, type LogInValues } from "../model/schemas";
 
 export interface LogInFormProps {
-  /** 이메일 칸의 처음 값. 가입 직후 가입한 이메일을 채운다(SPEC-002 R-1). */
-  defaultEmail?: string | undefined;
+  /** 칸의 처음 값. 가입 직후 가입한 이메일(SPEC-002 R-1)이나 개발용 샘플 계정(#14)을 채운다. */
+  defaultValues?: Partial<LogInValues> | undefined;
   /** 로그인에 성공해 세션이 시작된 뒤 부른다. */
   onLoggedIn: () => void;
 }
 
-export function LogInForm({ defaultEmail, onLoggedIn }: LogInFormProps) {
+export function LogInForm({ defaultValues, onLoggedIn }: LogInFormProps) {
   const logIn = useLogIn();
   const {
     register,
@@ -23,7 +23,7 @@ export function LogInForm({ defaultEmail, onLoggedIn }: LogInFormProps) {
     formState: { errors },
   } = useForm<LogInValues>({
     resolver: zodResolver(logInSchema),
-    defaultValues: { email: defaultEmail ?? "", password: "" },
+    defaultValues: { email: "", password: "", ...defaultValues },
   });
 
   const handleValid = (values: LogInValues) => {

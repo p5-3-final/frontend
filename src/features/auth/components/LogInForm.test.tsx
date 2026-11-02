@@ -1,9 +1,10 @@
 import { screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { handlers } from "../../../../mocks/handlers";
 import { renderRoute } from "../../../../tests/render";
 import { server } from "../../../../tests/server";
 import { endSession } from "../../../shared/api/session";
+import { toSignedUpState } from "../model/signedUpState";
 
 async function logInWith(password: string) {
   endSession();
@@ -52,5 +53,42 @@ describe("LogInForm", () => {
     expect(screen.getByLabelText("비밀번호")).toHaveAccessibleDescription(
       "비밀번호를 입력해 주세요.",
     );
+  });
+});
+
+describe("LogInForm 개발용 계정", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  function stubDevLogin() {
+    vi.stubEnv("VITE_DEV_LOGIN_EMAIL", "admin@example.com");
+    vi.stubEnv("VITE_DEV_LOGIN_PASSWORD", "admin1234");
+  }
+
+  it("[#14] 개발용 계정이 설정되어 있으면 이메일과 비밀번호 칸을 미리 채운다", async () => {
+    stubDevLogin();
+    endSession();
+    renderRoute("/login");
+
+    expect(await screen.findByLabelText("이메일")).toHaveValue("admin@example.com");
+    expect(screen.getByLabelText("비밀번호")).toHaveValue("admin1234");
+  });
+
+  it("[#14] 개발용 계정이 없으면 칸을 비워 둔다", async () => {
+    endSession();
+    renderRoute("/login");
+
+    expect(await screen.findByLabelText("이메일")).toHaveValue("");
+    expect(screen.getByLabelText("비밀번호")).toHaveValue("");
+  });
+
+  it("[#14] 가입 직후에는 개발용 계정 대신 가입한 이메일을 채우고 비밀번호는 비워 둔다", async () => {
+    stubDevLogin();
+    endSession();
+    renderRoute("/login", toSignedUpState("new@example.com"));
+
+    expect(await screen.findByLabelText("이메일")).toHaveValue("new@example.com");
+    expect(screen.getByLabelText("비밀번호")).toHaveValue("");
   });
 });

@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.compose
 
 # Claude 개인 설정
 .claude/settings.local.json

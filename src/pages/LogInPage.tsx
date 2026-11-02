@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
-import { LogInForm, readSignedUpEmail, safeRedirect } from "../features/auth";
+import { LogInForm, readDevLogin, readSignedUpEmail, safeRedirect } from "../features/auth";
 import { Alert } from "../shared/ui/Alert";
 import { AuthPageShell } from "./AuthPageShell";
 
@@ -24,7 +24,8 @@ export function LogInPage() {
           <Alert tone="success">가입이 완료되었습니다. 로그인해 주세요.</Alert>
         )}
         <LogInForm
-          defaultEmail={signedUpEmail}
+          // 가입 직후에는 방금 가입한 계정으로 로그인하므로 개발용 계정보다 우선한다.
+          defaultValues={signedUpEmail === undefined ? readDevLogin() : { email: signedUpEmail }}
           onLoggedIn={() => {
             void navigate(safeRedirect(searchParams.get("redirect")), { replace: true });
           }}
