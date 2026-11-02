@@ -18,5 +18,7 @@ export default defineConfig({
     command: "pnpm dev",
     url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
+    // API는 테스트마다 page.route로 대신하므로 주소만 맞춘다.
+    env: { VITE_API_BASE_URL: "http://localhost:8080" },
   },
 });

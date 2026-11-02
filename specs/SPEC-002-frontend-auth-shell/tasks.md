@@ -49,19 +49,19 @@ updated: 2026-11-02
 
 ## Phase 6: US-5 앱 둘러보기 (P2)
 
-- [x] T018 [P] [R-15] 준비 중 메뉴 화면 — 테스트 `src/pages/ComingSoonPage.test.tsx`, 구현 `ComingSoonPage.tsx`
-- [x] T019 [P] [R-16] 영상 분석 빈 화면 — 테스트 `src/pages/AnalysisPage.test.tsx`, 구현 `AnalysisPage.tsx`, `src/shared/ui/EmptyState.tsx`
+- [x] T018 [P] [R-15] 준비 중 메뉴 화면 — 테스트 `src/pages/ComingSoonPage.test.tsx`, 구현 `ComingSoonPage.tsx` (98c9e6c)
+- [x] T019 [P] [R-16] 영상 분석 빈 화면 — 테스트 `src/pages/AnalysisPage.test.tsx`, 구현 `AnalysisPage.tsx`, `src/shared/ui/EmptyState.tsx` (98c9e6c)
 
 ## Phase 7: 마무리
 
-- [ ] T020 [NFR-2] 키보드만으로 가입·로그인·메뉴·로그아웃 — 테스트 `src/app/Keyboard.test.tsx`
-- [ ] T021 [NFR-4] [NFR-5] 360px 가로 스크롤 없음, 1024px 미만 메뉴 버튼(서랍) — 테스트 `tests/e2e/responsive.spec.ts`, 구현 `L/MobileNav.tsx`, CI `e2e` job
-- [ ] T022 E2E 흐름(가입 → 로그인 → 새로고침 → 로그아웃) — 테스트 `tests/e2e/auth-flow.spec.ts`
-- [ ] T023 `.env.example`(`VITE_API_BASE_URL`), README, 로컬 compose로 실제 시연
+- [x] T020 [NFR-2] 키보드만으로 가입·로그인·메뉴·로그아웃 — 테스트 `src/app/Keyboard.test.tsx`
+- [x] T021 [NFR-4] [NFR-5] 360px 가로 스크롤 없음, 1024px 미만 메뉴 버튼(서랍) — 테스트 `L/MobileNav.test.tsx`, `tests/e2e/responsive.spec.ts`(가짜 API `tests/e2e/fakeApi.ts`), 구현 `L/{MobileNav,TopBar,AppLayout,Sidebar}.tsx`, CI `e2e` job
+- [x] T022 E2E 흐름(가입 → 로그인 → 새로고침 → 로그아웃) — 테스트 `tests/e2e/auth-flow.spec.ts`
+- [x] T023 `.env.example`(`VITE_API_BASE_URL`), README, 로컬 compose로 실제 시연(가입 → 로그인 → 새로고침 → 내 정보 → 로그아웃, 2026-11-02)
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
-- [ ] typecheck, lint, format:check, test, e2e 통과
-- [ ] plan.md와 실제 구현이 일치함
+- [x] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
+- [x] typecheck, lint, format:check, test, e2e 통과
+- [x] plan.md와 실제 구현이 일치함
 - [ ] docs 레포 spec 상태 갱신 (`Implementing` / `Done`)
