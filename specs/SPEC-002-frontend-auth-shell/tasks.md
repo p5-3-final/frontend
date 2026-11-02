@@ -17,16 +17,16 @@ updated: 2026-11-02
 
 ## Phase 1: 준비
 
-- [x] T001 의존성 `lucide-react`, `pretendard` 추가, 디자인 토큰(`@theme`)과 글꼴 — `src/app/index.css`
-- [x] T002 [P] [NFR-3] ProblemDetail → `ApiError` 변환, 오류 문구 — 테스트 `src/shared/api/problem.test.ts`, `src/shared/lib/messages.test.ts`, 구현 `src/shared/api/problem.ts`, `src/shared/lib/messages.ts`
-- [x] T003 [NFR-1] 메모리 세션과 재발급 단일 요청 — 테스트 `src/shared/api/session.test.ts`, 구현 `src/shared/api/session.ts`, 테스트용 MSW 서버 `tests/{server,setup}.ts`
-- [x] T004 API 클라이언트(기본 주소, 인증 헤더, 응답 스키마 검증, ApiError) — 테스트 `src/shared/api/client.test.ts`, 구현 `src/shared/api/{client,config}.ts`
+- [x] T001 의존성 `lucide-react`, `pretendard` 추가, 디자인 토큰(`@theme`)과 글꼴 — `src/app/index.css` (7284698)
+- [x] T002 [P] [NFR-3] ProblemDetail → `ApiError` 변환, 오류 문구 — 테스트 `src/shared/api/problem.test.ts`, `src/shared/lib/messages.test.ts`, 구현 `src/shared/api/problem.ts`, `src/shared/lib/messages.ts` (7284698)
+- [x] T003 [NFR-1] 메모리 세션과 재발급 단일 요청 — 테스트 `src/shared/api/session.test.ts`, 구현 `src/shared/api/session.ts`, 테스트용 MSW 서버 `tests/{server,setup}.ts` (7284698)
+- [x] T004 API 클라이언트(기본 주소, 인증 헤더, 응답 스키마 검증, ApiError) — 테스트 `src/shared/api/client.test.ts`, 구현 `src/shared/api/{client,config}.ts` (7284698)
 
 ## Phase 2: US-1 가입 (P1)
 
-- [ ] T005 [R-2] 입력 규칙 위반은 요청하지 않고 칸 옆에 이유 표시 — 테스트 `A/model/schemas.test.ts`, `A/components/SignUpForm.test.tsx`, 구현 `A/model/schemas.ts`, `A/components/SignUpForm.tsx`
-- [ ] T006 [R-3] `AUTH_EMAIL_DUPLICATED`면 이메일 칸에 안내 — 테스트 `SignUpForm.test.tsx`, 구현 `SignUpForm.tsx`, `A/api/useSignUp.ts`
-- [ ] T007 [R-1] 가입 성공 시 안내와 함께 로그인 화면, 이메일 채움 — 테스트 `src/pages/SignUpFlow.test.tsx`, 구현 `src/pages/{SignUpPage,LogInPage}.tsx`, 라우터·Provider `src/app/{routes,providers}.tsx`, 테스트 렌더 도우미 `tests/render.tsx`
+- [x] T005 [R-2] 입력 규칙 위반은 요청하지 않고 칸 옆에 이유 표시 — 테스트 `A/model/schemas.test.ts`, `A/components/SignUpForm.test.tsx`, 구현 `A/model/schemas.ts`, `A/components/SignUpForm.tsx`
+- [x] T006 [R-3] `AUTH_EMAIL_DUPLICATED`면 이메일 칸에 안내 — 테스트 `SignUpForm.test.tsx`, 구현 `SignUpForm.tsx`, `A/api/useSignUp.ts`
+- [x] T007 [R-1] 가입 성공 시 안내와 함께 로그인 화면, 이메일 채움 — 테스트 `src/pages/SignUpFlow.test.tsx`, 구현 `src/pages/{SignUpPage,LogInPage}.tsx`, 라우터·Provider `src/app/{routes,AppProviders,App}.tsx`, 가입 state `A/model/signedUpState.ts`, 테스트 렌더 도우미 `tests/render.tsx`
 
 ## Phase 3: US-2 로그인과 레이아웃 (P1)
 
