@@ -24,6 +24,21 @@ export const signUpSchema = z.object({
 
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
+// 로그인은 형식만 확인한다. 비밀번호 규칙을 알려 주면 계정 존재 여부를 추측할 단서가 된다(SPEC-001 R-8).
+export const logInSchema = z.object({
+  email: z.email("올바른 이메일 주소를 입력해 주세요."),
+  password: z.string().min(1, "비밀번호를 입력해 주세요."),
+}) satisfies z.ZodType<components["schemas"]["LogInRequest"]>;
+
+export type LogInValues = z.infer<typeof logInSchema>;
+
+/** 계약 TokenResponse */
+export const tokenSchema = z.object({
+  accessToken: z.string(),
+  tokenType: z.literal("Bearer"),
+  expiresIn: z.number(),
+}) satisfies z.ZodType<components["schemas"]["TokenResponse"]>;
+
 /** 계약 UserResponse */
 export const userSchema = z.object({
   id: z.string(),

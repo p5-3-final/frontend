@@ -24,17 +24,17 @@ updated: 2026-11-02
 
 ## Phase 2: US-1 가입 (P1)
 
-- [x] T005 [R-2] 입력 규칙 위반은 요청하지 않고 칸 옆에 이유 표시 — 테스트 `A/model/schemas.test.ts`, `A/components/SignUpForm.test.tsx`, 구현 `A/model/schemas.ts`, `A/components/SignUpForm.tsx`
-- [x] T006 [R-3] `AUTH_EMAIL_DUPLICATED`면 이메일 칸에 안내 — 테스트 `SignUpForm.test.tsx`, 구현 `SignUpForm.tsx`, `A/api/useSignUp.ts`
-- [x] T007 [R-1] 가입 성공 시 안내와 함께 로그인 화면, 이메일 채움 — 테스트 `src/pages/SignUpFlow.test.tsx`, 구현 `src/pages/{SignUpPage,LogInPage}.tsx`, 라우터·Provider `src/app/{routes,AppProviders,App}.tsx`, 가입 state `A/model/signedUpState.ts`, 테스트 렌더 도우미 `tests/render.tsx`
+- [x] T005 [R-2] 입력 규칙 위반은 요청하지 않고 칸 옆에 이유 표시 — 테스트 `A/model/schemas.test.ts`, `A/components/SignUpForm.test.tsx`, 구현 `A/model/schemas.ts`, `A/components/SignUpForm.tsx` (bf6d52d)
+- [x] T006 [R-3] `AUTH_EMAIL_DUPLICATED`면 이메일 칸에 안내 — 테스트 `SignUpForm.test.tsx`, 구현 `SignUpForm.tsx`, `A/api/useSignUp.ts` (bf6d52d)
+- [x] T007 [R-1] 가입 성공 시 안내와 함께 로그인 화면, 이메일 채움 — 테스트 `src/pages/SignUpFlow.test.tsx`, 구현 `src/pages/{SignUpPage,LogInPage}.tsx`, 라우터·Provider `src/app/{routes,AppProviders,App}.tsx`, 가입 state `A/model/signedUpState.ts`, 테스트 렌더 도우미 `tests/render.tsx` (bf6d52d)
 
 ## Phase 3: US-2 로그인과 레이아웃 (P1)
 
-- [ ] T008 [R-13] [R-14] 앱 기본 레이아웃(사이드바, 상단 바), 현재 메뉴 선택 표시 — 테스트 `L/AppLayout.test.tsx`, 구현 `L/{AppLayout,Sidebar,TopBar}.tsx`
-- [ ] T009 [R-4] 로그인 성공 시 영상 분석 화면, 상단 바에 닉네임 — 테스트 `src/pages/LogInFlow.test.tsx`, 구현 `A/components/LogInForm.tsx`, `A/api/{useLogIn,useMe}.ts`
-- [ ] T010 [R-5] `AUTH_INVALID_CREDENTIALS` 안내 — 테스트 `A/components/LogInForm.test.tsx`, 구현 `LogInForm.tsx`
-- [ ] T011 [R-6] `AUTH_ACCOUNT_LOCKED`, `GATEWAY_RATE_LIMITED` 안내 — 테스트 `LogInForm.test.tsx`, 구현 `LogInForm.tsx`
-- [ ] T012 [R-7] 로그인 필요 화면 → 로그인 → 원래 주소로 복귀, 외부 주소 `redirect` 무시 — 테스트 `A/components/RequireAuth.test.tsx`, 구현 `A/components/RequireAuth.tsx`, `LogInPage.tsx`
+- [x] T008 [R-13] [R-14] 앱 기본 레이아웃(사이드바, 상단 바), 현재 메뉴 선택 표시 — 테스트 `L/AppLayout.test.tsx`, 구현 `L/{AppLayout,Sidebar,TopBar,menu}.tsx`, `src/app/routes.tsx`
+- [x] T009 [R-4] 로그인 성공 시 영상 분석 화면, 상단 바에 닉네임 — 테스트 `src/pages/LogInFlow.test.tsx`, 구현 `A/components/{LogInForm,UserMenu}.tsx`, `A/api/{useLogIn,useMe}.ts`, `A/hooks/useSessionStatus.ts`, MSW 도우미 `mocks/handlers.ts`
+- [x] T010 [R-5] `AUTH_INVALID_CREDENTIALS` 안내 — 테스트 `A/components/LogInForm.test.tsx`, 구현 `LogInForm.tsx`
+- [x] T011 [R-6] `AUTH_ACCOUNT_LOCKED`, `GATEWAY_RATE_LIMITED` 안내 — 테스트 `LogInForm.test.tsx`, 구현 `LogInForm.tsx`
+- [x] T012 [R-7] 로그인 필요 화면 → 로그인 → 원래 주소로 복귀, 외부 주소 `redirect` 무시 — 테스트 `A/components/RequireAuth.test.tsx`, 구현 `A/components/RequireAuth.tsx`, `A/model/redirect.ts`, `LogInPage.tsx`
 
 ## Phase 4: US-3 로그인 유지 (P1)
 
