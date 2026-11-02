@@ -44,13 +44,13 @@ updated: 2026-11-02
 
 ## Phase 5: US-4 내 정보와 로그아웃 (P1)
 
-- [x] T016 [R-11] 사용자 메뉴에 닉네임, 이메일, 역할 — 테스트 `A/components/UserMenu.test.tsx`, 구현 `A/components/UserMenu.tsx`
-- [x] T017 [R-12] 로그아웃 요청, 상태 삭제, 로그인 화면(서버 실패해도) — 테스트 `UserMenu.test.tsx`, 구현 `UserMenu.tsx`, `A/api/useLogOut.ts`
+- [x] T016 [R-11] 사용자 메뉴에 닉네임, 이메일, 역할 — 테스트 `A/components/UserMenu.test.tsx`, 구현 `A/components/UserMenu.tsx` (2a4cdb5)
+- [x] T017 [R-12] 로그아웃 요청, 상태 삭제, 로그인 화면(서버 실패해도) — 테스트 `UserMenu.test.tsx`, 구현 `UserMenu.tsx`, `A/api/useLogOut.ts` (2a4cdb5)
 
 ## Phase 6: US-5 앱 둘러보기 (P2)
 
-- [ ] T018 [P] [R-15] 준비 중 메뉴 화면 — 테스트 `src/pages/ComingSoonPage.test.tsx`, 구현 `ComingSoonPage.tsx`
-- [ ] T019 [P] [R-16] 영상 분석 빈 화면 — 테스트 `src/pages/AnalysisPage.test.tsx`, 구현 `AnalysisPage.tsx`
+- [x] T018 [P] [R-15] 준비 중 메뉴 화면 — 테스트 `src/pages/ComingSoonPage.test.tsx`, 구현 `ComingSoonPage.tsx`
+- [x] T019 [P] [R-16] 영상 분석 빈 화면 — 테스트 `src/pages/AnalysisPage.test.tsx`, 구현 `AnalysisPage.tsx`, `src/shared/ui/EmptyState.tsx`
 
 ## Phase 7: 마무리
 
