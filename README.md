@@ -15,10 +15,22 @@ cp .env.example .env.local          # VITE_API_BASE_URL=http://localhost:8080 (a
 pnpm dev                            # http://localhost:5173
 ```
 
-backend와 함께 확인하려면 루트(`project/`)에서 compose를 먼저 띄운다. 게이트웨이의 CORS 허용 목록 기본값이 `http://localhost:5173`이다.
+backend와 함께 확인하려면 루트(`project/`)에서 compose를 먼저 띄운다. 게이트웨이의 CORS 허용 목록 기본값은 `http://localhost:5173`(개발 서버)과 `http://localhost:3000`(frontend 컨테이너)이다.
 
 ```bash
+cp local/.env.example local/.env
 docker compose -f local/docker-compose.yml up -d --build
+```
+
+compose는 frontend도 이미지로 빌드해 `http://localhost:3000`에 띄운다. 코드를 고치면서 볼 때는 `pnpm dev`를, 배포와 같은 빌드 결과를 볼 때는 컨테이너를 쓴다.
+
+## Docker 이미지
+
+`Dockerfile`이 Vite로 빌드한 정적 파일을 nginx(non-root, 포트 8080)로 서빙한다. `VITE_API_BASE_URL`은 번들에 들어가므로 빌드 인자로 준다.
+
+```bash
+docker build --build-arg VITE_API_BASE_URL=http://localhost:8080 -t vlm/frontend .
+docker run --rm -p 3000:8080 vlm/frontend
 ```
 
 - 재발급 토큰은 `Secure` 쿠키라서, Safari는 `http://localhost`에서 저장하지 않을 수 있다. 로컬 확인은 Chrome 계열 브라우저로 한다(ADR-0004).
