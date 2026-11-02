@@ -38,14 +38,14 @@ updated: 2026-11-02
 
 ## Phase 4: US-3 로그인 유지 (P1)
 
-- [x] T013 [R-8] 앱 시작 시 재발급으로 로그인 복원(StrictMode에서도 재발급 1회) — 테스트 `A/components/SessionBootstrap.test.tsx`, 구현 `A/components/{SessionBootstrap,GuestOnly}.tsx`, `src/app/AppProviders.tsx`, StrictMode 렌더 `tests/render.tsx`
-- [x] T014 [R-9] 401 `AUTH_TOKEN_EXPIRED`면 재발급 후 같은 요청 1회 재시도 — 테스트 `src/shared/api/client.test.ts`, 구현 `client.ts`
-- [x] T015 [R-10] 재발급 실패 시 로그인 상태를 지우고 로그인 화면 — 테스트 `client.test.ts`, `RequireAuth.test.tsx`, 구현 `client.ts`, `session.ts`
+- [x] T013 [R-8] 앱 시작 시 재발급으로 로그인 복원(StrictMode에서도 재발급 1회) — 테스트 `A/components/SessionBootstrap.test.tsx`, 구현 `A/components/{SessionBootstrap,GuestOnly}.tsx`, `src/app/AppProviders.tsx`, StrictMode 렌더 `tests/render.tsx` (0412ed6)
+- [x] T014 [R-9] 401 `AUTH_TOKEN_EXPIRED`면 재발급 후 같은 요청 1회 재시도 — 테스트 `src/shared/api/client.test.ts`, 구현 `client.ts` (0412ed6)
+- [x] T015 [R-10] 재발급 실패 시 로그인 상태를 지우고 로그인 화면 — 테스트 `client.test.ts`, `RequireAuth.test.tsx`, 구현 `client.ts`, `session.ts` (0412ed6)
 
 ## Phase 5: US-4 내 정보와 로그아웃 (P1)
 
-- [ ] T016 [R-11] 사용자 메뉴에 닉네임, 이메일, 역할 — 테스트 `A/components/UserMenu.test.tsx`, 구현 `A/components/UserMenu.tsx`
-- [ ] T017 [R-12] 로그아웃 요청, 상태 삭제, 로그인 화면(서버 실패해도) — 테스트 `UserMenu.test.tsx`, 구현 `UserMenu.tsx`, `A/api/useLogOut.ts`
+- [x] T016 [R-11] 사용자 메뉴에 닉네임, 이메일, 역할 — 테스트 `A/components/UserMenu.test.tsx`, 구현 `A/components/UserMenu.tsx`
+- [x] T017 [R-12] 로그아웃 요청, 상태 삭제, 로그인 화면(서버 실패해도) — 테스트 `UserMenu.test.tsx`, 구현 `UserMenu.tsx`, `A/api/useLogOut.ts`
 
 ## Phase 6: US-5 앱 둘러보기 (P2)
 
