@@ -62,11 +62,11 @@ updated: 2026-11-02
 | --- | --- |
 | `src/app/index.css` | 디자인 토큰(`@theme`), Pretendard |
 | `src/app/{App,router,providers}.tsx` | QueryClient, 라우터(화면 단위 `lazy`), 세션 시작 |
-| `src/app/layout/` | `AppLayout`, `Sidebar`, `TopBar`, `MobileNavButton` |
+| `src/app/layout/` | `AppLayout`, `Sidebar`, `TopBar`(1024px 미만 메뉴 버튼), `MobileNav`(서랍), `menu.ts` |
 | `src/shared/api/` | `client.ts`(기본 주소, 인증 헤더, 재발급 후 재시도), `session.ts`(메모리 토큰, 재발급 단일 요청, 상태 구독), `problem.ts`(ProblemDetail → `ApiError`) |
 | `src/shared/lib/messages.ts` | 오류 `code` → 한국어 문구, 공통 문구 |
-| `src/shared/ui/` | `Button`, `TextField`, `Spinner` |
-| `src/features/auth/` | `model/schemas.ts`, `api/`(가입·로그인·내 정보·로그아웃 훅), `components/`(`SignUpForm`, `LogInForm`, `UserMenu`, `RequireAuth`, `SessionBootstrap`), `index.ts` |
+| `src/shared/ui/` | `Button`, `TextField`, `Spinner`, `Alert`, `Brand`, `EmptyState` |
+| `src/features/auth/` | `model/`(스키마, query key, redirect 검증, 가입 state, 역할 이름), `api/`(가입·로그인·내 정보·로그아웃 훅), `hooks/useSessionStatus`, `components/`(`SignUpForm`, `LogInForm`, `UserMenu`, `RequireAuth`, `GuestOnly`, `SessionBootstrap`), `index.ts` |
 | `src/pages/` | `LogInPage`, `SignUpPage`, `AnalysisPage`, `ComingSoonPage` |
 | `mocks/handlers.ts`, `tests/` | MSW 핸들러, 테스트 렌더 도우미, Playwright 시나리오 |
 | `.env.example`, `README.md` | `VITE_API_BASE_URL`, 실행 방법 |
@@ -157,7 +157,7 @@ sequenceDiagram
 
 - 단위: `schemas.ts`(가입 규칙), `problem.ts`, `messages.ts`, `session.ts`(단일 요청, 저장소 미사용), `client.ts`(인증 헤더, 만료 시 재발급 후 1회 재시도, 재발급 실패 시 anonymous)
 - 컴포넌트·흐름: Vitest + Testing Library + MSW(`mocks/handlers.ts`). 라우터와 QueryClient를 감싼 `renderWithProviders`로 화면 흐름을 검증한다. 테스트 이름은 `[SPEC-002 R-n] ...`
-- E2E: Playwright. API는 `page.route`로 대신하고, 데스크톱·360px 모바일 프로젝트에서 가입 → 로그인 → 새로고침 → 로그아웃과 반응형(NFR-4, NFR-5)을 확인한다. CI `checks.yml`에 `e2e` job을 추가한다.
+- E2E: Playwright. API는 `page.route`의 상태 있는 가짜 API(`tests/e2e/fakeApi.ts`)로 대신하고, 데스크톱·360px 모바일 프로젝트에서 가입 → 로그인 → 새로고침 → 로그아웃과 반응형(NFR-4, NFR-5)을 확인한다. CI `checks.yml`에 `e2e` job을 추가한다.
 - 시연: 로컬 compose(docs `local/`) + `pnpm dev`로 실제 백엔드와 흐름을 확인한다(성공 지표).
 
 ## 7. 리스크와 롤백
