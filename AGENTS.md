@@ -73,7 +73,7 @@ pnpm gen:api        # ../../docs/contracts/openapi/*.yaml → src/api/generated
 - **컴포넌트**: 함수 컴포넌트를 named export로 내보낸다. 파일 하나에 공개 컴포넌트는 하나다. 파일 이름은 `PascalCase.tsx`다. props 타입은 컴포넌트 옆에 정의한다.
 - **오류 처리**: API 오류(ProblemDetail)는 `shared/api`에서 공통으로 파싱한다. 사용자에게 보여줄 메시지는 `code`를 기준으로 매핑한다.
 - **환경변수**: `VITE_` 접두사가 붙은 변수는 브라우저에 그대로 노출된다. 비밀값은 절대 넣지 않는다.
-- **인증 토큰**: 토큰 저장 방식은 ADR로 결정할 때까지 `localStorage`에 저장하지 않는다. 권장 방식은 httpOnly 쿠키다.
+- **인증 토큰**: docs 레포 ADR-0004를 따른다. 접근 토큰은 메모리에만 두고, 재발급 토큰은 서버가 주는 HttpOnly 쿠키를 그대로 쓴다. `localStorage`, `sessionStorage`, IndexedDB에 토큰을 저장하지 않는다. 재발급 요청은 한 번에 하나만 보낸다.
 - **접근성**: 시맨틱 태그를 쓴다. 클릭할 수 있는 요소는 `<button>`이나 `<a>`로 만든다. 이미지에는 `alt`, 폼 요소에는 `label`을 단다. 키보드로 조작할 수 있어야 한다.
 - **스타일**: Tailwind CSS 유틸리티 클래스로 스타일링한다.
   - 색, 간격, 폰트 같은 디자인 토큰은 `src/app/index.css`의 `@theme`에 정의한다. 임의 값(`w-[37px]`)은 맞는 토큰이 없을 때만 쓴다.
