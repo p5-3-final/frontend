@@ -1,5 +1,5 @@
 import { Navigate, type RouteObject } from "react-router";
-import { HOME_PATH, RequireAuth } from "../features/auth";
+import { GuestOnly, HOME_PATH, RequireAuth } from "../features/auth";
 import { AppLayout } from "./layout/AppLayout";
 import { MAIN_MENU, SETTINGS_MENU } from "./layout/menu";
 
@@ -9,12 +9,17 @@ const COMING_SOON_MENUS = [...MAIN_MENU, SETTINGS_MENU].filter((item) => item.pa
 // 화면 단위로 코드를 나눠 첫 화면에 필요한 코드만 받게 한다(react-style.md).
 export const routes: RouteObject[] = [
   {
-    path: "/login",
-    lazy: async () => ({ Component: (await import("../pages/LogInPage")).LogInPage }),
-  },
-  {
-    path: "/signup",
-    lazy: async () => ({ Component: (await import("../pages/SignUpPage")).SignUpPage }),
+    element: <GuestOnly />,
+    children: [
+      {
+        path: "/login",
+        lazy: async () => ({ Component: (await import("../pages/LogInPage")).LogInPage }),
+      },
+      {
+        path: "/signup",
+        lazy: async () => ({ Component: (await import("../pages/SignUpPage")).SignUpPage }),
+      },
+    ],
   },
   {
     element: <RequireAuth />,

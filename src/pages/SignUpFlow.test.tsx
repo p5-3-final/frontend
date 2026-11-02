@@ -1,12 +1,15 @@
 import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
+import { handlers } from "../../mocks/handlers";
 import { renderRoute } from "../../tests/render";
 import { server } from "../../tests/server";
 
 describe("가입 흐름", () => {
   it("[SPEC-002 R-1] 가입에 성공하면 안내와 함께 로그인 화면으로 가고 이메일 칸을 채운다", async () => {
+    // 처음 온 방문자라 재발급 쿠키가 없다.
     server.use(
+      handlers.refreshFails(),
       http.post("http://localhost:8080/api/v1/auth/signup", () =>
         HttpResponse.json(
           {

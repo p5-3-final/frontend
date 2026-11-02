@@ -4,9 +4,10 @@ import { z } from "zod";
 import { server } from "../../../tests/server";
 import { apiRequest, apiRequestNoContent } from "./client";
 import { ApiError } from "./problem";
-import { resetSessionForTest, startSession } from "./session";
+import { getAccessToken, getSessionStatus, resetSessionForTest, startSession } from "./session";
 
 const ME_URL = "http://localhost:8080/api/v1/auth/me";
+const REFRESH_URL = "http://localhost:8080/api/v1/auth/refresh";
 const meSchema = z.object({ nickname: z.string() });
 
 afterEach(() => {
@@ -79,5 +80,74 @@ describe("apiRequest", () => {
     server.use(http.get(ME_URL, () => HttpResponse.json({ unexpected: true })));
 
     await expect(apiRequest("/api/v1/auth/me", meSchema)).rejects.toThrow();
+  });
+
+  it("[SPEC-002 R-9] 접근 토큰이 만료되면 재발급받고 같은 요청을 새 토큰으로 한 번 다시 보낸다", async () => {
+    const authorizations: (string | null)[] = [];
+    server.use(
+      http.get(ME_URL, ({ request }) => {
+        authorizations.push(request.headers.get("Authorization"));
+        return authorizations.length === 1
+          ? HttpResponse.json(
+              {
+                type: "about:blank",
+                title: "Unauthorized",
+                status: 401,
+                code: "AUTH_TOKEN_EXPIRED",
+              },
+              { status: 401 },
+            )
+          : HttpResponse.json({ nickname: "테스터" });
+      }),
+      http.post(REFRESH_URL, () =>
+        HttpResponse.json({ accessToken: "access-2", tokenType: "Bearer", expiresIn: 900 }),
+      ),
+    );
+    startSession("access-1");
+
+    await expect(apiRequest("/api/v1/auth/me", meSchema)).resolves.toEqual({ nickname: "테스터" });
+    expect(authorizations).toEqual(["Bearer access-1", "Bearer access-2"]);
+  });
+
+  it("[SPEC-002 R-9] 다시 보낸 요청도 만료로 거절되면 더 반복하지 않고 오류를 던진다", async () => {
+    let calls = 0;
+    server.use(
+      http.get(ME_URL, () => {
+        calls += 1;
+        return HttpResponse.json(
+          { type: "about:blank", title: "Unauthorized", status: 401, code: "AUTH_TOKEN_EXPIRED" },
+          { status: 401 },
+        );
+      }),
+      http.post(REFRESH_URL, () =>
+        HttpResponse.json({ accessToken: "access-2", tokenType: "Bearer", expiresIn: 900 }),
+      ),
+    );
+    startSession("access-1");
+
+    await expect(apiRequest("/api/v1/auth/me", meSchema)).rejects.toBeInstanceOf(ApiError);
+    expect(calls).toBe(2);
+  });
+
+  it("[SPEC-002 R-10] 재발급도 실패하면 로그아웃 상태로 바꾸고 오류를 던진다", async () => {
+    server.use(
+      http.get(ME_URL, () =>
+        HttpResponse.json(
+          { type: "about:blank", title: "Unauthorized", status: 401, code: "AUTH_TOKEN_EXPIRED" },
+          { status: 401 },
+        ),
+      ),
+      http.post(REFRESH_URL, () =>
+        HttpResponse.json(
+          { type: "about:blank", title: "Unauthorized", status: 401, code: "AUTH_REFRESH_INVALID" },
+          { status: 401 },
+        ),
+      ),
+    );
+    startSession("access-1");
+
+    await expect(apiRequest("/api/v1/auth/me", meSchema)).rejects.toBeInstanceOf(ApiError);
+    expect(getSessionStatus()).toBe("anonymous");
+    expect(getAccessToken()).toBeUndefined();
   });
 });
