@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* 디자인 토큰. 색과 간격은 여기서만 정의한다(AGENTS.md 스타일). 화면별 토큰은 SPEC-002에서 채운다. */
+@theme {
+  --color-surface: #0b1220;
+  --color-content: #e6edf5;
+}
