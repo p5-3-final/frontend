@@ -28,6 +28,7 @@
   }
 
   body {
-    @apply bg-surface font-sans text-content antialiased;
+    /* 한국어 문장이 단어 중간에서 줄바꿈되지 않게 한다. */
+    @apply bg-surface font-sans break-keep text-content antialiased;
   }
 }
