@@ -46,8 +46,8 @@ R-21(로컬 저장소 CORS)은 docs 레포 몫이다. SeaweedFS 기본 설정으
 | NFR-2 | `storageTransport`, `uploadQueue` | `uploadSecrets.test.ts`(브라우저 저장소·콘솔에 서명 없음) |
 | NFR-3 | `shared/lib/messages.ts` | `messages.test.ts` |
 | NFR-4 | `storageTransport`(진행 이벤트 전달) | `UploadQueuePanel.test.tsx` |
-| NFR-5 | 업로드·목록·확인 창 | `src/app/Keyboard.test.tsx`에 업로드 시나리오 추가, `UploadQueuePanel.test.tsx`(`progressbar`, `status` 영역) |
-| NFR-6 | `AnalysisPage`, `VideoList`, `UploadQueuePanel` | Playwright `responsive.spec.ts`(360px) |
+| NFR-5 | 업로드·목록·확인 창 | `src/app/Keyboard.test.tsx`에 업로드·삭제 시나리오 추가, `UploadQueuePanel.test.tsx`(`progressbar`, 완료·실패를 알리는 `status` 영역) |
+| NFR-6 | `AnalysisPage`, `VideoList`, `UploadQueuePanel` | Playwright `upload-flow.spec.ts`(360px 모바일 프로젝트에서 가로 스크롤 없음) |
 
 ## 3. 원칙 점검
 
@@ -160,7 +160,7 @@ sequenceDiagram
 - 단위: `fileRules`(확장자·크기·contentType), `storageTransport`(진행률, 5xx·네트워크 오류 재시도 3번, 4xx 즉시 실패, 중단), `uploadVideo`(단일 폼 순서, 조각 크기·ETag 수집·완료 본문, 게이트웨이로 바이트 미전송), `uploadQueue`(순서, 하나씩, 실패 후 다음, 다시 시도, 취소 시 삭제 요청, 로그아웃 시 비움), `messages`.
 - XHR은 MSW(node)가 가로챈다. 진행률 이벤트가 필요한 테스트는 `storageTransport`에 XHR 생성 함수를 넘겨 가짜 XHR로 검증한다(내부 상태 대신 콜백 결과를 본다).
 - 컴포넌트·흐름: Testing Library + MSW. `[SPEC-005 R-n] ...` 이름. 파일 고르기는 `userEvent.upload`.
-- E2E(Playwright): `fakeApi.ts`에 media API와 가짜 저장소(`page.route`로 `http://localhost:8333/**`)를 더해 P1 흐름(단일·멀티파트 업로드 → 목록 → 삭제)과 360px 표시를 확인한다. 멀티파트는 E2E에서 작은 `partSizeBytes`를 응답해 작은 파일로 확인한다.
+- E2E(Playwright): `fakeMedia.ts`(가짜 media API와 `page.route`로 `http://localhost:8333/**` 가짜 저장소)를 더해 P1 흐름(단일·멀티파트 업로드 → 목록 → 삭제)과 360px 표시를 확인한다. 멀티파트는 E2E에서 작은 `partSizeBytes`를 응답해 작은 파일로 확인한다.
 - 시연: 로컬 compose + `pnpm dev`로 실제 SeaweedFS에 1MB·110MB 업로드, Kafka `video.uploaded` 확인(성공 지표, R-21).
 
 ## 7. 리스크와 롤백

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -100,5 +100,28 @@ describe("UploadQueuePanel", () => {
     await user.click(await screen.findByRole("button", { name: "a.gif 닫기" }));
 
     expect(screen.queryByRole("list", { name: "업로드 대기열" })).not.toBeInTheDocument();
+  });
+
+  it("[SPEC-005 NFR-5] 업로드가 끝나거나 실패하면 화면 낭독기가 읽는 상태 영역에 알린다", async () => {
+    let storageCalls = 0;
+    server.use(
+      http.post(`${STORAGE}/`, () => {
+        storageCalls++;
+        return storageCalls <= 4 ? storageResponse(503) : storageResponse(204);
+      }),
+      ...mediaHandlers(),
+    );
+    render(<UploadQueuePanel />);
+
+    addFiles([fileOf("a.mp4")]);
+    // 상태 영역은 대기열이 생길 때 비어 있는 채로 먼저 나타나고, 끝난 뒤에 문구가 채워진다.
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent("a.mp4 업로드 실패");
+    });
+
+    addFiles([fileOf("b.mp4")]);
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent("b.mp4 업로드 완료");
+    });
   });
 });

@@ -11,26 +11,37 @@ export function UploadQueuePanel() {
   if (uploads.length === 0) {
     return null;
   }
+  // SPEC-005 NFR-5: 가장 최근에 끝난 파일의 결과를 화면 낭독기가 읽게 한다. 대기열은 처리 순서대로라 뒤쪽이 최근이다.
+  const latest = uploads.findLast((item) => item.status === "done" || item.status === "failed");
+  const announcement =
+    latest === undefined
+      ? ""
+      : `${latest.fileName} 업로드 ${latest.status === "done" ? "완료" : "실패"}`;
   return (
-    <ul aria-label="업로드 대기열" className="flex flex-col gap-2">
-      {uploads.map((item) => (
-        <li
-          key={item.id}
-          className="flex flex-col gap-2 rounded-xl border border-line bg-panel p-3"
-        >
-          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <span data-testid="upload-file-name" className="min-w-0 font-medium break-all">
-              {item.fileName}
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted">{formatBytes(item.sizeBytes)}</span>
-              <UploadActions item={item} />
+    <div>
+      <p role="status" className="sr-only">
+        {announcement}
+      </p>
+      <ul aria-label="업로드 대기열" className="flex flex-col gap-2">
+        {uploads.map((item) => (
+          <li
+            key={item.id}
+            className="flex flex-col gap-2 rounded-xl border border-line bg-panel p-3"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <span data-testid="upload-file-name" className="min-w-0 font-medium break-all">
+                {item.fileName}
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted">{formatBytes(item.sizeBytes)}</span>
+                <UploadActions item={item} />
+              </div>
             </div>
-          </div>
-          <UploadState item={item} />
-        </li>
-      ))}
-    </ul>
+            <UploadState item={item} />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
