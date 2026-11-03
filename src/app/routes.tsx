@@ -32,6 +32,12 @@ export const routes: RouteObject[] = [
             path: HOME_PATH,
             lazy: async () => ({ Component: (await import("../pages/AnalysisPage")).AnalysisPage }),
           },
+          {
+            path: `${HOME_PATH}/videos/:videoId`,
+            lazy: async () => ({
+              Component: (await import("../pages/VideoDetailPage")).VideoDetailPage,
+            }),
+          },
           ...COMING_SOON_MENUS.map((item) => ({
             path: item.path,
             lazy: async () => {

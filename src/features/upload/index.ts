@@ -1,7 +1,9 @@
 export { UploadButton } from "./components/UploadButton";
 export { UploadDropzone } from "./components/UploadDropzone";
 export { UploadQueuePanel } from "./components/UploadQueuePanel";
+export { VideoDetail } from "./components/VideoDetail";
 export { VideoList } from "./components/VideoList";
+export { videoDetailPath } from "./model/paths";
 export { useLeaveWarning } from "./hooks/useLeaveWarning";
 export { videoQueryKeys } from "./model/queryKeys";
 export { onVideosChanged } from "./model/uploadQueue";
