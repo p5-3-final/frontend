@@ -24,6 +24,12 @@ describe("messageForCode", () => {
     expect(messageForCode(code)).toBe(message);
   });
 
+  it("[SPEC-006 R-9] MEDIA_NOT_PLAYABLE에는 재생할 수 없는 이유를 쓴다", () => {
+    expect(messageForCode("MEDIA_NOT_PLAYABLE")).toBe(
+      "업로드가 끝나지 않았거나 만료된 영상이라 재생할 수 없습니다.",
+    );
+  });
+
   it("[SPEC-002 NFR-3] 정하지 않은 code나 code가 없으면 공통 문구를 쓴다", () => {
     expect(messageForCode("SOMETHING_NEW")).toBe(GENERIC_ERROR_MESSAGE);
     expect(messageForCode(undefined)).toBe(GENERIC_ERROR_MESSAGE);

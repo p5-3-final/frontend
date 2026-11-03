@@ -21,6 +21,7 @@ const MESSAGES: Readonly<Record<string, string>> = {
   MEDIA_UPLOAD_INCOMPLETE: "파일이 모두 올라가지 않았습니다. 다시 시도해 주세요.",
   MEDIA_INVALID_STATE: "만료되었거나 삭제된 영상이라 업로드를 마칠 수 없습니다.",
   MEDIA_VIDEO_NOT_FOUND: "이미 삭제되었거나 찾을 수 없는 영상입니다.",
+  MEDIA_NOT_PLAYABLE: "업로드가 끝나지 않았거나 만료된 영상이라 재생할 수 없습니다.",
   MEDIA_INVALID_REQUEST: INVALID_INPUT_MESSAGE,
 };
 
