@@ -78,6 +78,8 @@ export function OriginalPlayer({ video }: OriginalPlayerProps) {
         aria-label={`${video.fileName} 재생`}
         src={playback.url}
         controls
+        // SPEC-006 NFR-4: Safari 등은 기본 설정에서 <video>를 Tab으로 건너뛰므로 명시적으로 초점을 받게 한다.
+        tabIndex={0}
         playsInline
         preload="metadata"
         onError={handleError}

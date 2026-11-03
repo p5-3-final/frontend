@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { handlers, MEDIA_API, videoBody, videoPageBody } from "../../mocks/handlers";
+import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../../mocks/handlers";
 import { http, HttpResponse } from "msw";
 import { renderRoute } from "../../tests/render";
 import { server } from "../../tests/server";
@@ -80,6 +80,41 @@ describe("키보드 조작", () => {
     expect(within(dialog).getByRole("button", { name: "취소" })).toHaveFocus();
     await user.keyboard("{Enter}");
 
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("[SPEC-006 NFR-4] 목록에서 상세로 가서 플레이어, 원본 내려받기, 삭제를 키보드로 조작한다", async () => {
+    const id = "0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f";
+    const video = videoBody({ id, fileName: "parking.mp4", status: "UPLOADED" });
+    server.use(
+      handlers.me(),
+      http.get(MEDIA_API, () => HttpResponse.json(videoPageBody([video]))),
+      http.get(`${MEDIA_API}/:id`, () => HttpResponse.json(video)),
+      ...mediaHandlers(),
+    );
+    startSession("access-1");
+    const { user } = renderRoute("/analysis");
+
+    (await screen.findByRole("link", { name: "parking.mp4" })).focus();
+    await user.keyboard("{Enter}");
+    const player = await screen.findByLabelText("parking.mp4 재생");
+
+    // 상세 화면은 목록 링크 → 삭제 → 플레이어 → 원본 내려받기 순서로 지난다.
+    screen.getByRole("link", { name: "목록으로 돌아가기" }).focus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "parking.mp4 삭제" })).toHaveFocus();
+    await user.tab();
+    expect(player).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("link", { name: "원본 내려받기" })).toHaveFocus();
+
+    await user.tab({ shift: true });
+    await user.tab({ shift: true });
+    await user.keyboard("{Enter}");
+    const dialog = screen.getByRole("dialog", { name: "영상 삭제" });
+    // 테스트의 showModal 대체 구현은 초점을 창 안으로 옮기지 않는다. 실제 모달의 초점 이동은 E2E가 확인한다(tests/setup.ts).
+    within(dialog).getByRole("button", { name: "취소" }).focus();
+    await user.keyboard("{Enter}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
