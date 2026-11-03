@@ -128,13 +128,6 @@ export interface components {
          * @enum {string}
          */
         VideoStatus: "UPLOADING" | "UPLOADED" | "NORMALIZING" | "READY" | "REJECTED" | "EXPIRED";
-        /**
-         * @description 정규화에서 거절한 사유 (SPEC-007 R-7~R-12).
-         *     `UNREADABLE`(파일을 열 수 없음), `NO_VIDEO_STREAM`(영상 스트림 없음), `MISSING_METADATA`(길이·프레임률을 읽을 수 없음),
-         *     `TOO_SHORT`(1초 미만), `TOO_LONG`(4시간 초과), `DECODE_FAILED`(디코딩 실패).
-         * @enum {string}
-         */
-        VideoRejectReason: "UNREADABLE" | "NO_VIDEO_STREAM" | "MISSING_METADATA" | "TOO_SHORT" | "TOO_LONG" | "DECODE_FAILED";
         CreateVideoRequest: {
             /** @description 원래 파일 이름. 표시용이며 저장 경로에는 쓰지 않는다. (SPEC-003 R-6) */
             fileName: string;
@@ -220,8 +213,13 @@ export interface components {
              * @example 613
              */
             estimatedProcessingSec?: number | null;
-            /** @description 거절 사유. `REJECTED`가 아니면 null (SPEC-007 R-21) */
-            rejectReason?: components["schemas"]["VideoRejectReason"] | null;
+            /**
+             * @description 정규화에서 거절한 사유. `REJECTED`가 아니면 null (SPEC-007 R-7~R-12, R-21).
+             *     `UNREADABLE`(파일을 열 수 없음), `NO_VIDEO_STREAM`(영상 스트림 없음), `MISSING_METADATA`(길이·프레임률을 읽을 수 없음),
+             *     `TOO_SHORT`(1초 미만), `TOO_LONG`(4시간 초과), `DECODE_FAILED`(디코딩 실패).
+             * @enum {string|null}
+             */
+            rejectReason?: "UNREADABLE" | "NO_VIDEO_STREAM" | "MISSING_METADATA" | "TOO_SHORT" | "TOO_LONG" | "DECODE_FAILED" | null;
         };
         VideoPage: {
             items: components["schemas"]["VideoResponse"][];
