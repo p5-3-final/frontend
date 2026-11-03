@@ -4,7 +4,7 @@
 
 ## 준비물
 
-- Node.js 22(`.nvmrc`), pnpm(`package.json`의 `packageManager` 버전을 pnpm이 자동으로 맞춘다)
+- Node.js 24(`.nvmrc`), pnpm(`package.json`의 `packageManager` 버전을 pnpm이 자동으로 맞춘다)
 - 실제 API로 확인하려면 docs 레포 `local/`의 compose로 backend를 띄운다.
 
 ## 실행

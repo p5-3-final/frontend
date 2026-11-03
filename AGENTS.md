@@ -15,7 +15,7 @@
 | `.github/workflows/**`, `Dockerfile`, `*.sh`, `.editorconfig`, `lefthook.yml` | `.claude/rules/ci-common.md` |
 
 ## 스택
-Node.js 22 LTS(`.nvmrc`) · pnpm · React 19 · TypeScript(strict) · Vite · React Router · TanStack Query · Zustand(필요할 때만) · Tailwind CSS v4(`@tailwindcss/vite`) · React Hook Form + Zod · Vitest · React Testing Library · MSW · Playwright · ESLint(flat config) · Prettier
+Node.js 24 LTS(`.nvmrc`) · pnpm · React 19 · TypeScript(strict) · Vite · React Router · TanStack Query · Zustand(필요할 때만) · Tailwind CSS v4(`@tailwindcss/vite`) · React Hook Form + Zod · Vitest · React Testing Library · MSW · Playwright · ESLint(flat config) · Prettier
 
 ## 구조 (feature 기반)
 ```
