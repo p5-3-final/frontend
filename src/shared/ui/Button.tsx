@@ -1,12 +1,13 @@
 import type { ButtonHTMLAttributes } from "react";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "danger";
 }
 
 const VARIANT_CLASSES = {
   primary: "bg-accent text-surface hover:bg-accent-strong",
   secondary: "border border-line bg-panel-raised text-content hover:border-accent",
+  danger: "bg-danger text-content hover:bg-danger/80",
 } as const;
 
 /** 앱 공통 버튼. 기본은 강조색 버튼이다. */
