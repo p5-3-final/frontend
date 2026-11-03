@@ -25,7 +25,7 @@ R-21(로컬 저장소 CORS)은 docs 레포 몫이다. SeaweedFS 기본 설정으
 
 | 요구사항 | 담당 모듈 / 컴포넌트 | 검증 테스트 |
 | --- | --- | --- |
-| R-1 | `U/components/UploadDropzone`, `U/model/uploadQueue` | `UploadDropzone.test.tsx`, `uploadQueue.test.ts` |
+| R-1 | `U/components/{UploadButton,UploadDropzone}`, `U/model/uploadQueue` | `UploadDropzone.test.tsx`, `uploadQueue.test.ts` |
 | R-2, R-3 | `U/model/fileRules` | `fileRules.test.ts`, `UploadDropzone.test.tsx` |
 | R-4 | `U/model/uploadQueue` | `uploadQueue.test.ts` |
 | R-5 | `U/api/uploadVideo`, `U/api/storageTransport` | `uploadVideo.test.ts` |
@@ -76,7 +76,8 @@ R-21(로컬 저장소 CORS)은 docs 레포 몫이다. SeaweedFS 기본 설정으
 | `src/features/upload/model/` | `schemas.ts`(계약 응답 Zod), `fileRules.ts`(확장자 → 형식, 크기), `videoStatus.ts`(상태 이름), `queryKeys.ts`, `uploadQueue.ts`(대기열 저장소) |
 | `src/features/upload/api/` | `mediaApi.ts`(자리 발급·완료·삭제), `storageTransport.ts`(XHR POST·PUT, 진행률, 재시도, 중단), `uploadVideo.ts`(한 파일 업로드 흐름), `useVideos.ts`, `useDeleteVideo.ts` |
 | `src/features/upload/hooks/` | `useUploadQueue.ts`(구독), `useLeaveWarning.ts` |
-| `src/features/upload/components/` | `UploadDropzone`, `UploadQueuePanel`, `VideoList`, `DeleteVideoDialog` |
+| `src/features/upload/components/` | `UploadButton`(파일 고르기 창), `UploadDropzone`(끌어다 놓기 영역), `UploadQueuePanel`, `VideoList`, `DeleteVideoDialog` |
+| `src/shared/api/client.ts` | `RequestOptions.signal`: 업로드 자리 발급·완료 요청도 취소·로그아웃 때 중단한다 |
 | `src/pages/AnalysisPage.tsx` | 업로드 버튼 활성화, 대기열, 목록, 빈 상태(R-18) |
 | `mocks/handlers.ts`, `tests/` | media API·저장소 MSW 핸들러, E2E 가짜 media API·저장소 |
 

@@ -17,18 +17,18 @@ updated: 2026-11-03
 
 ## Phase 1: 준비
 
-- [x] T001 `gen:api`에 `media-service.yaml` 추가와 생성 타입, 계약 응답 Zod 스키마·query key — `package.json`, `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/index.ts`
-- [x] T002 [P] [NFR-3] `MEDIA_*` 오류 문구 — 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts`
-- [x] T003 [P] [R-2] [R-3] 확장자로 형식 판단(contentType), 크기 1바이트~5GB — 테스트 `U/model/fileRules.test.ts`, 구현 `U/model/fileRules.ts`
-- [x] T004 [R-9] [NFR-4] 저장소 전송(XHR POST·PUT, 진행률 콜백, 5xx·네트워크 오류 최대 3번 재전송, 4xx 즉시 실패, 중단) — 테스트 `U/api/storageTransport.test.ts`, 구현 `U/api/storageTransport.ts`, MSW 저장소 핸들러 `mocks/handlers.ts`
+- [x] T001 `gen:api`에 `media-service.yaml` 추가와 생성 타입, 계약 응답 Zod 스키마·query key — `package.json`, `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/index.ts` (e8e02f1)
+- [x] T002 [P] [NFR-3] `MEDIA_*` 오류 문구 — 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts` (e8e02f1)
+- [x] T003 [P] [R-2] [R-3] 확장자로 형식 판단(contentType), 크기 1바이트~5GB — 테스트 `U/model/fileRules.test.ts`, 구현 `U/model/fileRules.ts` (e8e02f1)
+- [x] T004 [R-9] [NFR-4] 저장소 전송(XHR POST·PUT, 진행률 콜백, 5xx·네트워크 오류 최대 3번 재전송, 4xx 즉시 실패, 중단) — 테스트 `U/api/storageTransport.test.ts`, 구현 `U/api/storageTransport.ts`, MSW 저장소 핸들러 `mocks/handlers.ts` (e8e02f1)
 
 ## Phase 2: US-1 영상 올리기 (P1)
 
-- [ ] T005 [R-5] [R-7] 단일 업로드: 자리 발급 → 폼 POST(fields 순서, file 마지막) → 완료 — 테스트 `U/api/uploadVideo.test.ts`, 구현 `U/api/{mediaApi,uploadVideo}.ts`
-- [ ] T006 [R-6] [R-7] [NFR-1] 멀티파트: 조각 크기로 나눠 동시 3개 PUT → ETag 모아 완료, 바이트는 저장소로만 — 테스트 `uploadVideo.test.ts`, 구현 `uploadVideo.ts`
-- [ ] T007 [R-4] 대기열: 고른 순서대로 하나씩, 끝나면 다음 — 테스트 `U/model/uploadQueue.test.ts`, 구현 `U/model/uploadQueue.ts`, `U/hooks/useUploadQueue.ts`
-- [ ] T008 [R-1] [R-2] [R-3] 업로드 버튼·끌어다 놓기로 파일 고르기, 거절 파일 안내 — 테스트 `U/components/UploadDropzone.test.tsx`, 구현 `U/components/UploadDropzone.tsx`
-- [ ] T009 [R-8] [NFR-4] 대기열 패널과 진행률 — 테스트 `U/components/UploadQueuePanel.test.tsx`, 구현 `U/components/UploadQueuePanel.tsx`, `src/shared/ui/ProgressBar.tsx`
+- [x] T005 [R-5] [R-7] 단일 업로드: 자리 발급 → 폼 POST(fields 순서, file 마지막) → 완료 — 테스트 `U/api/uploadVideo.test.ts`, 구현 `U/api/{mediaApi,uploadVideo}.ts`
+- [x] T006 [R-6] [R-7] [NFR-1] 멀티파트: 조각 크기로 나눠 동시 3개 PUT → ETag 모아 완료, 바이트는 저장소로만 — 테스트 `uploadVideo.test.ts`, 구현 `uploadVideo.ts`
+- [x] T007 [R-4] 대기열: 고른 순서대로 하나씩, 끝나면 다음 — 테스트 `U/model/uploadQueue.test.ts`, 구현 `U/model/uploadQueue.ts`, `U/hooks/useUploadQueue.ts`
+- [x] T008 [R-1] [R-2] [R-3] 업로드 버튼·끌어다 놓기로 파일 고르기, 거절 파일 안내 — 테스트 `U/components/UploadDropzone.test.tsx`, 구현 `U/components/UploadDropzone.tsx`
+- [x] T009 [R-8] [NFR-4] 대기열 패널과 진행률 — 테스트 `U/components/UploadQueuePanel.test.tsx`, 구현 `U/components/UploadQueuePanel.tsx`, `src/shared/ui/ProgressBar.tsx`
 
 ## Phase 3: US-4 내 영상 보기 (P1)
 
