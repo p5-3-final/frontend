@@ -9,6 +9,7 @@ import {
   videoBody,
 } from "../../../../mocks/handlers";
 import { server } from "../../../../tests/server";
+import { endSession, startSession } from "../../../shared/api/session";
 import { addFiles, getUploads, onVideosChanged } from "./uploadQueue";
 
 /** 요청 순서를 기록하는 media API와 저장소. 파일 이름을 영상 ID로 쓴다. */
@@ -98,5 +99,15 @@ describe("uploadQueue", () => {
       { status: "rejected", message: "파일 크기는 1바이트 이상 5GB 이하여야 합니다." },
     ]);
     expect(events).toEqual(["create c.mp4", "complete c.mp4"]);
+  });
+
+  it("[SPEC-005 R-13] 로그아웃하면 진행 중인 업로드를 멈추고 대기열을 비운다", () => {
+    mediaServer();
+    startSession("access-1");
+    addFiles([fileOf("a.mp4"), fileOf("b.mp4")]);
+
+    endSession();
+
+    expect(getUploads()).toEqual([]);
   });
 });

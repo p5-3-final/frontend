@@ -132,7 +132,7 @@ sequenceDiagram
 - R-17: `UPLOADING`인데 대기열에 같은 `videoId`가 없으면 "업로드가 끝나지 않았습니다. 24시간 뒤 자동으로 지워집니다"를 함께 보인다.
 - R-18: 목록이 비어 있고 대기열도 비어 있으면 기존 `EmptyState`에 "올린 영상이 없습니다"와 업로드 버튼.
 - `DeleteVideoDialog`: `ConfirmDialog`(`<dialog>` + `showModal()`, Escape로 닫힘)에 파일 이름을 보여 준다. 확인 → `DELETE` → 목록 무효화. 404면 R-20 안내 후 무효화.
-- `useLeaveWarning`: 대기열에 `waiting`·`uploading`·`completing`이 있는 동안만 `beforeunload`를 등록한다(R-14). 앱 안 이동은 막지 않는다.
+- `useLeaveWarning`: 대기열에 `waiting`·`uploading`이 있는 동안만 `beforeunload`를 등록한다(R-14). 어느 화면에서든 업로드가 이어지므로 `AppProviders`에서 건다. 앱 안 이동은 막지 않는다.
 
 ### 데이터 모델
 

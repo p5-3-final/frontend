@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { SessionBootstrap } from "../features/auth";
-import { onVideosChanged, videoQueryKeys } from "../features/upload";
+import { onVideosChanged, useLeaveWarning, videoQueryKeys } from "../features/upload";
 
 export interface AppProvidersProps {
   children: ReactNode;
@@ -21,6 +21,9 @@ export function AppProviders({ children, queryClient }: AppProvidersProps) {
       }),
     [client],
   );
+
+  // 업로드는 어느 화면에 있든 이어지므로 경고도 앱 전체에 건다(SPEC-005 R-14).
+  useLeaveWarning();
 
   return (
     <QueryClientProvider client={client}>

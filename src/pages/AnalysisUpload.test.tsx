@@ -36,4 +36,26 @@ describe("영상 분석 화면의 업로드", () => {
     const list = await screen.findByRole("list", { name: "내 영상" });
     expect(within(list).getByText("a.mp4")).toBeVisible();
   });
+
+  it("[SPEC-005 R-13] 다른 메뉴로 갔다 와도 업로드가 계속되고 진행 상황이 보인다", async () => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(handlers.me(), ...mediaHandlers({ storageGate: gate }));
+    startSession("access-1");
+    const { user } = renderRoute("/analysis");
+    await screen.findByText("올린 영상이 없습니다.");
+    await user.upload(screen.getByLabelText("영상 파일 고르기"), [
+      new File([new Uint8Array(10)], "a.mp4"),
+    ]);
+    await screen.findByRole("progressbar", { name: "a.mp4 업로드 진행률" });
+
+    await user.click(screen.getAllByRole("link", { name: "이벤트" })[0] ?? document.body);
+    await screen.findByRole("heading", { name: "이벤트" });
+    release();
+    await user.click(screen.getAllByRole("link", { name: "영상 분석" })[0] ?? document.body);
+
+    expect(await screen.findByText("업로드 완료")).toBeVisible();
+  });
 });
