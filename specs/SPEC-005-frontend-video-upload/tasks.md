@@ -44,13 +44,13 @@ updated: 2026-11-03
 
 ## Phase 5: US-3 업로드 중 화면 이동 (P2)
 
-- [x] T016 [R-13] 다른 메뉴로 갔다 와도 업로드 계속, 진행률 다시 표시. 로그아웃하면 대기열 비움 — 테스트 `src/pages/AnalysisUpload.test.tsx`, `uploadQueue.test.ts`, 구현 `uploadQueue.ts`
-- [x] T017 [R-14] 업로드 중 탭 닫기·새로고침 경고 — 테스트 `U/hooks/useLeaveWarning.test.tsx`, 구현 `U/hooks/useLeaveWarning.ts`
+- [x] T016 [R-13] 다른 메뉴로 갔다 와도 업로드 계속, 진행률 다시 표시. 로그아웃하면 대기열 비움 — 테스트 `src/pages/AnalysisUpload.test.tsx`, `uploadQueue.test.ts`, 구현 `uploadQueue.ts` (99a2e96)
+- [x] T017 [R-14] 업로드 중 탭 닫기·새로고침 경고 — 테스트 `U/hooks/useLeaveWarning.test.tsx`, 구현 `U/hooks/useLeaveWarning.ts` (99a2e96)
 
 ## Phase 6: US-5 영상 삭제 (P2)
 
-- [ ] T018 [R-19] 삭제 확인 창(파일 이름) → 삭제 → 목록에서 빠짐, 취소는 변화 없음 — 테스트 `U/components/DeleteVideoDialog.test.tsx`, 구현 `U/components/DeleteVideoDialog.tsx`, `U/api/useDeleteVideo.ts`, `src/shared/ui/ConfirmDialog.tsx`
-- [ ] T019 [R-20] 삭제 응답 `MEDIA_VIDEO_NOT_FOUND`면 안내 후 목록 다시 불러오기 — 테스트 `DeleteVideoDialog.test.tsx`, 구현 `useDeleteVideo.ts`
+- [x] T018 [R-19] 삭제 확인 창(파일 이름) → 삭제 → 목록에서 빠짐, 취소는 변화 없음 — 테스트 `U/components/DeleteVideoDialog.test.tsx`, 구현 `U/components/DeleteVideoDialog.tsx`, `U/api/useDeleteVideo.ts`, `src/shared/ui/ConfirmDialog.tsx`
+- [x] T019 [R-20] 삭제 응답 `MEDIA_VIDEO_NOT_FOUND`면 안내 후 목록 다시 불러오기 — 테스트 `DeleteVideoDialog.test.tsx`, 구현 `useDeleteVideo.ts`
 
 ## Phase 7: 마무리
 
