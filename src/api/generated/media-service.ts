@@ -122,11 +122,19 @@ export interface components {
          */
         VideoContentType: "video/mp4" | "video/quicktime" | "video/x-matroska" | "video/x-msvideo";
         /**
-         * @description 영상 상태. `UPLOADING`(업로드 중), `UPLOADED`(업로드 완료), `EXPIRED`(24시간 안에 완료하지 않음).
-         *     `NORMALIZING`, `READY`, `REJECTED`는 정규화 기능에서 쓴다. 삭제된 영상은 응답에 나오지 않는다.
+         * @description 영상 상태. `UPLOADING`(업로드 중), `UPLOADED`(업로드 완료, 정규화 대기), `NORMALIZING`(정규화 중),
+         *     `READY`(정규화 완료, 분석 가능), `REJECTED`(분석할 수 없어 거절), `EXPIRED`(24시간 안에 완료하지 않음).
+         *     삭제된 영상은 응답에 나오지 않는다. (SPEC-003, SPEC-007)
          * @enum {string}
          */
         VideoStatus: "UPLOADING" | "UPLOADED" | "NORMALIZING" | "READY" | "REJECTED" | "EXPIRED";
+        /**
+         * @description 정규화에서 거절한 사유 (SPEC-007 R-7~R-12).
+         *     `UNREADABLE`(파일을 열 수 없음), `NO_VIDEO_STREAM`(영상 스트림 없음), `MISSING_METADATA`(길이·프레임률을 읽을 수 없음),
+         *     `TOO_SHORT`(1초 미만), `TOO_LONG`(4시간 초과), `DECODE_FAILED`(디코딩 실패).
+         * @enum {string}
+         */
+        VideoRejectReason: "UNREADABLE" | "NO_VIDEO_STREAM" | "MISSING_METADATA" | "TOO_SHORT" | "TOO_LONG" | "DECODE_FAILED";
         CreateVideoRequest: {
             /** @description 원래 파일 이름. 표시용이며 저장 경로에는 쓰지 않는다. (SPEC-003 R-6) */
             fileName: string;
@@ -202,6 +210,18 @@ export interface components {
              * @description 업로드 완료 시각. 완료 전이면 null
              */
             uploadedAt: string | null;
+            /**
+             * @description 정규화 사본 기준 영상 길이(초). `READY`가 아니면 null (SPEC-007 R-21)
+             * @example 612.48
+             */
+            durationSec?: number | null;
+            /**
+             * @description 예상 분석 처리 시간(초). 영상 길이 × 처리 계수로 낸 추정치다. `READY`가 아니면 null (SPEC-007 R-20, R-21)
+             * @example 613
+             */
+            estimatedProcessingSec?: number | null;
+            /** @description 거절 사유. `REJECTED`가 아니면 null (SPEC-007 R-21) */
+            rejectReason?: components["schemas"]["VideoRejectReason"] | null;
         };
         VideoPage: {
             items: components["schemas"]["VideoResponse"][];
