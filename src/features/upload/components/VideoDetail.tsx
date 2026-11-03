@@ -1,14 +1,19 @@
-import { ChevronLeft } from "lucide-react";
-import { Link } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { ApiError } from "../../../shared/api/problem";
 import { formatBytes, formatDateTime } from "../../../shared/lib/format";
 import { messageForCode } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
+import { Button } from "../../../shared/ui/Button";
 import { useVideo } from "../api/useVideo";
 import { VIDEO_LIST_PATH } from "../model/paths";
+import { videoQueryKeys } from "../model/queryKeys";
 import type { Video } from "../model/schemas";
 import { isPlayable, NOT_PLAYABLE_REASONS, VIDEO_STATUS_NAMES } from "../model/videoStatus";
+import { DeleteVideoDialog } from "./DeleteVideoDialog";
 import { OriginalPlayer } from "./OriginalPlayer";
 
 export interface VideoDetailProps {
@@ -40,6 +45,21 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
 
 function VideoDetailBody({ videoId }: VideoDetailProps) {
   const { data: video, error, isPending } = useVideo(videoId);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [deleting, setDeleting] = useState(false);
+  const deletedRef = useRef(false);
+
+  // SPEC-006 R-13: 지운 영상의 상세 캐시는 이 화면이 사라질 때 버린다.
+  // 화면에 있는 동안 버리면 이 화면이 지운 영상을 다시 불러와 "찾을 수 없음"이 잠깐 보인다.
+  useEffect(
+    () => () => {
+      if (deletedRef.current) {
+        queryClient.removeQueries({ queryKey: videoQueryKeys.detail(videoId) });
+      }
+    },
+    [queryClient, videoId],
+  );
 
   if (isPending) {
     return <p className="text-sm text-muted">영상 정보를 불러오는 중입니다.</p>;
@@ -50,7 +70,20 @@ function VideoDetailBody({ videoId }: VideoDetailProps) {
   }
   return (
     <>
-      <h1 className="text-xl font-bold break-all">{video.fileName}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="min-w-0 text-xl font-bold break-all">{video.fileName}</h1>
+        <Button
+          variant="secondary"
+          aria-label={`${video.fileName} 삭제`}
+          onClick={() => {
+            setDeleting(true);
+          }}
+          className="shrink-0"
+        >
+          <Trash2 aria-hidden="true" className="size-4" />
+          삭제
+        </Button>
+      </div>
       {isPlayable(video.status) ? (
         <OriginalPlayer video={video} />
       ) : (
@@ -59,6 +92,19 @@ function VideoDetailBody({ videoId }: VideoDetailProps) {
         </p>
       )}
       <VideoFacts video={video} />
+      {deleting && (
+        <DeleteVideoDialog
+          video={video}
+          onClose={() => {
+            setDeleting(false);
+          }}
+          onDeleted={() => {
+            // SPEC-006 R-13: 지운 영상의 상세에 머물 이유가 없어 목록으로 가고, 뒤로 가기로 돌아오지 않게 바꿔 넣는다.
+            deletedRef.current = true;
+            void navigate(VIDEO_LIST_PATH, { replace: true });
+          }}
+        />
+      )}
     </>
   );
 }
