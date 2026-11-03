@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
-import { handlers, MEDIA_API, mediaHandlers, videoBody } from "../../../../mocks/handlers";
+import { handlers, MEDIA_API, mediaHandlers, problem, videoBody } from "../../../../mocks/handlers";
 import { renderRoute } from "../../../../tests/render";
 import { server } from "../../../../tests/server";
 import { startSession } from "../../../shared/api/session";
@@ -76,4 +76,27 @@ describe("VideoDetail", () => {
       expect(counter.playbacks).toBe(0);
     },
   );
+
+  it("[SPEC-006 R-12] 영상이 없으면 찾을 수 없다는 안내와 목록으로 돌아가는 링크를 보여 준다", async () => {
+    detailServer(() => problem(404, "MEDIA_VIDEO_NOT_FOUND"));
+    const { user, router } = renderRoute(`/analysis/videos/${VIDEO_ID}`);
+
+    expect(await screen.findByText("이미 삭제되었거나 찾을 수 없는 영상입니다.")).toBeVisible();
+    await user.click(screen.getByRole("link", { name: "목록으로 돌아가기" }));
+
+    expect(router.state.location.pathname).toBe("/analysis");
+  });
+
+  it("[SPEC-006 R-12] 주소의 영상 ID 형식이 틀리면 요청 없이 찾을 수 없다는 안내를 보여 준다", async () => {
+    let requested = false;
+    detailServer(() => {
+      requested = true;
+      return problem(404, "MEDIA_VIDEO_NOT_FOUND");
+    });
+    renderRoute("/analysis/videos/not-a-uuid");
+
+    expect(await screen.findByText("이미 삭제되었거나 찾을 수 없는 영상입니다.")).toBeVisible();
+    expect(screen.getByRole("link", { name: "목록으로 돌아가기" })).toBeVisible();
+    expect(requested).toBe(false);
+  });
 });
