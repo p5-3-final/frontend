@@ -22,3 +22,9 @@ const PLAYABLE_STATUSES: ReadonlySet<VideoStatus> = new Set([
 export function isPlayable(status: VideoStatus): boolean {
   return PLAYABLE_STATUSES.has(status);
 }
+
+/** SPEC-006 R-9: 재생할 수 없는 상태의 이유 */
+export const NOT_PLAYABLE_REASONS: Readonly<Partial<Record<VideoStatus, string>>> = {
+  UPLOADING: "업로드가 끝나지 않아 재생할 수 없습니다.",
+  EXPIRED: "24시간 안에 업로드를 마치지 않아 만료된 영상입니다.",
+};

@@ -61,4 +61,19 @@ describe("VideoDetail", () => {
     await screen.findByText("업로드 완료 시각", { selector: "dt" });
     expect(field("업로드 완료 시각")).toBe("-");
   });
+
+  it.each([
+    ["UPLOADING", "업로드가 끝나지 않아 재생할 수 없습니다."],
+    ["EXPIRED", "24시간 안에 업로드를 마치지 않아 만료된 영상입니다."],
+  ] as const)(
+    "[SPEC-006 R-9] %s 영상이면 플레이어 대신 재생할 수 없는 이유를 보여 주고 재생 주소를 요청하지 않는다",
+    async (status, reason) => {
+      const counter = detailServer({ fileName: "parking.mp4", status });
+      renderRoute(`/analysis/videos/${VIDEO_ID}`);
+
+      expect(await screen.findByText(reason)).toBeVisible();
+      expect(screen.queryByLabelText("parking.mp4 재생")).not.toBeInTheDocument();
+      expect(counter.playbacks).toBe(0);
+    },
+  );
 });

@@ -4,7 +4,7 @@ import { messageForCode } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
 import { useVideo } from "../api/useVideo";
 import type { Video } from "../model/schemas";
-import { isPlayable, VIDEO_STATUS_NAMES } from "../model/videoStatus";
+import { isPlayable, NOT_PLAYABLE_REASONS, VIDEO_STATUS_NAMES } from "../model/videoStatus";
 import { OriginalPlayer } from "./OriginalPlayer";
 
 export interface VideoDetailProps {
@@ -24,7 +24,13 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-bold break-all">{video.fileName}</h1>
-      {isPlayable(video.status) && <OriginalPlayer video={video} />}
+      {isPlayable(video.status) ? (
+        <OriginalPlayer video={video} />
+      ) : (
+        <p className="rounded-xl border border-line bg-panel p-4 text-sm text-muted">
+          {NOT_PLAYABLE_REASONS[video.status]}
+        </p>
+      )}
       <VideoFacts video={video} />
     </div>
   );
