@@ -3,7 +3,7 @@
 #   docker build --build-arg VITE_API_BASE_URL=http://localhost:8080 -t vlm/frontend .
 # 로컬 compose(docs 레포 local/)와 배포 workflow가 같은 파일을 쓴다.
 
-FROM node:22.23.4-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS build
+FROM node:24.22.2-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS build
 # VITE_ 변수는 빌드할 때 번들에 들어가므로 실행 시점이 아니라 빌드 인자로 받는다.
 ARG VITE_API_BASE_URL=http://localhost:8080
 # Vite 빌드 모드. 로컬 compose는 compose를 넘겨 .env.compose(로그인 칸에 채울 로컬 샘플 계정)를 읽게 한다.

@@ -54,7 +54,12 @@ function mediaServer(upload: ReturnType<typeof singleUpload>, partDelayMs = 0): 
       );
     }),
     http.post(`${STORAGE}/`, async ({ request }) => {
-      recorded.formKeys = [...(await request.formData()).keys()];
+      // request.formData()는 쓰지 않는다. jsdom이 전역 File을 바꿔 두어 Node 24 이상의 undici가 파싱 중 단언에 실패한다(#28).
+      // 확인할 것은 필드 순서뿐이라 multipart 원문에서 필드 이름을 차례로 읽는다.
+      const body = await request.text();
+      recorded.formKeys = [
+        ...body.matchAll(/Content-Disposition: form-data; name="([^"]+)"/gi),
+      ].map((match) => match[1] ?? "");
       return storageResponse(204);
     }),
     http.put(`${STORAGE}/sources/v/original`, async ({ request }) => {
