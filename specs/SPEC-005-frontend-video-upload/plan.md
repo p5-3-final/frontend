@@ -127,7 +127,7 @@ sequenceDiagram
 
 - `AnalysisPage`: 제목 줄에 "영상 업로드" 버튼(숨긴 `<input type="file" multiple accept=".mp4,.mov,.mkv,.avi">`를 연다). 페이지 영역 전체가 끌어다 놓기 대상이고, 끌고 있을 때 안내 테두리를 보인다. 그 아래 대기열 패널(항목이 있을 때만), 그 아래 내 영상 목록.
 - `UploadQueuePanel`: 항목마다 파일 이름, 크기, `role="progressbar"`(`aria-valuenow`), 상태 문구, 취소·다시 시도·닫기 버튼. 완료·실패 알림은 `role="status"` 영역에 한 줄로 읽힌다(NFR-5).
-- `VideoList`: 데스크톱은 표(파일 이름, 크기, 상태, 올린 시각, 삭제), 1024px 미만은 카드 목록. 20개씩, 이전·다음 버튼과 "n / m 쪽". 페이지 번호는 URL `?page=`(Zod로 0 이상 정수만 받음)에 둔다.
+- `VideoList`: 목록(`<ul aria-label="내 영상">`) 하나로 그린다. 1024px 이상에서는 행마다 파일 이름·크기·상태·올린 시각·삭제를 열로 나란히 두고, 그 미만에서는 같은 행이 세로로 쌓인다(같은 내용을 표와 카드로 두 번 그리지 않는다). 20개씩, 이전·다음 버튼과 "n / m쪽". 페이지 번호는 URL `?page=`(Zod로 0 이상 정수만 받음)에 둔다.
 - 상태 이름(R-16): `UPLOADING` 업로드 중, `UPLOADED` 업로드 완료, `EXPIRED` 만료됨, `NORMALIZING` 변환 중, `READY` 분석 준비됨, `REJECTED` 처리 불가.
 - R-17: `UPLOADING`인데 대기열에 같은 `videoId`가 없으면 "업로드가 끝나지 않았습니다. 24시간 뒤 자동으로 지워집니다"를 함께 보인다.
 - R-18: 목록이 비어 있고 대기열도 비어 있으면 기존 `EmptyState`에 "올린 영상이 없습니다"와 업로드 버튼.

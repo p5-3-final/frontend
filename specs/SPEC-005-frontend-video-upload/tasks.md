@@ -24,17 +24,17 @@ updated: 2026-11-03
 
 ## Phase 2: US-1 영상 올리기 (P1)
 
-- [x] T005 [R-5] [R-7] 단일 업로드: 자리 발급 → 폼 POST(fields 순서, file 마지막) → 완료 — 테스트 `U/api/uploadVideo.test.ts`, 구현 `U/api/{mediaApi,uploadVideo}.ts`
-- [x] T006 [R-6] [R-7] [NFR-1] 멀티파트: 조각 크기로 나눠 동시 3개 PUT → ETag 모아 완료, 바이트는 저장소로만 — 테스트 `uploadVideo.test.ts`, 구현 `uploadVideo.ts`
-- [x] T007 [R-4] 대기열: 고른 순서대로 하나씩, 끝나면 다음 — 테스트 `U/model/uploadQueue.test.ts`, 구현 `U/model/uploadQueue.ts`, `U/hooks/useUploadQueue.ts`
-- [x] T008 [R-1] [R-2] [R-3] 업로드 버튼·끌어다 놓기로 파일 고르기, 거절 파일 안내 — 테스트 `U/components/UploadDropzone.test.tsx`, 구현 `U/components/UploadDropzone.tsx`
-- [x] T009 [R-8] [NFR-4] 대기열 패널과 진행률 — 테스트 `U/components/UploadQueuePanel.test.tsx`, 구현 `U/components/UploadQueuePanel.tsx`, `src/shared/ui/ProgressBar.tsx`
+- [x] T005 [R-5] [R-7] 단일 업로드: 자리 발급 → 폼 POST(fields 순서, file 마지막) → 완료 — 테스트 `U/api/uploadVideo.test.ts`, 구현 `U/api/{mediaApi,uploadVideo}.ts` (f47fb4e)
+- [x] T006 [R-6] [R-7] [NFR-1] 멀티파트: 조각 크기로 나눠 동시 3개 PUT → ETag 모아 완료, 바이트는 저장소로만 — 테스트 `uploadVideo.test.ts`, 구현 `uploadVideo.ts` (f47fb4e)
+- [x] T007 [R-4] 대기열: 고른 순서대로 하나씩, 끝나면 다음 — 테스트 `U/model/uploadQueue.test.ts`, 구현 `U/model/uploadQueue.ts`, `U/hooks/useUploadQueue.ts` (f47fb4e)
+- [x] T008 [R-1] [R-2] [R-3] 업로드 버튼·끌어다 놓기로 파일 고르기, 거절 파일 안내 — 테스트 `U/components/UploadDropzone.test.tsx`, 구현 `U/components/UploadDropzone.tsx` (f47fb4e)
+- [x] T009 [R-8] [NFR-4] 대기열 패널과 진행률 — 테스트 `U/components/UploadQueuePanel.test.tsx`, 구현 `U/components/UploadQueuePanel.tsx`, `src/shared/ui/ProgressBar.tsx` (f47fb4e)
 
 ## Phase 3: US-4 내 영상 보기 (P1)
 
-- [ ] T010 [R-15] [R-16] 내 영상 목록(최신순 20개, 페이지, 상태 이름) — 테스트 `U/components/VideoList.test.tsx`, 구현 `U/components/VideoList.tsx`, `U/api/useVideos.ts`, `U/model/videoStatus.ts`, `src/shared/ui/Pagination.tsx`, `src/shared/lib/format.ts`
-- [ ] T011 [R-18] [R-7] 영상 분석 화면 조립: 빈 상태, 업로드 완료 시 목록 갱신 — 테스트 `src/pages/AnalysisPage.test.tsx`, `src/pages/AnalysisUpload.test.tsx`, 구현 `src/pages/AnalysisPage.tsx`, `src/app/AppProviders.tsx`
-- [ ] T012 [R-17] 대기열에 없는 `UPLOADING` 영상에 미완료·만료 안내 — 테스트 `VideoList.test.tsx`, 구현 `VideoList.tsx`
+- [x] T010 [R-15] [R-16] 내 영상 목록(최신순 20개, 페이지, 상태 이름) — 테스트 `U/components/VideoList.test.tsx`, 구현 `U/components/VideoList.tsx`, `U/api/useVideos.ts`, `U/model/videoStatus.ts`, `src/shared/ui/Pagination.tsx`, `src/shared/lib/format.ts`
+- [x] T011 [R-18] [R-7] 영상 분석 화면 조립: 빈 상태, 업로드 완료 시 목록 갱신 — 테스트 `src/pages/AnalysisPage.test.tsx`, `src/pages/AnalysisUpload.test.tsx`, 구현 `src/pages/AnalysisPage.tsx`, `src/app/AppProviders.tsx`
+- [x] T012 [R-17] 대기열에 없는 `UPLOADING` 영상에 미완료·만료 안내 — 테스트 `VideoList.test.tsx`, 구현 `VideoList.tsx`
 
 ## Phase 4: US-2 업로드 실패와 취소 (P1)
 
