@@ -1,11 +1,12 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   handlers,
   MEDIA_API,
   mediaHandlers,
   playbackBody,
+  STORAGE,
   videoBody,
 } from "../../../../mocks/handlers";
 import { renderRoute } from "../../../../tests/render";
@@ -34,6 +35,17 @@ function playerServer(playbacks: VideoPlayback[]) {
   return counter;
 }
 
+const PLAYER = "parking.mp4 재생";
+
+// 만료 시각이 지난 재생 주소와 그 뒤에 새로 받는 주소
+const expiredPlayback = () =>
+  playbackBody({
+    url: `${STORAGE}/sources/v/original?X-Amz-Signature=old`,
+    expiresAt: new Date(Date.now() - 1000).toISOString(),
+  });
+const freshPlayback = () =>
+  playbackBody({ url: `${STORAGE}/sources/v/original?X-Amz-Signature=new` });
+
 describe("OriginalPlayer", () => {
   it("[SPEC-006 R-8] 업로드가 끝난 영상이면 재생 주소로 플레이어를 보여 주고 원본 내려받기 링크를 둔다", async () => {
     const playback = playbackBody();
@@ -48,5 +60,26 @@ describe("OriginalPlayer", () => {
       "href",
       playback.downloadUrl,
     );
+  });
+
+  it("[SPEC-006 R-11] 만료 뒤 재생 오류가 나면 새 주소를 한 번 받아 보던 위치부터 이어서 재생한다", async () => {
+    const fresh = freshPlayback();
+    const counter = playerServer([expiredPlayback(), fresh]);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play");
+    renderRoute(`/analysis/videos/${VIDEO_ID}`);
+    const player = await screen.findByLabelText<HTMLVideoElement>(PLAYER);
+    player.currentTime = 42;
+    Object.defineProperty(player, "paused", { configurable: true, value: false });
+
+    fireEvent.error(player);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(PLAYER)).toHaveAttribute("src", fresh.url);
+    });
+    const resumed = screen.getByLabelText<HTMLVideoElement>(PLAYER);
+    fireEvent.loadedMetadata(resumed);
+    expect(resumed.currentTime).toBe(42);
+    expect(play).toHaveBeenCalled();
+    expect(counter.requests).toBe(2);
   });
 });
