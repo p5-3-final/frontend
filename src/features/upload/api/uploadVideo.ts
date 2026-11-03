@@ -51,6 +51,12 @@ async function sendToStorage(
     loadedByPart.forEach((bytes) => (loaded += bytes));
     options.onProgress?.(Math.min(loaded, file.size), file.size);
   };
+  // 조각 하나가 실패하면 나머지 조각을 더 보내 봐야 쓸 수 없으므로 함께 멈춘다.
+  const stopParts = new AbortController();
+  const signal =
+    options.signal === undefined
+      ? stopParts.signal
+      : AbortSignal.any([options.signal, stopParts.signal]);
   const pending = [...upload.parts];
   const completed: CompletedPart[] = [];
   const worker = async () => {
@@ -59,6 +65,7 @@ async function sendToStorage(
       const partNumber = part.partNumber;
       const eTag = await putPart(part.url, file.slice(start, start + upload.partSizeBytes), {
         ...transfer,
+        signal,
         onProgress: (loaded) => {
           loadedByPart.set(partNumber, loaded);
           report();
@@ -67,6 +74,12 @@ async function sendToStorage(
       completed.push({ partNumber, eTag });
     }
   };
-  await Promise.all(Array.from({ length: Math.min(PART_CONCURRENCY, pending.length) }, worker));
+  const workers = Array.from({ length: Math.min(PART_CONCURRENCY, pending.length) }, () =>
+    worker().catch((error: unknown) => {
+      stopParts.abort();
+      throw error;
+    }),
+  );
+  await Promise.all(workers);
   return completed.sort((a, b) => a.partNumber - b.partNumber);
 }

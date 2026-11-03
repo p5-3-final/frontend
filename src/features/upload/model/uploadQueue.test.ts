@@ -9,7 +9,7 @@ import {
   videoBody,
 } from "../../../../mocks/handlers";
 import { server } from "../../../../tests/server";
-import { addFiles, getUploads, onVideoUploaded } from "./uploadQueue";
+import { addFiles, getUploads, onVideosChanged } from "./uploadQueue";
 
 /** 요청 순서를 기록하는 media API와 저장소. 파일 이름을 영상 ID로 쓴다. */
 function mediaServer() {
@@ -72,17 +72,17 @@ describe("uploadQueue", () => {
     ]);
   });
 
-  it("[SPEC-005 R-7] 다 올린 파일은 완료로 표시하고 완료된 영상을 알린다", async () => {
+  it("[SPEC-005 R-7] 다 올린 파일은 완료로 표시하고 목록이 바뀌었음을 알린다", async () => {
     mediaServer();
     const listener = vi.fn();
-    onVideoUploaded(listener);
+    onVideosChanged(listener);
 
     addFiles([fileOf("a.mp4", 10)]);
 
     await vi.waitFor(() => {
       expect(getUploads()[0]).toMatchObject({ status: "done", videoId: "a.mp4", loadedBytes: 10 });
     });
-    expect(listener).toHaveBeenCalledWith(expect.objectContaining({ id: "a.mp4" }));
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 
   it("[SPEC-005 R-2] [SPEC-005 R-3] 형식·크기가 맞지 않는 파일은 요청하지 않고 이유와 함께 남긴다", async () => {

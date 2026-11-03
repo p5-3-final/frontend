@@ -32,15 +32,15 @@ updated: 2026-11-03
 
 ## Phase 3: US-4 내 영상 보기 (P1)
 
-- [x] T010 [R-15] [R-16] 내 영상 목록(최신순 20개, 페이지, 상태 이름) — 테스트 `U/components/VideoList.test.tsx`, 구현 `U/components/VideoList.tsx`, `U/api/useVideos.ts`, `U/model/videoStatus.ts`, `src/shared/ui/Pagination.tsx`, `src/shared/lib/format.ts`
-- [x] T011 [R-18] [R-7] 영상 분석 화면 조립: 빈 상태, 업로드 완료 시 목록 갱신 — 테스트 `src/pages/AnalysisPage.test.tsx`, `src/pages/AnalysisUpload.test.tsx`, 구현 `src/pages/AnalysisPage.tsx`, `src/app/AppProviders.tsx`
-- [x] T012 [R-17] 대기열에 없는 `UPLOADING` 영상에 미완료·만료 안내 — 테스트 `VideoList.test.tsx`, 구현 `VideoList.tsx`
+- [x] T010 [R-15] [R-16] 내 영상 목록(최신순 20개, 페이지, 상태 이름) — 테스트 `U/components/VideoList.test.tsx`, 구현 `U/components/VideoList.tsx`, `U/api/useVideos.ts`, `U/model/videoStatus.ts`, `src/shared/ui/Pagination.tsx`, `src/shared/lib/format.ts` (d9c9bda)
+- [x] T011 [R-18] [R-7] 영상 분석 화면 조립: 빈 상태, 업로드 완료 시 목록 갱신 — 테스트 `src/pages/AnalysisPage.test.tsx`, `src/pages/AnalysisUpload.test.tsx`, 구현 `src/pages/AnalysisPage.tsx`, `src/app/AppProviders.tsx` (d9c9bda)
+- [x] T012 [R-17] 대기열에 없는 `UPLOADING` 영상에 미완료·만료 안내 — 테스트 `VideoList.test.tsx`, 구현 `VideoList.tsx` (d9c9bda)
 
 ## Phase 4: US-2 업로드 실패와 취소 (P1)
 
-- [ ] T013 [R-10] 재시도까지 실패하면 실패 표시와 다음 파일로 — 테스트 `uploadQueue.test.ts`, `UploadQueuePanel.test.tsx`, 구현 `uploadQueue.ts`, `UploadQueuePanel.tsx`
-- [ ] T014 [R-11] "다시 시도"는 대기열 끝에서 새 자리로 처음부터 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`
-- [ ] T015 [R-12] 취소: 전송 중단, 대기열에서 빼기, 자리를 받았으면 삭제 요청 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`, `mediaApi.ts`
+- [x] T013 [R-10] 재시도까지 실패하면 실패 표시와 다음 파일로 — 테스트 `uploadQueue.test.ts`, `UploadQueuePanel.test.tsx`, 구현 `uploadQueue.ts`, `UploadQueuePanel.tsx`
+- [x] T014 [R-11] "다시 시도"는 대기열 끝에서 새 자리로 처음부터 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`
+- [x] T015 [R-12] 취소: 전송 중단, 대기열에서 빼기, 자리를 받았으면 삭제 요청 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`, `mediaApi.ts`
 
 ## Phase 5: US-3 업로드 중 화면 이동 (P2)
 
