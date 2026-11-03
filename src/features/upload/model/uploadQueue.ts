@@ -1,4 +1,5 @@
 import { ApiError } from "../../../shared/api/problem";
+import { getSessionStatus, subscribeSession } from "../../../shared/api/session";
 import {
   GENERIC_ERROR_MESSAGE,
   messageForCode,
@@ -241,8 +242,20 @@ export function clearUploads(): void {
   publish();
 }
 
+// SPEC-005 R-13: 로그아웃하면 대기열을 비운다. 같은 탭에서 다른 사용자가 로그인했을 때 이전 사용자의 업로드가 이어지지 않게 한다.
+function watchSession() {
+  subscribeSession(() => {
+    if (getSessionStatus() === "anonymous" && entries.length > 0) {
+      clearUploads();
+    }
+  });
+}
+watchSession();
+
 export function resetUploadsForTest(): void {
   clearUploads();
   videosChangedListeners.clear();
   retryDelaysMs = undefined;
+  // 테스트 설정이 세션 구독자를 모두 지우므로 다시 구독한다.
+  watchSession();
 }

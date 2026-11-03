@@ -38,14 +38,14 @@ updated: 2026-11-03
 
 ## Phase 4: US-2 업로드 실패와 취소 (P1)
 
-- [x] T013 [R-10] 재시도까지 실패하면 실패 표시와 다음 파일로 — 테스트 `uploadQueue.test.ts`, `UploadQueuePanel.test.tsx`, 구현 `uploadQueue.ts`, `UploadQueuePanel.tsx`
-- [x] T014 [R-11] "다시 시도"는 대기열 끝에서 새 자리로 처음부터 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`
-- [x] T015 [R-12] 취소: 전송 중단, 대기열에서 빼기, 자리를 받았으면 삭제 요청 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`, `mediaApi.ts`
+- [x] T013 [R-10] 재시도까지 실패하면 실패 표시와 다음 파일로 — 테스트 `uploadQueue.test.ts`, `UploadQueuePanel.test.tsx`, 구현 `uploadQueue.ts`, `UploadQueuePanel.tsx` (329a8b6)
+- [x] T014 [R-11] "다시 시도"는 대기열 끝에서 새 자리로 처음부터 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts` (329a8b6)
+- [x] T015 [R-12] 취소: 전송 중단, 대기열에서 빼기, 자리를 받았으면 삭제 요청 — 테스트 `uploadQueue.test.ts`, 구현 `uploadQueue.ts`, `mediaApi.ts` (329a8b6)
 
 ## Phase 5: US-3 업로드 중 화면 이동 (P2)
 
-- [ ] T016 [R-13] 다른 메뉴로 갔다 와도 업로드 계속, 진행률 다시 표시. 로그아웃하면 대기열 비움 — 테스트 `src/pages/AnalysisUpload.test.tsx`, `uploadQueue.test.ts`, 구현 `uploadQueue.ts`
-- [ ] T017 [R-14] 업로드 중 탭 닫기·새로고침 경고 — 테스트 `U/hooks/useLeaveWarning.test.tsx`, 구현 `U/hooks/useLeaveWarning.ts`
+- [x] T016 [R-13] 다른 메뉴로 갔다 와도 업로드 계속, 진행률 다시 표시. 로그아웃하면 대기열 비움 — 테스트 `src/pages/AnalysisUpload.test.tsx`, `uploadQueue.test.ts`, 구현 `uploadQueue.ts`
+- [x] T017 [R-14] 업로드 중 탭 닫기·새로고침 경고 — 테스트 `U/hooks/useLeaveWarning.test.tsx`, 구현 `U/hooks/useLeaveWarning.ts`
 
 ## Phase 6: US-5 영상 삭제 (P2)
 
