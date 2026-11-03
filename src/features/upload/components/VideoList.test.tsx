@@ -76,8 +76,9 @@ describe("VideoList", () => {
 
     await user.click(await screen.findByRole("link", { name: "parking.mp4" }));
 
-    expect(router.state.location.pathname).toBe(`/analysis/videos/${id}`);
+    // 상세 화면은 lazy로 불러오므로 화면이 바뀐 뒤 주소를 확인한다.
     expect(await screen.findByRole("heading", { name: "parking.mp4" })).toBeVisible();
+    expect(router.state.location.pathname).toBe(`/analysis/videos/${id}`);
   });
 
   it("[SPEC-005 R-15] 20개를 넘으면 다음 쪽으로 넘겨 다음 영상들을 본다", async () => {

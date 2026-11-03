@@ -84,6 +84,8 @@ describe("VideoDetail", () => {
     expect(await screen.findByText("이미 삭제되었거나 찾을 수 없는 영상입니다.")).toBeVisible();
     await user.click(screen.getByRole("link", { name: "목록으로 돌아가기" }));
 
+    // 목록 화면은 lazy로 불러오므로 화면이 바뀐 뒤 주소를 확인한다.
+    expect(await screen.findByRole("heading", { name: "영상 분석" })).toBeVisible();
     expect(router.state.location.pathname).toBe("/analysis");
   });
 
