@@ -17,7 +17,7 @@ updated: 2026-11-03
 
 ## Phase 1: 준비
 
-- [ ] T001 `pnpm gen:api`로 1.1.0 타입 생성, `videoPlaybackSchema`, query key(`lists`·`detail`·`playback`), `getVideo`·`getVideoPlayback`, MSW 핸들러, `MEDIA_NOT_PLAYABLE` 문구 — `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/api/mediaApi.ts`, `mocks/handlers.ts`, 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts`
+- [ ] T001 (1.1.0 생성 타입은 0d6a7bf에서 먼저 반영) `videoPlaybackSchema`, query key(`lists`·`detail`·`playback`), `getVideo`·`getVideoPlayback`, MSW 핸들러, `MEDIA_NOT_PLAYABLE` 문구 — `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/api/mediaApi.ts`, `mocks/handlers.ts`, 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts`
 
 ## Phase 2: US-1 내 영상 재생 (P1)
 
