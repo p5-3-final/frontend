@@ -1,6 +1,7 @@
-import { screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { handlers } from "../../mocks/handlers";
+import { screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { handlers, MEDIA_API, videoBody, videoPageBody } from "../../mocks/handlers";
+import { http, HttpResponse } from "msw";
 import { renderRoute } from "../../tests/render";
 import { server } from "../../tests/server";
 import { endSession, startSession } from "../shared/api/session";
@@ -53,5 +54,32 @@ describe("키보드 조작", () => {
     await user.keyboard("{Enter}");
 
     expect(await screen.findByRole("heading", { name: "로그인" })).toBeInTheDocument();
+  });
+
+  it("[SPEC-005 NFR-5] 업로드 버튼으로 파일 고르기 창을 열고, 삭제 확인 창을 키보드로 열고 닫는다", async () => {
+    server.use(
+      handlers.me(),
+      http.get(MEDIA_API, () =>
+        HttpResponse.json(videoPageBody([videoBody({ fileName: "parking.mp4" })])),
+      ),
+    );
+    startSession("access-1");
+    const openPicker = vi.spyOn(HTMLInputElement.prototype, "click");
+    const { user } = renderRoute("/analysis");
+    const uploadButton = await screen.findByRole("button", { name: "영상 업로드" });
+    const deleteButton = await screen.findByRole("button", { name: "parking.mp4 삭제" });
+
+    uploadButton.focus();
+    await user.keyboard("{Enter}");
+    expect(openPicker).toHaveBeenCalled();
+
+    deleteButton.focus();
+    await user.keyboard("{Enter}");
+    const dialog = screen.getByRole("dialog", { name: "영상 삭제" });
+    await user.tab();
+    expect(within(dialog).getByRole("button", { name: "취소" })).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

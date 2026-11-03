@@ -50,8 +50,16 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 | 경로 | 화면 |
 | --- | --- |
 | `/login`, `/signup` | 로그인, 회원가입 |
-| `/analysis` | 영상 분석(로그인 후 첫 화면) |
+| `/analysis` | 영상 분석(로그인 후 첫 화면): 영상 업로드와 내 영상 목록·삭제 |
 | `/events`, `/search`, `/history`, `/settings` | 준비 중 |
+
+## 영상 업로드
+
+영상 분석 화면의 "영상 업로드" 버튼이나 끌어다 놓기로 mp4·mov·mkv·avi 파일(5GB까지)을 여러 개 고르면 하나씩 순서대로 올라간다. 파일 바이트는 api-gateway를 거치지 않고 media-service가 준 서명 주소로 저장소에 바로 간다(100MB 이하 POST 폼, 넘으면 조각 PUT).
+
+- 로컬: compose의 SeaweedFS(`http://localhost:8333`)가 기본 설정으로 브라우저 업로드(CORS, `ETag` 노출)를 허용한다. 따로 설정할 것이 없다.
+- 운영: S3 버킷 CORS에 frontend 주소, POST·PUT, `ETag` 노출이 있어야 한다(infra 레포).
+- 업로드 중에 탭을 닫거나 새로고침하면 대기열이 사라진다(이어 올리기 없음). 끝나지 않은 영상은 24시간 뒤 만료된다.
 
 ## 문서
 

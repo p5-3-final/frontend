@@ -49,18 +49,18 @@ updated: 2026-11-03
 
 ## Phase 6: US-5 영상 삭제 (P2)
 
-- [x] T018 [R-19] 삭제 확인 창(파일 이름) → 삭제 → 목록에서 빠짐, 취소는 변화 없음 — 테스트 `U/components/DeleteVideoDialog.test.tsx`, 구현 `U/components/DeleteVideoDialog.tsx`, `U/api/useDeleteVideo.ts`, `src/shared/ui/ConfirmDialog.tsx`
-- [x] T019 [R-20] 삭제 응답 `MEDIA_VIDEO_NOT_FOUND`면 안내 후 목록 다시 불러오기 — 테스트 `DeleteVideoDialog.test.tsx`, 구현 `useDeleteVideo.ts`
+- [x] T018 [R-19] 삭제 확인 창(파일 이름) → 삭제 → 목록에서 빠짐, 취소는 변화 없음 — 테스트 `U/components/DeleteVideoDialog.test.tsx`, 구현 `U/components/DeleteVideoDialog.tsx`, `U/api/useDeleteVideo.ts`, `src/shared/ui/ConfirmDialog.tsx` (80ee1c7)
+- [x] T019 [R-20] 삭제 응답 `MEDIA_VIDEO_NOT_FOUND`면 안내 후 목록 다시 불러오기 — 테스트 `DeleteVideoDialog.test.tsx`, 구현 `useDeleteVideo.ts` (80ee1c7)
 
 ## Phase 7: 마무리
 
-- [ ] T020 [NFR-2] [NFR-5] 서명 주소·폼 값이 브라우저 저장소·콘솔에 없음, 키보드만으로 업로드·취소·삭제 — 테스트 `U/api/uploadSecrets.test.ts`, `src/app/Keyboard.test.tsx`
-- [ ] T021 [NFR-6] E2E: 단일·멀티파트 업로드 → 목록 → 삭제, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/upload-flow.spec.ts`, `tests/e2e/responsive.spec.ts`, 가짜 API·저장소 `tests/e2e/fakeApi.ts`
-- [ ] T022 README, 로컬 compose + `pnpm dev`로 실제 시연(1MB·110MB 업로드, `video.uploaded` 확인, R-21 브라우저 업로드 허용 확인)
+- [x] T020 [NFR-2] [NFR-5] 서명 주소·폼 값이 브라우저 저장소·콘솔에 없음, 키보드만으로 업로드·취소·삭제 — 테스트 `U/api/uploadSecrets.test.ts`, `src/app/Keyboard.test.tsx`
+- [x] T021 [NFR-6] E2E: 단일·멀티파트 업로드 → 목록 → 삭제, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/upload-flow.spec.ts`, `tests/e2e/responsive.spec.ts`, 가짜 media API·저장소 `tests/e2e/fakeMedia.ts`
+- [x] T022 README, 로컬 compose + `pnpm dev`로 실제 시연(1MB·110MB 업로드, `video.uploaded` 확인, R-21 브라우저 업로드 허용 확인, 2026-11-03)
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
-- [ ] typecheck, lint, format:check, test, e2e 통과
-- [ ] plan.md와 실제 구현이 일치함
+- [x] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
+- [x] typecheck, lint, format:check, test, e2e 통과
+- [x] plan.md와 실제 구현이 일치함
 - [ ] docs 레포 spec 상태 갱신 (`Implementing` / `Done`)
