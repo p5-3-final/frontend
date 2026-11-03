@@ -111,17 +111,17 @@ sequenceDiagram
 ### 재시도·실패·취소
 
 - 재시도(R-9): 저장소 요청이 네트워크 오류(`onerror`, `ontimeout`)나 5xx로 끝나면 1초, 2초, 4초 뒤 최대 3번 다시 보낸다. 4xx(서명 만료, 크기 불일치 등)는 다시 보내도 같은 결과라 재시도하지 않는다.
-- 실패(R-10): 재시도까지 실패하거나 자리 발급·완료가 실패하면 항목을 `failed`로 바꾸고 오류 `code`의 문구를 보여 준 뒤 다음 파일로 넘어간다. 저장소 실패는 `code`가 없으므로 "업로드 중 연결이 끊겼습니다" 문구를 쓴다.
+- 실패(R-10): 재시도까지 실패하거나 자리 발급·완료가 실패하면 항목을 `failed`로 바꾸고 오류 `code`의 문구를 보여 준 뒤 다음 파일로 넘어간다. 저장소 실패는 `code`가 없으므로 "파일을 저장소에 올리지 못했습니다. 다시 시도해 주세요."를 쓴다. 멀티파트에서 조각 하나가 실패하면 나머지 조각 전송도 멈춘다.
 - 다시 시도(R-11): 실패 항목을 대기열 끝에 다시 넣고 새 자리를 받는다. 이전 영상은 `UPLOADING`으로 남아 24시간 뒤 만료되므로 따로 지우지 않는다.
 - 취소(R-12): 항목마다 `AbortController`를 두고, 진행 중인 XHR을 `abort()`한다. 이미 자리를 받았으면 `DELETE …/videos/{id}`를 보낸다. 삭제가 실패해도 대기열에서는 빼고(만료로 정리됨) 목록을 다시 불러온다.
 
 ### 대기열 저장소 (`uploadQueue.ts`)
 
-- 항목: `{ localId, file, status: waiting | uploading | completing | done | failed | rejected | canceled, progress, videoId?, errorMessage? }`. 서명 주소와 폼 값은 항목에 두지 않고 업로드 함수 안의 지역 값으로만 쓴다(NFR-2).
-- `add(files)`, `cancel(localId)`, `retry(localId)`, `dismiss(localId)`, `subscribe`, `getSnapshot`. 하나가 끝나면 다음 `waiting`을 시작한다(R-4).
-- React 밖 모듈이라 라우트가 바뀌어도 업로드가 계속된다(R-13). 완료 시 `queryClient.invalidateQueries(videoQueryKeys.all)`을 부르도록 `AppProviders`가 `onVideoUploaded` 콜백을 등록한다(서버 데이터를 저장소에 복사하지 않는다).
+- 항목: `{ id, fileName, sizeBytes, status: waiting | uploading | done | failed | rejected, loadedBytes, videoId?, message? }`. 취소한 항목은 바로 뺀다. 서명 주소와 폼 값은 항목에 두지 않고 업로드 함수 안의 지역 값으로만 쓴다(NFR-2).
+- `addFiles`, `cancelUpload`, `retryUpload`, `dismissUpload`, `subscribeUploads`, `getUploads`, `clearUploads`. 하나가 끝나면 다음 `waiting`을 시작한다(R-4).
+- React 밖 모듈이라 라우트가 바뀌어도 업로드가 계속된다(R-13). 업로드를 마치거나 취소로 영상을 지우면 `onVideosChanged`로 알리고, `AppProviders`가 이를 받아 `queryClient.invalidateQueries(videoQueryKeys.all)`을 부른다(서버 데이터를 저장소에 복사하지 않는다).
 - 로그아웃하면(`subscribeSession`이 `anonymous`) 진행 중 업로드를 중단하고 대기열을 비운다. 다른 사용자가 같은 탭에서 로그인했을 때 이전 사용자의 업로드가 이어지지 않게 한다.
-- `done` 항목은 목록에 나타나면(같은 `videoId`) 대기열에서 자동으로 뺀다. `failed`·`rejected`는 사용자가 닫을 때까지 둔다.
+- `done`·`failed`·`rejected` 항목은 사용자가 "닫기"를 누를 때까지 둔다(완료 확인을 놓치지 않게).
 
 ### 화면
 

@@ -1,9 +1,11 @@
+import { RotateCcw, X } from "lucide-react";
+import type { ReactNode } from "react";
 import { formatBytes } from "../../../shared/lib/format";
 import { ProgressBar } from "../../../shared/ui/ProgressBar";
 import { useUploadQueue } from "../hooks/useUploadQueue";
-import type { UploadItem } from "../model/uploadQueue";
+import { cancelUpload, dismissUpload, retryUpload, type UploadItem } from "../model/uploadQueue";
 
-/** 업로드 대기열. 파일마다 상태와 진행률을 보여 준다(SPEC-005 R-8). */
+/** 업로드 대기열. 파일마다 상태와 진행률, 취소·다시 시도·닫기를 보여 준다(SPEC-005 R-8, R-10~R-12). */
 export function UploadQueuePanel() {
   const uploads = useUploadQueue();
   if (uploads.length === 0) {
@@ -20,7 +22,10 @@ export function UploadQueuePanel() {
             <span data-testid="upload-file-name" className="min-w-0 font-medium break-all">
               {item.fileName}
             </span>
-            <span className="text-sm text-muted">{formatBytes(item.sizeBytes)}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted">{formatBytes(item.sizeBytes)}</span>
+              <UploadActions item={item} />
+            </div>
           </div>
           <UploadState item={item} />
         </li>
@@ -50,4 +55,63 @@ function UploadState({ item }: { item: UploadItem }) {
     case "rejected":
       return <p className="text-sm text-danger">{item.message}</p>;
   }
+}
+
+function UploadActions({ item }: { item: UploadItem }) {
+  if (item.status === "waiting" || item.status === "uploading") {
+    return (
+      <IconButton
+        label={`${item.fileName} 업로드 취소`}
+        onClick={() => {
+          cancelUpload(item.id);
+        }}
+      >
+        <X aria-hidden="true" className="size-4" />
+      </IconButton>
+    );
+  }
+  return (
+    <>
+      {item.status === "failed" && (
+        <IconButton
+          label={`${item.fileName} 다시 시도`}
+          onClick={() => {
+            retryUpload(item.id);
+          }}
+        >
+          <RotateCcw aria-hidden="true" className="size-4" />
+        </IconButton>
+      )}
+      <IconButton
+        label={`${item.fileName} 닫기`}
+        onClick={() => {
+          dismissUpload(item.id);
+        }}
+      >
+        <X aria-hidden="true" className="size-4" />
+      </IconButton>
+    </>
+  );
+}
+
+function IconButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className="inline-flex size-9 items-center justify-center rounded-lg text-muted hover:bg-panel-raised hover:text-content focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+    >
+      {children}
+    </button>
+  );
 }

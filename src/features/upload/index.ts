@@ -3,4 +3,4 @@ export { UploadDropzone } from "./components/UploadDropzone";
 export { UploadQueuePanel } from "./components/UploadQueuePanel";
 export { VideoList } from "./components/VideoList";
 export { videoQueryKeys } from "./model/queryKeys";
-export { onVideoUploaded } from "./model/uploadQueue";
+export { onVideosChanged } from "./model/uploadQueue";

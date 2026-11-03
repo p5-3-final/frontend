@@ -10,6 +10,7 @@ import {
   videoBody,
 } from "../../../../mocks/handlers";
 import { server } from "../../../../tests/server";
+import { StorageError } from "./storageTransport";
 import { uploadVideo } from "./uploadVideo";
 
 const NO_WAIT = { retryDelaysMs: [0, 0, 0] };
@@ -123,6 +124,27 @@ describe("uploadVideo", () => {
     expect(
       recorded.gatewayRequests.every((r) => r.contentType?.startsWith("application/json")),
     ).toBe(true);
+  });
+
+  it("[SPEC-005 R-10] 조각 하나가 실패하면 나머지 조각은 보내지 않고 실패한다", async () => {
+    let puts = 0;
+    // mediaServer보다 나중에 등록해야 이 PUT 핸들러가 먼저 적용된다.
+    mediaServer(multipartUpload(20, 1));
+    server.use(
+      http.put(`${STORAGE}/sources/v/original`, async ({ request }) => {
+        puts++;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        const partNumber = new URL(request.url).searchParams.get("partNumber");
+        return partNumber === "1" ? storageResponse(403) : storageResponse(200, { ETag: '"e"' });
+      }),
+    );
+
+    await expect(uploadVideo(fileOf(20), "video/mp4", NO_WAIT)).rejects.toBeInstanceOf(
+      StorageError,
+    );
+    // 멈추지 않았다면 남은 조각이 다 나갈 만큼 기다린 뒤 센다(조각당 10ms, 동시 3개).
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(puts).toBeLessThan(20);
   });
 
   it("[SPEC-005 R-8] 진행률을 파일 전체 기준으로 알리고 끝나면 전체 크기가 된다", async () => {
