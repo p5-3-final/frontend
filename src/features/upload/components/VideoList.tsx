@@ -1,6 +1,6 @@
 import { Film, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 import { formatBytes, formatDateTime } from "../../../shared/lib/format";
 import { messageForCode } from "../../../shared/lib/messages";
@@ -11,6 +11,7 @@ import { Pagination } from "../../../shared/ui/Pagination";
 import { useVideos } from "../api/useVideos";
 import { useUploadQueue } from "../hooks/useUploadQueue";
 import type { Video } from "../model/schemas";
+import { videoDetailPath } from "../model/paths";
 import { VIDEO_STATUS_NAMES } from "../model/videoStatus";
 import { DeleteVideoDialog } from "./DeleteVideoDialog";
 
@@ -106,7 +107,13 @@ interface VideoRowProps {
 function VideoRow({ video, unfinished, onDelete }: VideoRowProps) {
   return (
     <li className="relative grid gap-x-4 gap-y-1 rounded-xl border border-line bg-panel p-3 pr-14 lg:grid-cols-[minmax(0,1fr)_8rem_8rem_12rem] lg:items-center">
-      <span className="min-w-0 font-medium break-all">{video.fileName}</span>
+      {/* 행 안에 삭제 버튼이 있어 행 전체가 아닌 파일 이름만 링크로 둔다(링크 안 버튼은 접근성 위반). */}
+      <Link
+        to={videoDetailPath(video.id)}
+        className="min-w-0 font-medium break-all text-accent hover:underline focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+      >
+        {video.fileName}
+      </Link>
       <span className="text-sm text-muted">{formatBytes(video.sizeBytes)}</span>
       <span className="text-sm">{VIDEO_STATUS_NAMES[video.status]}</span>
       <span className="text-sm text-muted">{formatDateTime(video.createdAt)}</span>

@@ -59,6 +59,7 @@ export function storageResponse(status: number, headers: Record<string, string> 
 }
 
 type Video = MediaSchemas["VideoResponse"];
+type VideoPlayback = MediaSchemas["VideoPlayback"];
 type UploadInstruction = MediaSchemas["UploadInstruction"];
 
 export const MEDIA_API = "http://localhost:8080/api/v1/media/videos";
@@ -120,10 +121,24 @@ export function videoPageBody(items: Video[] = [], page = 0, totalElements = ite
  * `storageGate`를 주면 저장소 응답이 그 Promise가 끝날 때까지 기다린다(업로드 중 화면 확인용).
  * 일부 응답만 바꾸려면 `server.use(바꿀 핸들러, ...mediaHandlers())`처럼 뒤에 둔다. 앞에 둔 핸들러가 먼저 적용된다.
  */
+/** 재생 주소 응답. 기본 만료 시각은 지금부터 1시간 뒤다. */
+export function playbackBody(overrides: Partial<VideoPlayback> = {}): VideoPlayback {
+  return {
+    url: `${STORAGE}/sources/v-1/original?X-Amz-Signature=play-sig-1`,
+    downloadUrl: `${STORAGE}/sources/v-1/original?response-content-disposition=attachment&X-Amz-Signature=download-sig-1`,
+    expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    ...overrides,
+  };
+}
+
 export function mediaHandlers(options: { storageGate?: Promise<void> } = {}) {
   return [
     storagePreflight(),
     http.get(MEDIA_API, () => HttpResponse.json(videoPageBody())),
+    http.get(`${MEDIA_API}/:id`, ({ params }) =>
+      HttpResponse.json(videoBody({ id: String(params.id), status: "UPLOADED" })),
+    ),
+    http.get(`${MEDIA_API}/:id/playback`, () => HttpResponse.json(playbackBody())),
     http.post(MEDIA_API, async ({ request }) => {
       const body = await request.json();
       const fileName =

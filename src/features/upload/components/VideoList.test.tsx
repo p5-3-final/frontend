@@ -62,6 +62,25 @@ describe("VideoList", () => {
     expect(requested).toEqual(["0/20"]);
   });
 
+  it("[SPEC-006 R-6] 영상 이름을 누르면 그 영상의 상세 화면으로 이동한다", async () => {
+    const id = "0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f";
+    // 나중에 등록한 핸들러가 먼저 적용되므로 목록 핸들러(listServer)를 마지막에 등록한다.
+    server.use(
+      http.get(`${MEDIA_API}/:id`, () =>
+        HttpResponse.json(videoBody({ id, fileName: "parking.mp4", status: "UPLOADED" })),
+      ),
+      ...mediaHandlers(),
+    );
+    listServer([[videoBody({ id, fileName: "parking.mp4", status: "UPLOADED" })]], 1);
+    const { user, router } = renderRoute("/analysis");
+
+    await user.click(await screen.findByRole("link", { name: "parking.mp4" }));
+
+    // 상세 화면은 lazy로 불러오므로 화면이 바뀐 뒤 주소를 확인한다.
+    expect(await screen.findByRole("heading", { name: "parking.mp4" })).toBeVisible();
+    expect(router.state.location.pathname).toBe(`/analysis/videos/${id}`);
+  });
+
   it("[SPEC-005 R-15] 20개를 넘으면 다음 쪽으로 넘겨 다음 영상들을 본다", async () => {
     const first = Array.from({ length: 20 }, (_, i) =>
       videoBody({ id: `v${String(i)}`, fileName: `v${String(i)}.mp4` }),

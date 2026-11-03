@@ -22,6 +22,12 @@ Object.defineProperties(HTMLDialogElement.prototype, {
   },
 });
 
+// jsdom은 미디어를 읽지 않아 play·pause가 "Not implemented" 오류를 낸다. 호출만 받아 두고, 실제 재생은 E2E와 시연으로 확인한다.
+Object.defineProperties(HTMLMediaElement.prototype, {
+  play: { configurable: true, value: () => Promise.resolve() },
+  pause: { configurable: true, value: () => undefined },
+});
+
 // 등록하지 않은 요청은 실패시켜, 테스트가 모르는 API 호출을 놓치지 않게 한다.
 beforeAll(() => {
   server.listen({ onUnhandledFrame: "error" });

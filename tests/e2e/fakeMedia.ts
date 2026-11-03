@@ -30,13 +30,27 @@ interface FakeVideo {
  */
 export async function useFakeMedia(page: Page) {
   const videos: FakeVideo[] = [];
-  const storage: { posts: number; partSizes: number[] } = { posts: 0, partSizes: [] };
+  const storage: { posts: number; gets: number; partSizes: number[] } = {
+    posts: 0,
+    gets: 0,
+    partSizes: [],
+  };
   let nextId = 0;
 
   await page.route(`${STORAGE}/**`, async (route) => {
     const request = route.request();
     if (request.method() === "OPTIONS") {
       await route.fulfill({ status: 204, headers: STORAGE_CORS });
+      return;
+    }
+    if (request.method() === "GET") {
+      // 영상처럼 보이지만 디코딩할 수 없는 바이트. Playwright Chromium은 H.264도 재생하지 못해 어차피 재생 실패 안내가 보인다.
+      storage.gets++;
+      await route.fulfill({
+        status: 200,
+        headers: { ...STORAGE_CORS, "Content-Type": "video/mp4" },
+        body: Buffer.alloc(64, 1),
+      });
       return;
     }
     if (request.method() === "POST") {
@@ -60,7 +74,7 @@ export async function useFakeMedia(page: Page) {
       await route.fulfill({ status: 204 });
       return;
     }
-    if (request.method() === "GET") {
+    if (request.method() === "GET" && id === undefined) {
       const items = [...videos].reverse();
       await route.fulfill({
         json: {
@@ -126,6 +140,21 @@ export async function useFakeMedia(page: Page) {
           status: 404,
           code: "MEDIA_VIDEO_NOT_FOUND",
         }),
+      });
+      return;
+    }
+    if (request.method() === "GET" && action === undefined) {
+      await route.fulfill({ json: video });
+      return;
+    }
+    if (request.method() === "GET" && action === "playback") {
+      const original = `${STORAGE}/sources/${video.id}/original`;
+      await route.fulfill({
+        json: {
+          url: `${original}?X-Amz-Signature=play`,
+          downloadUrl: `${original}?response-content-disposition=attachment&X-Amz-Signature=download`,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        },
       });
       return;
     }

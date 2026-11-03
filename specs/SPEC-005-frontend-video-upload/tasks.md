@@ -54,9 +54,9 @@ updated: 2026-11-03
 
 ## Phase 7: 마무리
 
-- [x] T020 [NFR-2] [NFR-5] 서명 주소·폼 값이 브라우저 저장소·콘솔에 없음, 키보드만으로 업로드·취소·삭제 — 테스트 `U/api/uploadSecrets.test.ts`, `src/app/Keyboard.test.tsx`
-- [x] T021 [NFR-6] E2E: 단일·멀티파트 업로드 → 목록 → 삭제, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/upload-flow.spec.ts`, `tests/e2e/responsive.spec.ts`, 가짜 media API·저장소 `tests/e2e/fakeMedia.ts`
-- [x] T022 README, 로컬 compose + `pnpm dev`로 실제 시연(1MB·110MB 업로드, `video.uploaded` 확인, R-21 브라우저 업로드 허용 확인, 2026-11-03)
+- [x] T020 [NFR-2] [NFR-5] 서명 주소·폼 값이 브라우저 저장소·콘솔에 없음, 키보드만으로 업로드·취소·삭제 — 테스트 `U/api/uploadSecrets.test.ts`, `src/app/Keyboard.test.tsx` (90b1f46)
+- [x] T021 [NFR-6] E2E: 단일·멀티파트 업로드 → 목록 → 삭제, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/upload-flow.spec.ts`, `tests/e2e/responsive.spec.ts`, 가짜 media API·저장소 `tests/e2e/fakeMedia.ts` (90b1f46)
+- [x] T022 README, 로컬 compose + `pnpm dev`로 실제 시연(1MB·110MB 업로드, `video.uploaded` 확인, R-21 브라우저 업로드 허용 확인, 2026-11-03) (90b1f46)
 
 ## 완료 조건 (Definition of Done)
 

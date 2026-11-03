@@ -7,10 +7,12 @@ import type { Video } from "../model/schemas";
 export interface DeleteVideoDialogProps {
   video: Video;
   onClose: () => void;
+  /** 지운 뒤 할 일. 없으면 창만 닫는다(SPEC-006 R-13: 상세 화면은 목록으로 이동). */
+  onDeleted?: () => void;
 }
 
 /** 영상 삭제 확인 창(SPEC-005 R-19). 실패하면 창 안에 이유를 보여 준다(R-20). */
-export function DeleteVideoDialog({ video, onClose }: DeleteVideoDialogProps) {
+export function DeleteVideoDialog({ video, onClose, onDeleted = onClose }: DeleteVideoDialogProps) {
   const { mutate, isPending, error } = useDeleteVideo();
   return (
     <ConfirmDialog
@@ -23,7 +25,7 @@ export function DeleteVideoDialog({ video, onClose }: DeleteVideoDialogProps) {
           : messageForCode(error instanceof ApiError ? error.code : undefined)
       }
       onConfirm={() => {
-        mutate(video.id, { onSuccess: onClose });
+        mutate(video.id, { onSuccess: onDeleted });
       }}
       onCancel={onClose}
     >

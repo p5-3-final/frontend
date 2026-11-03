@@ -60,8 +60,9 @@ updated: 2026-11-03
 | `src/api/generated/media-service.ts` | `pnpm gen:api`로 1.1.0 반영 |
 | `U/model/schemas.ts` | `videoPlaybackSchema`(계약 `VideoPlayback`) |
 | `U/model/queryKeys.ts` | `lists()`, `detail(id)`, `playback(id)` |
+| `U/model/paths.ts`, `U/model/videoStatus.ts` | 상세 주소, 재생 가능 상태(`isPlayable`)와 재생 불가 이유 |
 | `U/api/mediaApi.ts` | `getVideo`, `getVideoPlayback` |
-| `U/api/` | `useVideo.ts`, `useVideoPlayback.ts`. `useDeleteVideo`는 목록만 무효화하고 지운 영상의 상세·재생 캐시는 버린다 |
+| `U/api/` | `useVideo.ts`, `useVideoPlayback.ts`. `useDeleteVideo`는 목록만 무효화하고, 지운 영상의 상세 캐시는 쓰는 화면이 없을 때만 버린다 |
 | `U/components/` | `VideoDetail.tsx`(정보·상태별 안내·삭제), `OriginalPlayer.tsx`(플레이어·재생 불가 안내·이어 재생), `VideoList.tsx`(파일 이름을 링크로), `DeleteVideoDialog.tsx`(`onDeleted` 추가) |
 | `src/shared/lib/messages.ts` | `MEDIA_NOT_PLAYABLE`, 재생 불가 안내 문구 |
 | `src/pages/VideoDetailPage.tsx`, `src/app/routes.tsx` | `/analysis/videos/:videoId` 라우트(lazy) |
@@ -78,12 +79,15 @@ updated: 2026-11-03
   - `EXPIRED`: "24시간 안에 업로드를 마치지 않아 만료된 영상입니다."
   - 이때는 재생 주소를 요청하지 않는다(어차피 409).
 - 삭제 버튼 → SPEC-005 `DeleteVideoDialog`. 성공하면 `onDeleted`에서 목록(`/analysis`)으로 `replace` 이동한다(R-13). 실패 안내는 SPEC-005 R-20과 같이 창 안에 보인다.
+  - 지운 영상의 상세 캐시는 상세 화면이 사라질 때(effect 정리) 버린다. 화면에 있는 동안 버리면 그 화면이 지운 영상을 다시 불러와 "찾을 수 없음"이 잠깐 보인다.
 - 목록으로 돌아가는 링크를 제목 위에 둔다.
 
 ### 원본 플레이어 (`OriginalPlayer`)
 
 - `useVideoPlayback(videoId)` → `getVideoPlayback`. `staleTime: Infinity`(자동 재요청 없음), `gcTime: 0`(화면을 떠나면 서명 주소를 버림, NFR-3). 409 `MEDIA_NOT_PLAYABLE`이면 R-9와 같은 안내(목록과 상세 사이에 상태가 바뀐 경우).
 - `<video controls playsInline preload="metadata" src={url}>`, 너비 100%, 높이는 영상 비율을 따르고 최대 화면 높이의 70%(NFR-5). 배경은 검정.
+  - `tabIndex={0}`: Safari 등은 기본 설정에서 `<video>`를 Tab으로 건너뛴다(NFR-4).
+  - 원본에는 자막 파일이 없어 `jsx-a11y/media-has-caption`을 한 줄 예외로 둔다(#26).
 - `error` 이벤트(R-10, R-11)
   - 현재 시각이 `expiresAt - 60초` 이후이고 이 주소로 아직 재발급하지 않았으면 만료로 본다. 보던 위치(`currentTime`)를 기억하고 재생 주소를 다시 받는다. 새 주소로 `src`를 바꾸고 `loadedmetadata`에서 위치를 되돌린 뒤 재생 중이었으면 다시 재생한다(R-11). 재발급은 한 번만 한다.
   - 그 밖의 경우(만료 전 오류, 재발급 뒤에도 오류)는 브라우저가 이 형식·코덱을 재생하지 못한 것으로 본다. 플레이어 대신 "이 브라우저에서 재생할 수 없는 영상입니다. 원본을 내려받아 다른 플레이어로 확인해 주세요."와 "원본 내려받기" 링크(`downloadUrl`)를 보인다(R-10).

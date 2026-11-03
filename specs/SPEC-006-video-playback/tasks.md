@@ -17,35 +17,47 @@ updated: 2026-11-03
 
 ## Phase 1: 준비
 
-- [ ] T001 (1.1.0 생성 타입은 0d6a7bf에서 먼저 반영) `videoPlaybackSchema`, query key(`lists`·`detail`·`playback`), `getVideo`·`getVideoPlayback`, MSW 핸들러, `MEDIA_NOT_PLAYABLE` 문구 — `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/api/mediaApi.ts`, `mocks/handlers.ts`, 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts`
+- [x] T001 (1.1.0 생성 타입은 0d6a7bf에서 먼저 반영) `videoPlaybackSchema`, query key(`lists`·`detail`·`playback`), `getVideo`·`getVideoPlayback`, MSW 핸들러, `MEDIA_NOT_PLAYABLE` 문구 — `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/api/mediaApi.ts`, `mocks/handlers.ts`, 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts` (26ec7b4)
 
 ## Phase 2: US-1 내 영상 재생 (P1)
 
-- [ ] T002 [R-6] 목록의 파일 이름이 상세 화면 링크, 상세 주소로 바로 열기 — 테스트 `U/components/VideoList.test.tsx`, `src/pages/VideoDetailFlow.test.tsx`, 구현 `VideoList.tsx`, `src/pages/VideoDetailPage.tsx`, `src/app/routes.tsx`
-- [ ] T003 [R-7] 상세 화면에 파일 이름·크기·형식·상태·올린 시각·완료 시각 — 테스트 `U/components/VideoDetail.test.tsx`, 구현 `U/components/VideoDetail.tsx`, `U/api/useVideo.ts`
-- [ ] T004 [R-8] 업로드 완료 이후 상태면 재생 주소로 플레이어 표시, 내려받기 링크 — 테스트 `U/components/OriginalPlayer.test.tsx`, 구현 `U/components/OriginalPlayer.tsx`, `U/api/useVideoPlayback.ts`
-- [ ] T005 [R-11] 만료 뒤 재생 오류면 새 주소를 한 번 받아 보던 위치부터 이어서 재생 — 테스트 `OriginalPlayer.test.tsx`, 구현 `OriginalPlayer.tsx`
+- [x] T002 [R-6] 목록의 파일 이름이 상세 화면 링크, 상세 주소로 바로 열기 — 테스트 `U/components/VideoList.test.tsx`, `src/pages/VideoDetailFlow.test.tsx`, 구현 `VideoList.tsx`, `src/pages/VideoDetailPage.tsx`, `src/app/routes.tsx` (51574ec)
+- [x] T003 [R-7] 상세 화면에 파일 이름·크기·형식·상태·올린 시각·완료 시각 — 테스트 `U/components/VideoDetail.test.tsx`, 구현 `U/components/VideoDetail.tsx`, `U/api/useVideo.ts` (4d7188a)
+- [x] T004 [R-8] 업로드 완료 이후 상태면 재생 주소로 플레이어 표시, 내려받기 링크 — 테스트 `U/components/OriginalPlayer.test.tsx`, 구현 `U/components/OriginalPlayer.tsx`, `U/api/useVideoPlayback.ts` (c0bc261)
+- [x] T005 [R-11] 만료 뒤 재생 오류면 새 주소를 한 번 받아 보던 위치부터 이어서 재생 — 테스트 `OriginalPlayer.test.tsx`, 구현 `OriginalPlayer.tsx` (ad782ce)
 
 ## Phase 3: US-2 재생할 수 없는 영상 (P1)
 
-- [ ] T006 [R-9] `UPLOADING`·`EXPIRED`면 이유를 보이고 플레이어·재생 주소 요청 없음 — 테스트 `VideoDetail.test.tsx`, 구현 `VideoDetail.tsx`
-- [ ] T007 [R-10] 만료 전 재생 오류(형식·코덱)면 안내와 원본 내려받기 — 테스트 `OriginalPlayer.test.tsx`, 구현 `OriginalPlayer.tsx`
-- [ ] T008 [R-12] `MEDIA_VIDEO_NOT_FOUND`·형식이 틀린 ID면 찾을 수 없다는 안내와 목록 링크 — 테스트 `VideoDetail.test.tsx`, 구현 `VideoDetail.tsx`
+- [x] T006 [R-9] `UPLOADING`·`EXPIRED`면 이유를 보이고 플레이어·재생 주소 요청 없음 — 테스트 `VideoDetail.test.tsx`, 구현 `VideoDetail.tsx` (6c9b55a)
+- [x] T007 [R-10] 만료 전 재생 오류(형식·코덱)면 안내와 원본 내려받기 — 테스트 `OriginalPlayer.test.tsx`, 구현 `OriginalPlayer.tsx` (7f2150d)
+- [x] T008 [R-12] `MEDIA_VIDEO_NOT_FOUND`·형식이 틀린 ID면 찾을 수 없다는 안내와 목록 링크 — 테스트 `VideoDetail.test.tsx`, 구현 `VideoDetail.tsx` (bfaa218)
 
 ## Phase 4: US-3 상세에서 삭제 (P2)
 
-- [ ] T009 [R-13] 상세에서 삭제 확인 → 성공하면 목록으로 이동, 지운 영상의 상세·재생 캐시 버림 — 테스트 `src/pages/VideoDetailFlow.test.tsx`, 구현 `VideoDetail.tsx`, `DeleteVideoDialog.tsx`, `U/api/useDeleteVideo.ts`
+- [x] T009 [R-13] 상세에서 삭제 확인 → 성공하면 목록으로 이동, 지운 영상의 상세·재생 캐시 버림 — 테스트 `src/pages/VideoDetailFlow.test.tsx`, 구현 `VideoDetail.tsx`, `DeleteVideoDialog.tsx`, `U/api/useDeleteVideo.ts` (90c7957)
 
 ## Phase 5: 마무리
 
-- [ ] T010 [P] [NFR-3] 재생·내려받기 주소의 서명이 브라우저 저장소·콘솔에 없음 — 테스트 `U/api/playbackSecrets.test.tsx`
-- [ ] T011 [P] [NFR-4] 상세 화면의 플레이어·내려받기·삭제를 키보드로 조작 — 테스트 `src/app/Keyboard.test.tsx`
-- [ ] T012 [NFR-5] E2E: 목록 → 상세, 정보·플레이어(또는 R-10 안내) 표시, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/video-detail.spec.ts`, 구현 `tests/e2e/fakeMedia.ts`
-- [ ] T013 로컬 compose 시연(mp4 재생, mkv 안내·내려받기), README 화면 목록 갱신
+- [x] T010 [P] [NFR-3] 재생·내려받기 주소의 서명이 브라우저 저장소·콘솔에 없음 — 테스트 `U/api/playbackSecrets.test.tsx` (08b8702, 서명을 남기는 코드가 없어 Red 없이 통과)
+- [x] T011 [P] [NFR-4] 상세 화면의 플레이어·내려받기·삭제를 키보드로 조작 — 테스트 `src/app/Keyboard.test.tsx`, 구현 플레이어 `tabIndex` (9d91e2c)
+- [x] T012 [NFR-5] E2E: 목록 → 상세, 정보·플레이어(또는 R-10 안내) 표시, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/video-detail.spec.ts`, 구현 `tests/e2e/fakeMedia.ts` (25b66f1)
+- [x] T013 로컬 compose 시연(mp4 재생, mkv 안내·내려받기), README 화면 목록 갱신
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
-- [ ] lint, 타입 검사, 전체 테스트 통과
-- [ ] plan.md와 실제 구현이 일치함
+- [x] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
+- [x] lint, 타입 검사, 전체 테스트 통과
+- [x] plan.md와 실제 구현이 일치함
 - [ ] docs 레포 spec 상태 갱신 (`Implementing` / `Done`)
+
+## 시연 기록 (T013, 2026-11-03)
+
+로컬 compose(api-gateway → media-service → SeaweedFS)와 Playwright Chromium으로 확인했다.
+
+- MediaRecorder로 만든 VP8 영상(`주차장 입구.mkv`, 135KB)을 올리고 상세 화면에서 재생: `readyState` 4, 1초 이상 재생, 오류 없음(R-6~R-8)
+- 재생 주소: 206 Range 응답, `Content-Type: video/x-matroska`, `X-Amz-Expires=3600`(R-2, R-3)
+- 내려받기 주소: `Content-Disposition: attachment; filename*=UTF-8''…`로 한글 이름 유지(R-1)
+- 디코딩할 수 없는 `broken.mp4`: 재생 불가 안내와 원본 내려받기(R-10)
+- 상세에서 삭제 → `/analysis`, 목록 1개로 줄어듦(R-13)
+- 360px: 가로 스크롤 없음, 플레이어가 화면 너비에 맞음(NFR-5)
+

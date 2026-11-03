@@ -37,6 +37,15 @@ export const videoSchema = z.object({
 
 export type Video = z.infer<typeof videoSchema>;
 
+/** 계약 VideoPlayback. 서명 주소라 메모리에만 두고 로그·브라우저 저장소에 남기지 않는다(SPEC-006 NFR-3). */
+export const videoPlaybackSchema = z.object({
+  url: z.string(),
+  downloadUrl: z.string(),
+  expiresAt: z.string(),
+}) satisfies z.ZodType<Schemas["VideoPlayback"]>;
+
+export type VideoPlayback = z.infer<typeof videoPlaybackSchema>;
+
 /** 계약 VideoPage */
 export const videoPageSchema = z.object({
   items: z.array(videoSchema),
