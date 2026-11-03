@@ -16,3 +16,14 @@ export function formatBytes(bytes: number): string {
   }
   return `${String(Math.round(value * 10) / 10)} ${unit}`;
 }
+
+const DATE_TIME = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
+/** ISO 시각을 서울 시간으로 보여 준다. 예: "2026. 11. 3. 오전 9:00" */
+export function formatDateTime(iso: string): string {
+  return DATE_TIME.format(new Date(iso));
+}

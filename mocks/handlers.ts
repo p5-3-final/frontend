@@ -118,6 +118,7 @@ export function videoPageBody(items: Video[] = [], page = 0, totalElements = ite
 /**
  * 업로드가 처음부터 끝까지 성공하는 media API와 저장소. 업로드 자리를 요청한 파일 이름을 영상 ID로 쓴다.
  * `storageGate`를 주면 저장소 응답이 그 Promise가 끝날 때까지 기다린다(업로드 중 화면 확인용).
+ * 일부 응답만 바꾸려면 `server.use(바꿀 핸들러, ...mediaHandlers())`처럼 뒤에 둔다. 앞에 둔 핸들러가 먼저 적용된다.
  */
 export function mediaHandlers(options: { storageGate?: Promise<void> } = {}) {
   return [
