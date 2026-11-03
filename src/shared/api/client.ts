@@ -6,6 +6,8 @@ import { getAccessToken, refreshSession } from "./session";
 export interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
+  /** 요청을 중단할 때 쓴다(예: 업로드 취소). */
+  signal?: AbortSignal;
 }
 
 /**
@@ -46,6 +48,7 @@ async function send(
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
     credentials: "include",
+    signal: options.signal,
   });
   if (response.ok) {
     return response;

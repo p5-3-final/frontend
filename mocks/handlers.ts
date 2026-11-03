@@ -1,9 +1,11 @@
 import { http, HttpResponse } from "msw";
 import type { components } from "../src/api/generated/auth-service";
+import type { components as MediaComponents } from "../src/api/generated/media-service";
 
 type User = components["schemas"]["UserResponse"];
 type TokenResponse = components["schemas"]["TokenResponse"];
 type ProblemDetail = components["schemas"]["ProblemDetail"];
+type MediaSchemas = MediaComponents["schemas"];
 
 export const API = "http://localhost:8080/api/v1/auth";
 
@@ -54,4 +56,92 @@ export const storagePreflight = () =>
 /** CORS 헤더를 붙인 저장소 응답 */
 export function storageResponse(status: number, headers: Record<string, string> = {}) {
   return new HttpResponse(null, { status, headers: { ...STORAGE_CORS_HEADERS, ...headers } });
+}
+
+type Video = MediaSchemas["VideoResponse"];
+type UploadInstruction = MediaSchemas["UploadInstruction"];
+
+export const MEDIA_API = "http://localhost:8080/api/v1/media/videos";
+
+/** 계약 VideoResponse 예시. 필요한 필드만 바꿔 쓴다. */
+export function videoBody(overrides: Partial<Video> = {}): Video {
+  return {
+    id: "0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+    ownerId: TEST_USER.id,
+    fileName: "a.mp4",
+    sizeBytes: 1000,
+    contentType: "video/mp4",
+    status: "UPLOADING",
+    createdAt: "2026-11-03T00:00:00Z",
+    uploadedAt: null,
+    ...overrides,
+  };
+}
+
+/** 단일 업로드 방법. 실제 POST 정책처럼 폼 필드 여러 개를 준다. */
+export function singleUpload(): UploadInstruction {
+  return {
+    method: "SINGLE",
+    url: `${STORAGE}/`,
+    fields: {
+      key: "sources/v/original",
+      "Content-Type": "video/mp4",
+      policy: "p",
+      "x-amz-signature": "s",
+    },
+    expiresAt: "2026-11-03T01:00:00Z",
+  };
+}
+
+/** 멀티파트 업로드 방법. 조각 수는 파일 크기를 조각 크기로 나눠 올림한 값이다. */
+export function multipartUpload(sizeBytes: number, partSizeBytes: number): UploadInstruction {
+  const count = Math.ceil(sizeBytes / partSizeBytes);
+  return {
+    method: "MULTIPART",
+    partSizeBytes,
+    parts: Array.from({ length: count }, (_, i) => ({
+      partNumber: i + 1,
+      url: `${STORAGE}/sources/v/original?partNumber=${String(i + 1)}&uploadId=u1`,
+    })),
+    expiresAt: "2026-11-03T01:00:00Z",
+  };
+}
+
+/** 계약 VideoPage. 기본은 빈 목록이다. */
+export function videoPageBody(items: Video[] = [], page = 0, totalElements = items.length) {
+  return {
+    items,
+    page: { page, size: 20, totalElements, totalPages: Math.ceil(totalElements / 20) },
+  };
+}
+
+/**
+ * 업로드가 처음부터 끝까지 성공하는 media API와 저장소. 업로드 자리를 요청한 파일 이름을 영상 ID로 쓴다.
+ * `storageGate`를 주면 저장소 응답이 그 Promise가 끝날 때까지 기다린다(업로드 중 화면 확인용).
+ */
+export function mediaHandlers(options: { storageGate?: Promise<void> } = {}) {
+  return [
+    storagePreflight(),
+    http.get(MEDIA_API, () => HttpResponse.json(videoPageBody())),
+    http.post(MEDIA_API, async ({ request }) => {
+      const body = await request.json();
+      const fileName =
+        typeof body === "object" && body !== null && "fileName" in body
+          ? String(body.fileName)
+          : "unknown";
+      return HttpResponse.json(
+        { video: videoBody({ id: fileName, fileName }), upload: singleUpload() },
+        { status: 201 },
+      );
+    }),
+    http.post(`${STORAGE}/`, async () => {
+      await options.storageGate;
+      return storageResponse(204);
+    }),
+    http.post(`${MEDIA_API}/:id/complete`, ({ params }) =>
+      HttpResponse.json(
+        videoBody({ id: String(params.id), fileName: String(params.id), status: "UPLOADED" }),
+      ),
+    ),
+  ];
 }
