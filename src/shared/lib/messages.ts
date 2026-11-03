@@ -7,6 +7,8 @@ const INVALID_INPUT_MESSAGE = "입력값을 확인해 주세요.";
 export const UNSUPPORTED_FORMAT_MESSAGE = "mp4, mov, mkv, avi 영상만 올릴 수 있습니다.";
 export const FILE_SIZE_MESSAGE = "파일 크기는 1바이트 이상 5GB 이하여야 합니다.";
 // 저장소 오류는 ProblemDetail이 아니라 code가 없다(SPEC-005 R-10).
+export const UNSUPPORTED_PLAYBACK_MESSAGE =
+  "이 브라우저에서 재생할 수 없는 영상입니다. 원본을 내려받아 다른 플레이어로 확인해 주세요.";
 export const UPLOAD_STORAGE_MESSAGE = "파일을 저장소에 올리지 못했습니다. 다시 시도해 주세요.";
 
 const MESSAGES: Readonly<Record<string, string>> = {

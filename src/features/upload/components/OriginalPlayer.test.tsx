@@ -82,4 +82,39 @@ describe("OriginalPlayer", () => {
     expect(play).toHaveBeenCalled();
     expect(counter.requests).toBe(2);
   });
+
+  it("[SPEC-006 R-10] 만료 전에 재생 오류가 나면 이 브라우저에서 재생할 수 없다는 안내와 원본 내려받기를 보여 준다", async () => {
+    const playback = playbackBody();
+    const counter = playerServer([playback]);
+    renderRoute(`/analysis/videos/${VIDEO_ID}`);
+
+    fireEvent.error(await screen.findByLabelText(PLAYER));
+
+    expect(
+      await screen.findByText(
+        "이 브라우저에서 재생할 수 없는 영상입니다. 원본을 내려받아 다른 플레이어로 확인해 주세요.",
+      ),
+    ).toBeVisible();
+    expect(screen.queryByLabelText(PLAYER)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "원본 내려받기" })).toHaveAttribute(
+      "href",
+      playback.downloadUrl,
+    );
+    expect(counter.requests).toBe(1);
+  });
+
+  it("[SPEC-006 R-10] 새 주소로 바꾼 뒤에도 재생 오류가 나면 더 받지 않고 안내를 보여 준다", async () => {
+    const fresh = freshPlayback();
+    const counter = playerServer([expiredPlayback(), fresh]);
+    renderRoute(`/analysis/videos/${VIDEO_ID}`);
+    fireEvent.error(await screen.findByLabelText(PLAYER));
+    await waitFor(() => {
+      expect(screen.getByLabelText(PLAYER)).toHaveAttribute("src", fresh.url);
+    });
+
+    fireEvent.error(screen.getByLabelText(PLAYER));
+
+    expect(await screen.findByText(/이 브라우저에서 재생할 수 없는 영상입니다/)).toBeVisible();
+    expect(counter.requests).toBe(2);
+  });
 });

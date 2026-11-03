@@ -1,6 +1,6 @@
 import { useRef, useState, type SyntheticEvent } from "react";
 import { ApiError } from "../../../shared/api/problem";
-import { messageForCode } from "../../../shared/lib/messages";
+import { messageForCode, UNSUPPORTED_PLAYBACK_MESSAGE } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
 import { useVideoPlayback } from "../api/useVideoPlayback";
 import type { Video } from "../model/schemas";
@@ -18,6 +18,7 @@ export function OriginalPlayer({ video }: OriginalPlayerProps) {
   // 새 주소로 바꾼 뒤 되돌릴 재생 위치. 화면에 그리는 값이 아니라 ref에 둔다.
   const resumeRef = useRef<{ time: number; playing: boolean } | null>(null);
   const [refreshed, setRefreshed] = useState(false);
+  const [unsupported, setUnsupported] = useState(false);
 
   if (isPending) {
     return <p className="text-sm text-muted">영상을 불러오는 중입니다.</p>;
@@ -29,6 +30,8 @@ export function OriginalPlayer({ video }: OriginalPlayerProps) {
   const handleError = (event: SyntheticEvent<HTMLVideoElement>) => {
     const expired = Date.now() >= Date.parse(playback.expiresAt) - EXPIRY_MARGIN_MS;
     if (refreshed || !expired) {
+      // SPEC-006 R-10: 만료 전 오류나 새 주소로도 난 오류는 이 브라우저가 형식·코덱을 재생하지 못한 것으로 본다.
+      setUnsupported(true);
       return;
     }
     const player = event.currentTarget;
@@ -51,6 +54,23 @@ export function OriginalPlayer({ video }: OriginalPlayerProps) {
     }
   };
 
+  const download = (
+    <a
+      href={playback.downloadUrl}
+      className="self-start text-sm text-accent hover:underline focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+    >
+      원본 내려받기
+    </a>
+  );
+
+  if (unsupported) {
+    return (
+      <div className="flex flex-col gap-2">
+        <Alert>{UNSUPPORTED_PLAYBACK_MESSAGE}</Alert>
+        {download}
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-2">
       {/* eslint-disable-next-line jsx-a11y/media-has-caption -- 사용자가 올린 원본에는 자막 파일이 없다 (#26) */}
@@ -64,12 +84,7 @@ export function OriginalPlayer({ video }: OriginalPlayerProps) {
         onLoadedMetadata={handleLoadedMetadata}
         className="max-h-[70vh] w-full rounded-xl bg-black"
       />
-      <a
-        href={playback.downloadUrl}
-        className="self-start text-sm text-accent hover:underline focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
-      >
-        원본 내려받기
-      </a>
+      {download}
     </div>
   );
 }
