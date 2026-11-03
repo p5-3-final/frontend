@@ -85,6 +85,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/media/videos/{videoId}/playback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
+                videoId: components["parameters"]["VideoId"];
+            };
+            cookie?: never;
+        };
+        /**
+         * 원본 재생·내려받기 주소 발급
+         * @description 업로드 완료 이후 상태(`UPLOADED`, `NORMALIZING`, `READY`, `REJECTED`)인 영상의 원본을 읽을 수 있는 서명 주소를 돌려준다.
+         *     `url`은 업로드 때 신고한 형식(Content-Type)으로 응답하는 재생 주소이고, `downloadUrl`은 원래 파일 이름으로 내려받는 주소다.
+         *     두 주소는 발급 시점부터 1시간 동안 유효하다. 만료되면 이 API를 다시 호출해 새 주소를 받는다.
+         *     소유자와 ADMIN만 요청할 수 있다. (SPEC-006 R-1~R-5)
+         */
+        get: operations["getVideoPlayback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -180,6 +206,24 @@ export interface components {
         VideoPage: {
             items: components["schemas"]["VideoResponse"][];
             page: components["schemas"]["PageMeta"];
+        };
+        /** @description 원본 영상을 저장소에서 바로 읽는 서명 주소. 로그나 브라우저 저장소에 남기지 않는다. (SPEC-006 NFR-3) */
+        VideoPlayback: {
+            /**
+             * Format: uri
+             * @description 재생 주소. 응답 형식은 업로드 때 신고한 영상 형식이다.
+             */
+            url: string;
+            /**
+             * Format: uri
+             * @description 원래 파일 이름으로 내려받는 주소
+             */
+            downloadUrl: string;
+            /**
+             * Format: date-time
+             * @description 두 주소의 만료 시각 (발급 시점 + 1시간)
+             */
+            expiresAt: string;
         };
         PageMeta: {
             page: number;
@@ -526,6 +570,61 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    getVideoPlayback: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path: {
+                /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
+                videoId: components["parameters"]["VideoId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 재생·내려받기 주소 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "url": "https://vlm-media.s3.ap-northeast-2.amazonaws.com/sources/0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f/original?response-content-type=video%2Fmp4&X-Amz-Expires=3600&X-Amz-Signature=0123",
+                     *       "downloadUrl": "https://vlm-media.s3.ap-northeast-2.amazonaws.com/sources/0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f/original?response-content-disposition=attachment&X-Amz-Expires=3600&X-Amz-Signature=4567",
+                     *       "expiresAt": "2026-11-02T10:30:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["VideoPlayback"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["VideoNotFound"];
+            /** @description 업로드가 끝나지 않았거나 만료된 영상 (`MEDIA_NOT_PLAYABLE`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "about:blank",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "업로드가 끝난 영상만 재생할 수 있습니다.",
+                     *       "code": "MEDIA_NOT_PLAYABLE"
+                     *     }
+                     */
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
