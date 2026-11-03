@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "gen:api": "openapi-typescript \"${CONTRACTS_DIR:-../../docs/contracts}/openapi/auth-service.yaml\" -o src/api/generated/auth-service.ts"
+    "gen:api": "openapi-typescript \"${CONTRACTS_DIR:-../../docs/contracts}/openapi/auth-service.yaml\" -o src/api/generated/auth-service.ts && openapi-typescript \"${CONTRACTS_DIR:-../../docs/contracts}/openapi/media-service.yaml\" -o src/api/generated/media-service.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.1",

@@ -17,10 +17,10 @@ updated: 2026-11-03
 
 ## Phase 1: 준비
 
-- [ ] T001 `gen:api`에 `media-service.yaml` 추가와 생성 타입, 계약 응답 Zod 스키마·query key — `package.json`, `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/index.ts`
-- [ ] T002 [P] [NFR-3] `MEDIA_*` 오류 문구 — 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts`
-- [ ] T003 [P] [R-2] [R-3] 확장자로 형식 판단(contentType), 크기 1바이트~5GB — 테스트 `U/model/fileRules.test.ts`, 구현 `U/model/fileRules.ts`
-- [ ] T004 [R-9] [NFR-4] 저장소 전송(XHR POST·PUT, 진행률 콜백, 5xx·네트워크 오류 최대 3번 재전송, 4xx 즉시 실패, 중단) — 테스트 `U/api/storageTransport.test.ts`, 구현 `U/api/storageTransport.ts`, MSW 저장소 핸들러 `mocks/handlers.ts`
+- [x] T001 `gen:api`에 `media-service.yaml` 추가와 생성 타입, 계약 응답 Zod 스키마·query key — `package.json`, `src/api/generated/media-service.ts`, `U/model/{schemas,queryKeys}.ts`, `U/index.ts`
+- [x] T002 [P] [NFR-3] `MEDIA_*` 오류 문구 — 테스트 `src/shared/lib/messages.test.ts`, 구현 `src/shared/lib/messages.ts`
+- [x] T003 [P] [R-2] [R-3] 확장자로 형식 판단(contentType), 크기 1바이트~5GB — 테스트 `U/model/fileRules.test.ts`, 구현 `U/model/fileRules.ts`
+- [x] T004 [R-9] [NFR-4] 저장소 전송(XHR POST·PUT, 진행률 콜백, 5xx·네트워크 오류 최대 3번 재전송, 4xx 즉시 실패, 중단) — 테스트 `U/api/storageTransport.test.ts`, 구현 `U/api/storageTransport.ts`, MSW 저장소 핸들러 `mocks/handlers.ts`
 
 ## Phase 2: US-1 영상 올리기 (P1)
 

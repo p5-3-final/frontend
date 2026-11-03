@@ -35,3 +35,23 @@ export const handlers = {
   refreshFails: () => http.post(`${API}/refresh`, () => problem(401, "AUTH_REFRESH_INVALID")),
   logOut: () => http.post(`${API}/logout`, () => new HttpResponse(null, { status: 204 })),
 };
+
+/** 테스트용 저장소(SeaweedFS·S3) 주소 */
+export const STORAGE = "http://localhost:8333/vlm-media";
+
+// 실제 저장소처럼 교차 출처 업로드를 허용하고 ETag를 노출한다. jsdom의 XMLHttpRequest는 CORS를 지킨다.
+export const STORAGE_CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, HEAD",
+  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Expose-Headers": "ETag",
+};
+
+/** 저장소의 CORS 사전 요청(OPTIONS) 응답 */
+export const storagePreflight = () =>
+  http.options(`${STORAGE}/*`, () => new HttpResponse(null, { headers: STORAGE_CORS_HEADERS }));
+
+/** CORS 헤더를 붙인 저장소 응답 */
+export function storageResponse(status: number, headers: Record<string, string> = {}) {
+  return new HttpResponse(null, { status, headers: { ...STORAGE_CORS_HEADERS, ...headers } });
+}
