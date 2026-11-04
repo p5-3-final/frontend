@@ -53,7 +53,7 @@ pnpm format         # prettier --write .
 pnpm format:check   # prettier --check .
 pnpm test           # vitest
 pnpm test:e2e       # playwright
-pnpm gen:api        # ../../docs/contracts/openapi/*.yaml → src/api/generated
+pnpm gen:api        # ../../service-contracts/openapi/*.yaml → src/api/generated
 ```
 작업을 끝내기 전에 `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test`를 실행한다.
 
