@@ -71,5 +71,5 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 
 ## 문서
 
-- 기능 spec, ADR, 계약: docs 레포 `docs/specs/`, `docs/adr/`, `docs/contracts/`
+- 기능 spec, ADR, 계약: docs 레포 `docs/specs/`, `docs/adr/`, `service-contracts/`
 - 구현 계획: [specs/](specs/)
