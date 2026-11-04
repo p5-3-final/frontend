@@ -17,7 +17,7 @@ export default defineConfig(
       "coverage",
       "playwright-report",
       "test-results",
-      "docs-repo",
+      ".service-contracts",
       "src/api/generated",
     ],
   },
