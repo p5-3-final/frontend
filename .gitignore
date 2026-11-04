@@ -25,3 +25,6 @@ coverage/
 test-results/
 playwright-report/
 blob-report/
+
+# 서비스 간 계약 받기 캐시(scripts/fetch-service-contracts.sh)
+.service-contracts/
