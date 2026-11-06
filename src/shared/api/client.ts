@@ -8,6 +8,22 @@ export interface RequestOptions {
   body?: unknown;
   /** 요청을 중단할 때 쓴다(예: 업로드 취소). */
   signal?: AbortSignal;
+  /** 쿼리 문자열. 값이 undefined인 키는 보내지 않는다(거르기를 고르지 않은 경우). */
+  query?: Readonly<Record<string, string | number | boolean | undefined>>;
+}
+
+function withQuery(path: string, query: RequestOptions["query"]): string {
+  if (query === undefined) {
+    return path;
+  }
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined) {
+      params.set(key, String(value));
+    }
+  }
+  const search = params.toString();
+  return search === "" ? path : `${path}?${search}`;
 }
 
 /**
@@ -43,7 +59,7 @@ async function send(
   if (options.body !== undefined) {
     headers.set("Content-Type", "application/json");
   }
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${withQuery(path, options.query)}`, {
     method: options.method ?? "GET",
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),

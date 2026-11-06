@@ -15,6 +15,22 @@ afterEach(() => {
 });
 
 describe("apiRequest", () => {
+  it("[SPEC-031 R-3] query 값을 쿼리 문자열로 붙이고 undefined 값은 뺀다", async () => {
+    let search = "";
+    server.use(
+      http.get(ME_URL, ({ request }) => {
+        search = new URL(request.url).search;
+        return HttpResponse.json({ nickname: "테스터" });
+      }),
+    );
+
+    await apiRequest("/api/v1/auth/me", meSchema, {
+      query: { severity: "high", page: 0, includeMerged: false, eventType: undefined },
+    });
+
+    expect(search).toBe("?severity=high&page=0&includeMerged=false");
+  });
+
   it("로그인 상태면 접근 토큰을 Authorization 헤더로 보낸다", async () => {
     let authorization: string | null = null;
     server.use(
