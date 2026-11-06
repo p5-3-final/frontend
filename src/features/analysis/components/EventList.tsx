@@ -1,6 +1,6 @@
 import { ImageOff } from "lucide-react";
 import { formatMediaTime } from "../../../shared/lib/format";
-import { eventTypeName } from "../../../shared/lib/messages";
+import { eventTypeName, REVIEW_STATE_NAMES } from "../../../shared/lib/messages";
 import { Button } from "../../../shared/ui/Button";
 import type { EventSummary } from "../model/schemas";
 import { descriptionText, verificationName } from "../model/verification";
@@ -70,6 +70,11 @@ export function EventList({
                     <span className="text-xs text-muted">
                       {verificationName(event.verificationStatus)}
                     </span>
+                    {event.reviewState !== "UNREVIEWED" && (
+                      <span className="rounded bg-surface px-1.5 text-xs">
+                        {REVIEW_STATE_NAMES[event.reviewState]}
+                      </span>
+                    )}
                   </span>
                   <span className="truncate text-xs text-muted">
                     {firstLine(descriptionText(event.verificationStatus, event.description))}

@@ -1,6 +1,7 @@
 // SPEC-031 analysis-service 공개 API 픽스처와 MSW 핸들러. 응답은 계약 예시를 생성 타입으로 옮긴 것이다.
 // 계약이 바뀌면 생성 타입이 바뀌어 여기서 typecheck가 실패한다.
 import { http, HttpResponse } from "msw";
+import { z } from "zod";
 import type { components, operations } from "../src/api/generated/analysis-service";
 import { problem } from "./handlers";
 
@@ -19,6 +20,11 @@ export type SourceSummaryBody = Schemas["SourceSummary"] & {
   partial?: boolean;
   missingCounts?: Record<string, number>;
 };
+
+const reviewRequestSchema = z.object({
+  reviewState: z.enum(["UNREVIEWED", "CONFIRMED", "DISMISSED"]),
+  note: z.string().nullable().optional(),
+}) satisfies z.ZodType<Schemas["ReviewEventRequest"]>;
 
 export const ANALYSIS_API = "http://localhost:8080/api/v1/analysis";
 export const ANALYSIS_SOURCE_ID = "0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f";
@@ -223,8 +229,9 @@ export interface AnalysisFixture {
  * 일부만 바꾸려면 `server.use(바꿀 핸들러, ...analysisHandlers())`처럼 앞에 둔다.
  */
 export function analysisHandlers(fixture: AnalysisFixture = {}) {
-  const events = fixture.events ?? [eventSummaryBody()];
-  const details = fixture.details ?? [eventDetailBody()];
+  // 확인·기각(reviewEvent)이 바꾼 값을 다음 조회에도 보이게 핸들러 안에서 바꿔 쓴다.
+  let events = fixture.events ?? [eventSummaryBody()];
+  let details = fixture.details ?? [eventDetailBody()];
   const filterEvents = (url: URL) =>
     events.filter((event) =>
       (["eventType", "severity", "verificationStatus", "reviewState"] as const).every((key) => {
@@ -256,6 +263,27 @@ export function analysisHandlers(fixture: AnalysisFixture = {}) {
     http.get(`${ANALYSIS_API}/events`, ({ request }) => {
       const url = new URL(request.url);
       return HttpResponse.json(pageOf(url, filterEvents(url)));
+    }),
+    http.put(`${ANALYSIS_API}/events/:eventId/review`, async ({ params, request }) => {
+      const body = reviewRequestSchema.safeParse(await request.json());
+      const detail = details.find((item) => item.event.eventId === params.eventId);
+      if (detail === undefined) {
+        return problem(404, "ANALYSIS_EVENT_NOT_FOUND");
+      }
+      if (!body.success) {
+        return problem(400, "ANALYSIS_INVALID_REQUEST");
+      }
+      const event = { ...detail.event, reviewState: body.data.reviewState };
+      const updated: EventDetailBody = {
+        ...detail,
+        event,
+        reviewNote: body.data.note ?? null,
+        reviewedBy: "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+        reviewedAt: "2026-11-06T11:00:00Z",
+      };
+      details = details.map((item) => (item.event.eventId === event.eventId ? updated : item));
+      events = events.map((item) => (item.eventId === event.eventId ? event : item));
+      return HttpResponse.json(updated);
     }),
     http.get(`${ANALYSIS_API}/events/:eventId`, ({ params }) => {
       const detail = details.find((item) => item.event.eventId === params.eventId);

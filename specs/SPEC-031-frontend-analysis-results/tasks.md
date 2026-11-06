@@ -55,7 +55,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## Phase 6: US-4 이벤트 확인·기각 (P2)
 
-- [ ] T022 [R-7] OPERATOR에게만 확인·기각·되돌리기와 메모, 저장하면 목록·상세 갱신, 403 안내. USER에게는 버튼이 없음 — 테스트 `A/components/EventReviewForm.test.tsx`, `src/features/auth/hooks/useHasRole.test.tsx`, 구현 `A/components/EventReviewForm.tsx`, `A/api/useReviewEvent.ts`, `src/features/auth/hooks/useHasRole.ts`, `src/features/auth/index.ts`
+- [x] T022 [R-7] OPERATOR에게만 확인·기각·되돌리기와 메모, 저장하면 목록·상세 갱신, 403 안내. USER에게는 버튼이 없음 — 테스트 `A/components/EventReviewForm.test.tsx`, `src/features/auth/hooks/useHasRole.test.tsx`, 구현 `A/components/EventReviewForm.tsx`, `A/api/useReviewEvent.ts`, `src/features/auth/hooks/useHasRole.ts`, `src/features/auth/index.ts`
 
 ## Phase 7: US-5 전체 이벤트 보기 (P2)
 

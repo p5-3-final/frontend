@@ -7,3 +7,5 @@ export { UserMenu } from "./components/UserMenu";
 export { readDevLogin } from "./model/devLogin";
 export { HOME_PATH, safeRedirect } from "./model/redirect";
 export { readSignedUpEmail, toSignedUpState } from "./model/signedUpState";
+export { useMe } from "./api/useMe";
+export { useHasRole, type Role } from "./hooks/useHasRole";
