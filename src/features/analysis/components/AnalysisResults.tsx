@@ -2,6 +2,7 @@ import type { PlayerController } from "../../player";
 import { Panel } from "../../../shared/ui/Panel";
 import { ANALYSIS_NOT_ANALYZED_MESSAGE } from "../../../shared/lib/messages";
 import { useSourceSummary } from "../api/useSourceSummary";
+import { EventsPanel } from "./EventsPanel";
 import { SummaryPanel } from "./SummaryPanel";
 
 export interface AnalysisResultsProps {
@@ -28,7 +29,7 @@ export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) 
   return (
     <div className="flex flex-col gap-4">
       <SummaryPanel summary={summary} controller={controller} />
-      <Panel title="이벤트">{null}</Panel>
+      <EventsPanel sourceId={sourceId} onSelect={() => undefined} />
       <Panel title="위험 상태">{null}</Panel>
       <Panel title="상태 스냅샷">{null}</Panel>
     </div>

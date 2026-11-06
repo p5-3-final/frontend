@@ -38,6 +38,24 @@ export const SUMMARY_STATUS_MESSAGES = {
   empty: "요약할 내용이 없습니다.",
 } as const;
 
+/** severity(taxonomy/v2) 한국어 이름. 색과 함께 글자로도 보인다(SPEC-031 R-18). */
+export const SEVERITY_NAMES = { high: "높음", medium: "보통", low: "낮음" } as const;
+
+/** 판정 상태 이름(SPEC-031 R-6) */
+export const VERIFICATION_NAMES = {
+  confirmed: "확인됨",
+  rejected: "이벤트 아님",
+  unverified: "미확인(모델 없음)",
+  unknown: "판단 불가",
+} as const;
+
+/** 이벤트 확인 상태(운영자 검토) */
+export const REVIEW_STATE_NAMES = {
+  UNREVIEWED: "확인 전",
+  CONFIRMED: "확인함",
+  DISMISSED: "기각",
+} as const;
+
 /** 작업 세션 역할(SPEC-017) */
 export const SESSION_ROLE_NAMES = {
   BEFORE: "작업 전 영상",
