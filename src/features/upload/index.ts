@@ -2,6 +2,7 @@ export { UploadButton } from "./components/UploadButton";
 export { UploadDropzone } from "./components/UploadDropzone";
 export { UploadQueuePanel } from "./components/UploadQueuePanel";
 export { VideoDetail } from "./components/VideoDetail";
+export type { Video, VideoStatus } from "./model/schemas";
 export { VideoList } from "./components/VideoList";
 export { videoDetailPath } from "./model/paths";
 export { useLeaveWarning } from "./hooks/useLeaveWarning";
