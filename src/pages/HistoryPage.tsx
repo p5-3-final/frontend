@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { SessionList } from "../features/sessions";
+import { CreateSessionForm, SessionList } from "../features/sessions";
 import { Button } from "../shared/ui/Button";
 
 /** 분석 이력: 작업 세션 목록(SPEC-034 R-1, R-2) */
@@ -18,7 +18,13 @@ export function HistoryPage() {
           세션 만들기
         </Button>
       </div>
-      {creating && <p className="sr-only">세션 만들기</p>}
+      {creating && (
+        <CreateSessionForm
+          onCancel={() => {
+            setCreating(false);
+          }}
+        />
+      )}
       <SessionList onCreate={startCreating} />
     </div>
   );

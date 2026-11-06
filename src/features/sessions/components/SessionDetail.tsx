@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CloudUpload } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { z } from "zod";
@@ -8,7 +8,7 @@ import { Alert } from "../../../shared/ui/Alert";
 import type { Video } from "../../upload";
 import { useSessionVideoAnalysis } from "../api/useSessionVideoSummaries";
 import { useWorkSession } from "../api/useWorkSession";
-import { HISTORY_PATH } from "../model/paths";
+import { HISTORY_PATH, uploadToSessionPath } from "../model/paths";
 import { SESSION_ROLES, sessionRoleName, type SessionRole } from "../model/roles";
 import type { WorkSessionDetail } from "../model/schemas";
 import { LoadError } from "./LoadError";
@@ -65,13 +65,21 @@ function SessionContent({ session }: { session: WorkSessionDetail }) {
   const analysis = useSessionVideoAnalysis(session.videos);
   return (
     <>
-      <header className="flex flex-col gap-1">
-        <h1 className="text-xl font-bold break-all">{session.name}</h1>
-        <p className="text-sm text-muted">
-          {[session.site, session.area].filter((value) => value !== null).join(" · ")}
-          {session.site === null && session.area === null ? "" : " · "}
-          {formatDateTime(session.createdAt)}
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h1 className="text-xl font-bold break-all">{session.name}</h1>
+          <p className="text-sm text-muted">
+            {[session.site, session.area, formatDateTime(session.createdAt)]
+              .filter((value) => value !== null)
+              .join(" · ")}
+          </p>
+        </div>
+        <Link
+          to={uploadToSessionPath(session.id)}
+          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-accent px-4 font-semibold text-surface hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:outline-none"
+        >
+          <CloudUpload aria-hidden="true" className="size-5" />이 세션에 영상 올리기
+        </Link>
       </header>
       <div className="grid gap-3 lg:grid-cols-3">
         {SESSION_ROLES.map((role) => (

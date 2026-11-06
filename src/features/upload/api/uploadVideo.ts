@@ -1,4 +1,10 @@
-import type { CompletedPart, UploadInstruction, Video, VideoContentType } from "../model/schemas";
+import type {
+  CompletedPart,
+  UploadInstruction,
+  UploadTarget,
+  Video,
+  VideoContentType,
+} from "../model/schemas";
 import { completeVideoUpload, createVideo } from "./mediaApi";
 import { postForm, putPart, type TransferOptions } from "./storageTransport";
 
@@ -7,6 +13,8 @@ export interface UploadOptions extends Pick<TransferOptions, "signal" | "retryDe
   onProgress?: (loadedBytes: number, totalBytes: number) => void;
   /** 업로드 자리를 받았을 때. 취소하면 이 영상을 지운다(SPEC-005 R-12). */
   onCreated?: (videoId: string) => void;
+  /** 넣을 작업 세션과 역할(SPEC-034 R-6) */
+  target?: UploadTarget;
 }
 
 // 한 조각씩 보내면 왕복 지연 때문에 대역폭을 다 못 쓰고, 너무 많이 보내면 브라우저의 호스트당 연결(6개)을 업로드가 독차지한다.
@@ -22,7 +30,7 @@ export async function uploadVideo(
   options: UploadOptions = {},
 ): Promise<Video> {
   const created = await createVideo(
-    { fileName: file.name, sizeBytes: file.size, contentType },
+    { fileName: file.name, sizeBytes: file.size, contentType, ...options.target },
     options.signal,
   );
   options.onCreated?.(created.video.id);

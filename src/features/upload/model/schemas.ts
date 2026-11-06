@@ -100,4 +100,10 @@ export const createVideoResponseSchema = z.object({
 export type UploadInstruction = z.infer<typeof createVideoResponseSchema>["upload"];
 
 export type CreateVideoRequest = Schemas["CreateVideoRequest"];
+
+/** 업로드할 영상을 넣을 작업 세션과 역할(SPEC-034 R-6). 세션 없이 올리면 대상이 없다. */
+export interface UploadTarget {
+  sessionId: string;
+  role: Schemas["SessionRole"];
+}
 export type CompletedPart = NonNullable<Schemas["CompleteUploadRequest"]["parts"]>[number];

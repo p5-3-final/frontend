@@ -32,10 +32,10 @@ updated: 2026-11-07
 
 ## Phase 3: US-2 세션에 영상 올리기 (P1)
 
-- [ ] T008 [R-2] 이름(필수)·현장·구역으로 세션 만들기, 성공하면 상세로 이동, 400이면 입력 옆 이유 — 테스트 `Se/components/CreateSessionForm.test.tsx`, 구현 `Se/components/CreateSessionForm.tsx`, `Se/api/useCreateWorkSession.ts`
-- [ ] T009 [R-6] 업로드 화면 세션 고르기(없음·내 세션·새 세션)와 역할(작업 전·중·후), 세션을 고르면 역할 필수, 고른 값을 `createVideo`의 `sessionId`·`role`로 — 테스트 `Se/components/SessionRolePicker.test.tsx`, `U/model/uploadQueue.test.ts`, `src/pages/AnalysisUpload.test.tsx`, 구현 `Se/components/SessionRolePicker.tsx`, `U/model/uploadQueue.ts`, `U/components/{UploadButton,UploadDropzone}.tsx`, `src/pages/AnalysisPage.tsx`
-- [ ] T010 [R-7] "새 세션"과 이름이면 첫 파일의 자리 요청 전에 세션을 만들고 그 ID를 씀, 다음 파일은 같은 세션 — 테스트 `src/pages/AnalysisUpload.test.tsx`(요청 순서·본문), 구현 `SessionRolePicker.tsx`
-- [ ] T011 [R-8] 세션 상세 "이 세션에 영상 올리기"로 그 세션이 골라진 업로드 화면 — 테스트 `src/pages/SessionUploadFlow.test.tsx`, 구현 `SessionDetail.tsx`, `src/pages/AnalysisPage.tsx`
+- [x] T008 [R-2] 이름(필수)·현장·구역으로 세션 만들기, 성공하면 상세로 이동, 400이면 입력 옆 이유 — 테스트 `Se/components/CreateSessionForm.test.tsx`, 구현 `Se/components/CreateSessionForm.tsx`, `Se/api/useCreateWorkSession.ts`
+- [x] T009 [R-6] 업로드 화면 세션 고르기(없음·내 세션·새 세션)와 역할(작업 전·중·후), 세션을 고르면 역할 필수, 고른 값을 `createVideo`의 `sessionId`·`role`로 — 테스트 `Se/components/SessionRolePicker.test.tsx`, `U/model/uploadQueue.test.ts`, `src/pages/AnalysisUpload.test.tsx`, 구현 `Se/components/SessionRolePicker.tsx`, `U/model/uploadQueue.ts`, `U/components/{UploadButton,UploadDropzone}.tsx`, `src/pages/AnalysisPage.tsx`
+- [x] T010 [R-7] "새 세션"과 이름이면 첫 파일의 자리 요청 전에 세션을 만들고 그 ID를 씀, 다음 파일은 같은 세션 — 테스트 `src/pages/AnalysisUpload.test.tsx`(요청 순서·본문), 구현 `SessionRolePicker.tsx`
+- [x] T011 [R-8] 세션 상세 "이 세션에 영상 올리기"로 그 세션이 골라진 업로드 화면 — 테스트 `src/pages/SessionUploadFlow.test.tsx`, 구현 `SessionDetail.tsx`, `src/pages/AnalysisPage.tsx`
 
 ## Phase 4: US-3 학습용 보존 설정 (P2)
 

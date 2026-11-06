@@ -9,3 +9,5 @@ export { useLeaveWarning } from "./hooks/useLeaveWarning";
 export { videoQueryKeys } from "./model/queryKeys";
 export { onVideosChanged } from "./model/uploadQueue";
 export { VIDEO_STATUS_NAMES } from "./model/videoStatus";
+export type { UploadTarget } from "./model/schemas";
+export type { ResolveUploadTarget } from "./model/enqueueFiles";

@@ -1,7 +1,8 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../../mocks/handlers";
+import { SESSIONS_API, sessionHandlers } from "../../mocks/media";
 import { renderRoute } from "../../tests/render";
 import { server } from "../../tests/server";
 import { startSession } from "../shared/api/session";
@@ -57,5 +58,88 @@ describe("영상 분석 화면의 업로드", () => {
     await user.click(screen.getAllByRole("link", { name: "영상 분석" })[0] ?? document.body);
 
     expect(await screen.findByText("업로드 완료")).toBeVisible();
+  });
+});
+
+describe("영상 분석 화면의 새 세션 업로드", () => {
+  it("[SPEC-034 R-7] 새 세션과 이름을 고르면 첫 파일의 자리 요청 전에 세션을 만들고 그 ID로 올린다", async () => {
+    const order: string[] = [];
+    const videoBodies: unknown[] = [];
+    let sessionBody: unknown;
+    server.use(
+      http.post(SESSIONS_API, async ({ request }) => {
+        order.push("createWorkSession");
+        sessionBody = await request.clone().json();
+        return undefined;
+      }),
+      http.post(MEDIA_API, async ({ request }) => {
+        order.push("createVideo");
+        videoBodies.push(await request.clone().json());
+        return undefined;
+      }),
+      handlers.me(),
+      ...sessionHandlers({ sessions: [] }),
+      ...mediaHandlers(),
+    );
+    startSession("access-1");
+    const { user } = renderRoute("/analysis");
+    await screen.findByText("올린 영상이 없습니다.");
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "작업 세션" }), "새 세션 만들기");
+    await user.type(screen.getByLabelText("새 세션 이름"), "3번 라인 방호벽 교체");
+    await user.click(screen.getByRole("radio", { name: "작업 전" }));
+    await user.upload(screen.getByLabelText("영상 파일 고르기"), [
+      new File([new Uint8Array(10)], "before.mp4"),
+      new File([new Uint8Array(10)], "before-2.mp4"),
+    ]);
+    await waitFor(() => {
+      expect(screen.getAllByText("업로드 완료")).toHaveLength(2);
+    });
+    await user.click(screen.getByRole("radio", { name: "작업 후" }));
+    await user.upload(screen.getByLabelText("영상 파일 고르기"), [
+      new File([new Uint8Array(10)], "after.mp4"),
+    ]);
+    await waitFor(() => {
+      expect(screen.getAllByText("업로드 완료")).toHaveLength(3);
+    });
+
+    expect(sessionBody).toEqual({ name: "3번 라인 방호벽 교체" });
+    expect(order).toEqual(["createWorkSession", "createVideo", "createVideo", "createVideo"]);
+    const field = (body: unknown, key: string): unknown =>
+      typeof body === "object" && body !== null && key in body
+        ? Object.entries(body).find(([name]) => name === key)?.[1]
+        : undefined;
+    const sessionIds = videoBodies.map((body) => field(body, "sessionId"));
+    expect(new Set(sessionIds).size).toBe(1);
+    expect(sessionIds[0]).toMatch(/^0192f0e0-/);
+    expect(videoBodies.map((body) => field(body, "role"))).toEqual(["BEFORE", "BEFORE", "AFTER"]);
+    expect(screen.getByRole("combobox", { name: "작업 세션" })).toHaveDisplayValue(
+      "3번 라인 방호벽 교체",
+    );
+  });
+
+  it("[SPEC-034 R-7] 새 세션 이름이 비면 올리지 않고 이유를 보인다", async () => {
+    let created = 0;
+    server.use(
+      http.post(SESSIONS_API, () => {
+        created++;
+        return undefined;
+      }),
+      handlers.me(),
+      ...sessionHandlers({ sessions: [] }),
+      ...mediaHandlers(),
+    );
+    startSession("access-1");
+    const { user } = renderRoute("/analysis");
+    await screen.findByText("올린 영상이 없습니다.");
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "작업 세션" }), "새 세션 만들기");
+    await user.click(screen.getByRole("radio", { name: "작업 전" }));
+    await user.upload(screen.getByLabelText("영상 파일 고르기"), [
+      new File([new Uint8Array(10)], "a.mp4"),
+    ]);
+
+    expect(await screen.findByText("세션 이름을 입력해 주세요.")).toBeVisible();
+    expect(created).toBe(0);
   });
 });

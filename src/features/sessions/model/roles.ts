@@ -8,3 +8,10 @@ export type SessionRole = (typeof SESSION_ROLES)[number];
 export function sessionRoleName(role: SessionRole): string {
   return SESSION_ROLE_NAMES[role];
 }
+
+/** 업로드 화면 역할 고르기의 짧은 이름 */
+export const SESSION_ROLE_LABELS: Readonly<Record<SessionRole, string>> = {
+  BEFORE: "작업 전",
+  DURING: "작업 중",
+  AFTER: "작업 후",
+};

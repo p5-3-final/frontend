@@ -43,13 +43,16 @@ export type CreateWorkSessionRequest = Schemas["CreateWorkSessionRequest"];
 // SPEC-034 R-2: 계약 CreateWorkSessionRequest와 같은 길이 제한(이름 1~100자, 현장·구역 100자 이하).
 const NAME_MAX = 100;
 
+/** 세션 이름. 세션 만들기 폼과 업로드 화면의 "새 세션"이 함께 쓴다. */
+export const newSessionNameSchema = z
+  .string()
+  .trim()
+  .min(1, "세션 이름을 입력해 주세요.")
+  .max(NAME_MAX, "세션 이름은 100자 이하로 입력해 주세요.");
+
 /** 세션 만들기 폼. 빈 현장·구역은 보내지 않는다({@link toCreateRequest}). */
 export const createSessionFormSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "세션 이름을 입력해 주세요.")
-    .max(NAME_MAX, "세션 이름은 100자 이하로 입력해 주세요."),
+  name: newSessionNameSchema,
   site: z.string().trim().max(NAME_MAX, "현장 이름은 100자 이하로 입력해 주세요."),
   area: z.string().trim().max(NAME_MAX, "구역 이름은 100자 이하로 입력해 주세요."),
 });

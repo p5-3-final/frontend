@@ -9,7 +9,7 @@ import { deleteVideo } from "../api/mediaApi";
 import { StorageError } from "../api/storageTransport";
 import { uploadVideo } from "../api/uploadVideo";
 import { checkVideoFile } from "./fileRules";
-import type { VideoContentType } from "./schemas";
+import type { UploadTarget, VideoContentType } from "./schemas";
 
 /**
  * 업로드 대기열. React 밖 모듈에 두어 화면을 옮겨도 업로드가 이어진다(SPEC-005 R-13).
@@ -31,6 +31,7 @@ interface Entry {
   item: UploadItem;
   file: File;
   contentType?: VideoContentType;
+  target?: UploadTarget;
 }
 
 let entries: Entry[] = [];
@@ -57,8 +58,11 @@ function update(id: string, change: Partial<UploadItem>) {
   publish();
 }
 
-/** 고른 순서대로 대기열에 넣는다. 형식·크기가 맞지 않는 파일은 요청하지 않고 이유만 남긴다(SPEC-005 R-1~R-3). */
-export function addFiles(files: readonly File[]): void {
+/**
+ * 고른 순서대로 대기열에 넣는다. 형식·크기가 맞지 않는 파일은 요청하지 않고 이유만 남긴다(SPEC-005 R-1~R-3).
+ * `target`을 주면 각 파일을 그 작업 세션·역할로 올린다(SPEC-034 R-6).
+ */
+export function addFiles(files: readonly File[], target?: UploadTarget): void {
   for (const file of files) {
     nextId++;
     const check = checkVideoFile(file);
@@ -70,7 +74,10 @@ export function addFiles(files: readonly File[]): void {
       loadedBytes: 0,
       message: check.ok ? undefined : check.message,
     };
-    entries = [...entries, { item, file, contentType: check.ok ? check.contentType : undefined }];
+    entries = [
+      ...entries,
+      { item, file, contentType: check.ok ? check.contentType : undefined, target },
+    ];
   }
   publish();
   void runQueue();
@@ -106,7 +113,7 @@ function findWaiting(): Entry | undefined {
   return entries.find((entry) => entry.item.status === "waiting");
 }
 
-async function uploadOne({ item, file, contentType }: Entry) {
+async function uploadOne({ item, file, contentType, target }: Entry) {
   if (contentType === undefined) {
     return;
   }
@@ -117,6 +124,7 @@ async function uploadOne({ item, file, contentType }: Entry) {
     await uploadVideo(file, contentType, {
       signal: controller.signal,
       retryDelaysMs,
+      target,
       onCreated: (videoId) => {
         update(item.id, { videoId });
       },
