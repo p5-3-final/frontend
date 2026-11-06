@@ -23,6 +23,19 @@ const statusSchema = z.enum([
 
 export type VideoStatus = z.infer<typeof statusSchema>;
 
+const sessionRoleSchema = z.enum(["BEFORE", "DURING", "AFTER"]) satisfies z.ZodType<
+  Schemas["SessionRole"]
+>;
+
+const rejectReasonSchema = z.enum([
+  "UNREADABLE",
+  "NO_VIDEO_STREAM",
+  "MISSING_METADATA",
+  "TOO_SHORT",
+  "TOO_LONG",
+  "DECODE_FAILED",
+]);
+
 /** 계약 VideoResponse */
 export const videoSchema = z.object({
   id: z.string(),
@@ -33,6 +46,11 @@ export const videoSchema = z.object({
   status: statusSchema,
   createdAt: z.string(),
   uploadedAt: z.string().nullable(),
+  durationSec: z.number().nullable().optional(),
+  estimatedProcessingSec: z.number().nullable().optional(),
+  session: z.object({ sessionId: z.string(), role: sessionRoleSchema }).nullable(),
+  retentionConsent: z.boolean(),
+  rejectReason: rejectReasonSchema.nullable().optional(),
 }) satisfies z.ZodType<Schemas["VideoResponse"]>;
 
 export type Video = z.infer<typeof videoSchema>;

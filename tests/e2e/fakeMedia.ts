@@ -22,6 +22,8 @@ interface FakeVideo {
   status: "UPLOADING" | "UPLOADED";
   createdAt: string;
   uploadedAt: string | null;
+  session: { sessionId: string; role: "BEFORE" | "DURING" | "AFTER" } | null;
+  retentionConsent: boolean;
 }
 
 /**
@@ -103,6 +105,8 @@ export async function useFakeMedia(page: Page) {
         status: "UPLOADING",
         createdAt: new Date(Date.UTC(2026, 10, 3, 0, nextId)).toISOString(),
         uploadedAt: null,
+        session: null,
+        retentionConsent: false,
       };
       videos.push(video);
       const expiresAt = "2026-11-03T01:00:00Z";

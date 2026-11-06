@@ -75,6 +75,8 @@ export function videoBody(overrides: Partial<Video> = {}): Video {
     status: "UPLOADING",
     createdAt: "2026-11-03T00:00:00Z",
     uploadedAt: null,
+    session: null,
+    retentionConsent: false,
     ...overrides,
   };
 }

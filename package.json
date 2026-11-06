@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "gen:api": "openapi-typescript \"${CONTRACTS_DIR:-../../service-contracts}/openapi/auth-service.yaml\" -o src/api/generated/auth-service.ts && openapi-typescript \"${CONTRACTS_DIR:-../../service-contracts}/openapi/media-service.yaml\" -o src/api/generated/media-service.ts"
+    "gen:api": "for s in auth media analysis notification search quality stream; do openapi-typescript \"${CONTRACTS_DIR:-../../service-contracts}/openapi/$s-service.yaml\" -o \"src/api/generated/$s-service.ts\" || exit 1; done"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.1",

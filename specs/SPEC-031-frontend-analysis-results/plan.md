@@ -18,7 +18,7 @@ updated: 2026-11-07
   - `events/_vlm-analysis.schema.json`, `events/_risk-forecast.schema.json`: 응답 안의 `analysis`·`forecast` 형식
 - 관련: SPEC-002(레이아웃, API 클라이언트, 세션), SPEC-005·SPEC-006(영상 목록·상세·원본 플레이어), SPEC-032~SPEC-035(이 plan의 T001·알림 연결·플레이어 컨트롤을 그대로 쓴다)
 
-- v5.1(계약 묶음 4.0.0, 2026-11-07, ADR-0015): `openapi/stream-service.yaml` 1.0.0(세션 조회 `getSession`, `state`·`events`·`alerts`), 알림 메시지 종류 `alert.raised`·`state.updated`(생산자 notification-service 확인 필요), analysis 요약의 `partial`·`missingCounts`·`revision`과 이벤트의 `unverifiedReason`(생산자 analysis-api 확인 필요)이 더해졌다. R-19(실시간 세션 화면)·R-20(긴급 알림)·R-21(`state.updated` 순서 적용)·R-22(일부 누락 표시)·R-23(예산·상한 초과 표시)를 아래 설계 절대로 더한다. T001의 lock은 4.0.0이고 `gen:api`에 `stream-service`를 더한다.
+- v5.1(계약 묶음 4.0.0, 2026-11-07, ADR-0015): `openapi/stream-service.yaml` 1.0.0(세션 조회 `getSession`, `state`·`events`·`alerts`), 알림 메시지 종류 `alert.raised`·`state.updated`(생산자 notification-service 확인 필요), analysis 요약의 `partial`·`missingCounts`·`revision`과 이벤트의 `unverifiedReason`(생산자 analysis-api 확인 필요)이 더해졌다. R-19(실시간 세션 화면)·R-20(긴급 알림)·R-21(`state.updated` 순서 적용)·R-22(일부 누락 표시)·R-23(예산·상한 초과 표시)를 아래 설계 절대로 더한다. T001의 lock은 4.1.0(경계 박스 범위·stitched 쌍·예측 빈 구간 수정 포함)이고 `gen:api`에 `stream-service`까지 한 번에 더한다.
 
 ## 1. 요약
 
@@ -79,9 +79,9 @@ updated: 2026-11-07
 
 | 경로 | 변경 |
 | --- | --- |
-| `service-contracts.lock` | 2.0.1 → 4.0.0(`scripts/fetch-service-contracts.sh --update 4.0.0`) |
-| `package.json` `gen:api` | `analysis-service`, `notification-service`, `search-service`, `quality-service`도 생성. SPEC-032~SPEC-035가 같은 생성 코드를 쓰므로 여기서 한 번에 넣는다 |
-| `src/api/generated/` | 다시 생성. `auth-service.ts`·`media-service.ts`도 4.0.0으로 바뀐다 |
+| `service-contracts.lock` | 2.0.1 → 4.1.0(`scripts/fetch-service-contracts.sh --update 4.1.0`) |
+| `package.json` `gen:api` | `analysis-service`, `notification-service`, `search-service`, `quality-service`, `stream-service`도 생성. SPEC-032~SPEC-035가 같은 생성 코드를 쓰므로 여기서 한 번에 넣는다 |
+| `src/api/generated/` | 다시 생성. `auth-service.ts`·`media-service.ts`도 4.1.0으로 바뀐다 |
 | `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts` | 4.0.0 `VideoResponse`의 새 필수 필드(`session`, `retentionConsent`)와 선택 필드(`durationSec`, `estimatedProcessingSec`, `rejectReason`)를 맞춘다. 하위호환 분기를 남기지 않는다 |
 | `src/shared/api/client.ts` | `RequestOptions.query`(쿼리 문자열 만들기, `undefined` 값은 뺀다) |
 | `src/shared/lib/messages.ts` | `ANALYSIS_*` 오류 문구, 판정 상태·severity·이벤트 유형 한국어 이름 |

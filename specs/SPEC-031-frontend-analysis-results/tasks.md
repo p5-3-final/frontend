@@ -19,7 +19,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## Phase 1: 준비
 
-- [ ] T001 계약 lock 4.0.0과 생성 코드 다시 만들기: `scripts/fetch-service-contracts.sh --update 4.0.0`, `gen:api`에 analysis·notification·search·quality 추가, `pnpm gen:api`. 바뀐 `VideoResponse`(`session`, `retentionConsent` 등)에 맞춰 기존 Zod 스키마·MSW 핸들러·E2E 가짜 API를 고치고 기존 테스트 전체 통과(동작 변화 없음) — `service-contracts.lock`, `package.json`, `src/api/generated/*`, `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts`
+- [x] T001 계약 lock 4.1.0과 생성 코드 다시 만들기: `scripts/fetch-service-contracts.sh --update 4.1.0`, `gen:api`에 analysis·notification·search·quality·stream 추가(T028의 생성 부분을 합침), `pnpm gen:api`. 바뀐 `VideoResponse`(`session`, `retentionConsent` 등)에 맞춰 기존 Zod 스키마·MSW 핸들러·E2E 가짜 API를 고치고 기존 테스트 전체 통과(동작 변화 없음) — `service-contracts.lock`, `package.json`, `src/api/generated/*`, `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts`
 - [ ] T002 플레이어를 `player` feature로 옮기기(SPEC-006 `OriginalPlayer` → `VideoPlayer`, `usePlayerController`). 동작을 바꾸지 않는 리팩터링이라 SPEC-006 테스트를 옮겨 그대로 통과시키는 것으로 확인 — 테스트 `P/components/VideoPlayer.test.tsx`(기존 `OriginalPlayer.test.tsx`), 구현 `P/components/VideoPlayer.tsx`, `P/hooks/usePlayerController.ts`, `P/index.ts`, `U/components/VideoDetail.tsx`
 - [ ] T003 [P] analysis 응답 Zod 스키마(생성 타입 `satisfies`, `analysis`·`forecast`는 events JSON Schema를 옮긴 2차 스키마), query key, `analysisApi.ts`, `apiRequest`의 `query` 옵션, 계약 예시 픽스처 — 테스트 `A/model/schemas.test.ts`(계약 예시 파싱), `src/shared/api/client.test.ts`(쿼리 문자열), 구현 `A/model/{schemas,queryKeys}.ts`, `A/api/analysisApi.ts`, `src/shared/api/client.ts`, `mocks/analysis.ts`
 
