@@ -64,4 +64,43 @@ describe("알림 메시지 스키마", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("[SPEC-031 R-20] alert.raised를 읽고 other 유형은 거절한다", () => {
+    const message = {
+      type: "alert.raised",
+      sourceId: "0192fb00-0000-7000-8000-000000000010",
+      occurredAt: "2026-11-06T10:05:04Z",
+      data: {
+        candidateId: "0192fb00-0000-5000-8000-0000000000c1",
+        status: "pending",
+        eventType: "fall",
+        severity: "high",
+        cameraId: "0192fb00-0000-7000-8000-000000000020",
+        description: null,
+      },
+    };
+    expect(notificationMessageSchema.safeParse(message).success).toBe(true);
+    expect(
+      notificationMessageSchema.safeParse({
+        ...message,
+        data: { ...message.data, eventType: "other" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("[SPEC-031 R-21] state.updated를 읽는다", () => {
+    const parsed = notificationMessageSchema.safeParse({
+      type: "state.updated",
+      sourceId: "0192fb00-0000-7000-8000-000000000010",
+      occurredAt: "2026-11-06T10:05:10Z",
+      data: {
+        sequence: 17,
+        chunkId: "0192fb00-0000-5000-8000-000000000010",
+        activeRisks: 1,
+        newRisks: 0,
+        resolvedRisks: 0,
+      },
+    });
+    expect(parsed.success).toBe(true);
+  });
 });

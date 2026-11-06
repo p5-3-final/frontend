@@ -31,7 +31,8 @@ export function AnalysisProgress({ sourceId, awaiting }: AnalysisProgressProps) 
         terminal: message.data.terminal,
       });
     },
-    { sourceId },
+    // 화면이 뜨기 전(요약을 받는 동안)에 온 진행 알림도 반영한다. 마지막 메시지가 최종 값이 된다.
+    { sourceId, replayBuffered: true },
   );
 
   if (progress === null) {

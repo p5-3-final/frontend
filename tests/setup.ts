@@ -1,10 +1,13 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { resetNotificationsForTest } from "../src/features/notifications/model/notificationStream";
 import { resetUploadsForTest } from "../src/features/upload/model/uploadQueue";
 import { resetSessionForTest } from "../src/shared/api/session";
 import { server } from "./server";
+
+// 화면은 lazy 라우트와 MSW 스트림을 거쳐 그려진다. 전체 테스트를 병렬로 돌릴 때 기본 1초로는 모자라 3초로 둔다.
+configure({ asyncUtilTimeout: 3000 });
 
 // jsdom은 <dialog>의 showModal·close를 구현하지 않는다. 열림 상태만 흉내 내고, 포커스 가두기 같은 실제 모달 동작은 E2E로 확인한다.
 Object.defineProperties(HTMLDialogElement.prototype, {

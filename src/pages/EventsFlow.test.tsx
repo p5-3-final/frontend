@@ -10,7 +10,10 @@ describe("이벤트 메뉴에서 영상 상세로", () => {
 
     await user.click(within(list).getByRole("link", { name: /보호구 미착용/ }));
 
-    expect(router.state.location.pathname).toBe(`/analysis/videos/${ANALYSIS_SOURCE_ID}`);
+    // 화면 코드를 나눠 받아(lazy) 주소는 코드를 받은 뒤 바뀐다.
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe(`/analysis/videos/${ANALYSIS_SOURCE_ID}`);
+    });
     expect(router.state.location.search).toBe(`?event=${ANALYSIS_EVENT_ID}`);
     const detail = await screen.findByRole("region", { name: "이벤트 상세" });
     expect(await within(detail).findByText("안전관리자 확인 필요")).toBeVisible();

@@ -39,7 +39,40 @@ const groundingCompletedData = z.strictObject({
   outcome,
 });
 
+// taxonomy/v2 detectableEventType: eventType에서 other를 뺀 값
+const detectableEventType = z.enum([
+  "fall",
+  "fire_or_smoke",
+  "ppe_missing",
+  "object_removed",
+  "barrier_not_restored",
+  "hazard_zone_access",
+  "equipment_abandoned",
+  "object_moved",
+]);
+
+// v5.1: 긴급 알림. 같은 candidateId가 pending → confirmed·dismissed 순으로 두 번 온다(SPEC-031 R-20).
+const alertRaisedData = z.strictObject({
+  candidateId: z.string(),
+  status: z.enum(["pending", "confirmed", "dismissed"]),
+  eventType: detectableEventType,
+  severity: z.enum(["low", "medium", "high"]),
+  cameraId: z.string(),
+  description: z.string().max(500).nullable().optional(),
+});
+
+// v5.1: 실시간 창 상태 갱신 요약. 화면은 sequence가 큰 것만 적용한다(SPEC-031 R-21).
+const stateUpdatedData = z.strictObject({
+  sequence: z.number().int().min(1),
+  chunkId: z.string(),
+  activeRisks: z.number().int().min(0),
+  newRisks: z.number().int().min(0),
+  resolvedRisks: z.number().int().min(0),
+});
+
 export const notificationMessageSchema = z.discriminatedUnion("type", [
+  z.strictObject({ type: z.literal("alert.raised"), ...envelope, data: alertRaisedData }),
+  z.strictObject({ type: z.literal("state.updated"), ...envelope, data: stateUpdatedData }),
   z.strictObject({ type: z.literal("job.status"), ...envelope, data: jobStatusData }),
   z.strictObject({ type: z.literal("source.completed"), ...envelope, data: sourceCompletedData }),
   z.strictObject({ type: z.literal("track.analyzed"), ...envelope, data: trackAnalyzedData }),

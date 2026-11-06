@@ -23,6 +23,7 @@ describe("AnalysisProgress", () => {
 
   it("[SPEC-031 R-15] 열린 영상의 job.status로 진행률과 상태를 갱신하고 terminal이면 닫는다", async () => {
     const { connection } = await setUp([]);
+    await screen.findByText("진행 상태 확인 중");
 
     connection?.send(jobStatusBody(ANALYSIS_SOURCE_ID, { progressPercent: 40 }), "1");
     const bar = await screen.findByRole("progressbar", { name: "분석 진행률" });
@@ -52,5 +53,15 @@ describe("AnalysisProgress", () => {
 
     const bar = await screen.findByRole("progressbar", { name: "분석 진행률" });
     expect(bar).toHaveAttribute("aria-valuenow", "10");
+  });
+
+  it("[SPEC-031 R-15] 화면이 뜨기 전에 온 진행 알림도 반영한다", async () => {
+    const { connection } = await setUp([]);
+
+    // 요약을 받기 전(진행 표시가 그려지기 전)에 온 알림
+    connection?.send(jobStatusBody(ANALYSIS_SOURCE_ID, { progressPercent: 25 }), "1");
+
+    const bar = await screen.findByRole("progressbar", { name: "분석 진행률" });
+    expect(bar).toHaveAttribute("aria-valuenow", "25");
   });
 });

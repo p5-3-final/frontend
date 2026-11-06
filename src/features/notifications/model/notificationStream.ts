@@ -203,6 +203,16 @@ export function subscribeConnectionStatus(listener: () => void): () => void {
   };
 }
 
+/**
+ * 테스트에서 연결을 거치지 않고 메시지를 받은 것처럼 구독자에게 넘긴다.
+ * "받은 뒤 2초 안에 표시"(SPEC-031 R-20)처럼 받은 시점부터 재야 하는 검증에 쓴다.
+ */
+export function emitNotificationForTest(message: NotificationMessage): void {
+  for (const listener of listeners) {
+    listener(message);
+  }
+}
+
 /** 테스트에서 연결을 끊고 모듈 상태를 처음으로 되돌린다. */
 export function resetNotificationsForTest(): void {
   close();

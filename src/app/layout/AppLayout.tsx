@@ -1,5 +1,6 @@
 import { useCallback, useId, useRef, useState } from "react";
 import { Outlet } from "react-router";
+import { AlertBanner } from "../../features/stream";
 import { MobileNav } from "./MobileNav";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -26,6 +27,8 @@ export function AppLayout() {
         }}
       />
       {navOpen && <MobileNav id={navId} onClose={closeNav} />}
+      {/* SPEC-031 R-20: 긴급 알림은 어느 화면에서든 보이게 상단 바 바로 아래에 둔다. */}
+      <AlertBanner />
       <div className="flex flex-1">
         <aside className="hidden w-60 shrink-0 border-r border-line bg-panel lg:block">
           <Sidebar />

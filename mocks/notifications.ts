@@ -67,6 +67,43 @@ export function sourceCompletedBody(sourceId: string): NotificationBody {
   };
 }
 
+/** 긴급 알림(v5.1 alert.raised 요약). 기본은 쓰러짐 high pending이다. */
+export function alertRaisedBody(
+  sourceId: string,
+  data: Partial<{ candidateId: string; status: string; description: string | null }> = {},
+): NotificationBody {
+  return {
+    type: "alert.raised",
+    sourceId,
+    occurredAt: "2026-11-06T10:05:04Z",
+    data: {
+      candidateId: "0192fb00-0000-5000-8000-0000000000c1",
+      status: "pending",
+      eventType: "fall",
+      severity: "high",
+      cameraId: "0192fb00-0000-7000-8000-000000000020",
+      description: null,
+      ...data,
+    },
+  };
+}
+
+/** 실시간 창 상태 갱신(v5.1 state.updated 요약) */
+export function stateUpdatedBody(sourceId: string, sequence: number): NotificationBody {
+  return {
+    type: "state.updated",
+    sourceId,
+    occurredAt: "2026-11-06T10:05:10Z",
+    data: {
+      sequence,
+      chunkId: "0192fb00-0000-5000-8000-000000000010",
+      activeRisks: 1,
+      newRisks: 0,
+      resolvedRisks: 0,
+    },
+  };
+}
+
 export function pingBody(): NotificationBody {
   return { type: "ping", sourceId: null, occurredAt: "2026-11-06T10:00:15Z", data: {} };
 }
