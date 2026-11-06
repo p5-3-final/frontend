@@ -6,3 +6,4 @@ export {
   type PlayerSnapshot,
 } from "./model/playerController";
 export type { TimelineMarker } from "./model/types";
+export { SEEK_PARAM, useSeekParam } from "./hooks/useSeekParam";

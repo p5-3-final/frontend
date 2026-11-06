@@ -33,6 +33,14 @@ describe("messageForCode", () => {
     expect(messageForCode(code)).toBe(message);
   });
 
+  it.each([
+    ["MEDIA_SESSION_NOT_FOUND", "세션을 찾을 수 없습니다."],
+    ["MEDIA_SESSION_FULL", "세션에는 영상을 100개까지 넣을 수 있습니다."],
+    ["MEDIA_RETAINED_VIDEO_NOT_FOUND", "이미 철회했거나 보존 기간이 끝난 영상입니다."],
+  ])("[SPEC-034 R-12] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
   it("[SPEC-006 R-9] MEDIA_NOT_PLAYABLE에는 재생할 수 없는 이유를 쓴다", () => {
     expect(messageForCode("MEDIA_NOT_PLAYABLE")).toBe(
       "업로드가 끝나지 않았거나 만료된 영상이라 재생할 수 없습니다.",

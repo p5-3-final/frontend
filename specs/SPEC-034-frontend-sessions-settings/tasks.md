@@ -19,16 +19,16 @@ updated: 2026-11-07
 
 ## Phase 1: 준비
 
-- [ ] T001 세션·보존 응답 Zod 스키마, query key, API 함수, MSW 핸들러, `/history`·`/history/sessions/:sessionId`·`/settings` 라우트 — 테스트 `Se/model/schemas.test.ts`, `St/model/schemas.test.ts`(계약 예시 파싱), 구현 `Se/model/{schemas,queryKeys,roles}.ts`, `Se/api/sessionsApi.ts`, `St/model/{schemas,queryKeys}.ts`, `St/api/settingsApi.ts`, `mocks/media.ts`, `src/pages/{HistoryPage,SessionDetailPage,SettingsPage}.tsx`, `src/app/routes.tsx`
+- [x] T001 세션·보존 응답 Zod 스키마, query key, API 함수, MSW 핸들러, `/history`·`/history/sessions/:sessionId`·`/settings` 라우트 — 테스트 `Se/model/schemas.test.ts`, `St/model/schemas.test.ts`(계약 예시 파싱), 구현 `Se/model/{schemas,queryKeys,roles}.ts`, `Se/api/sessionsApi.ts`, `St/model/{schemas,queryKeys}.ts`, `St/api/settingsApi.ts`, `mocks/media.ts`, `src/pages/{HistoryPage,SessionDetailPage,SettingsPage}.tsx`, `src/app/routes.tsx`
 
 ## Phase 2: US-1 작업 전후 비교 (P1)
 
-- [ ] T002 [R-1] "분석 이력": 내 세션 최신순 20개씩 이름·현장·구역·만든 시각, 없으면 안내와 "세션 만들기" — 테스트 `Se/components/SessionList.test.tsx`, 구현 `Se/components/SessionList.tsx`, `Se/api/useWorkSessions.ts`
-- [ ] T003 [R-3] 세션 상세: 역할 칸에 받은 순서대로 영상, 영상마다 분석 상태·확정 이벤트 수·활성 위험 수 — 테스트 `Se/components/SessionDetail.test.tsx`, 구현 `Se/components/{SessionDetail,SessionVideoCard}.tsx`, `Se/api/{useWorkSession,useSessionVideoSummaries}.ts`
-- [ ] T004 [NFR-1] 영상별 analysis 요청을 동시에 4개까지만 — 테스트 `src/shared/lib/limitConcurrency.test.ts`, `SessionDetail.test.tsx`(동시 요청 최대값), 구현 `src/shared/lib/limitConcurrency.ts`, `useSessionVideoSummaries.ts`
-- [ ] T005 [R-4] 흐름 요약: 이어 온 위험과 확정 `barrier_not_restored`·`object_removed`·`object_moved`를 역할 순·시각 순으로, 누르면 그 영상 상세를 이벤트(또는 위험 시작 시각)로 — 테스트 `Se/model/sessionFlow.test.ts`, `Se/components/SessionFlow.test.tsx`, 구현 `Se/model/sessionFlow.ts`, `Se/components/SessionFlow.tsx`
-- [ ] T006 [R-5] 분석이 끝나지 않은 영상이 있으면 흐름 요약 위에 비교가 완전하지 않다는 안내 — 테스트 `SessionFlow.test.tsx`, 구현 `SessionFlow.tsx`
-- [ ] T007 [R-12] media 404면 세션·영상을 찾을 수 없다는 안내, 5xx·네트워크면 다시 시도 — 테스트 `SessionDetail.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `SessionDetail.tsx`, `SessionList.tsx`, `messages.ts`
+- [x] T002 [R-1] "분석 이력": 내 세션 최신순 20개씩 이름·현장·구역·만든 시각, 없으면 안내와 "세션 만들기" — 테스트 `Se/components/SessionList.test.tsx`, 구현 `Se/components/SessionList.tsx`, `Se/api/useWorkSessions.ts`
+- [x] T003 [R-3] 세션 상세: 역할 칸에 받은 순서대로 영상, 영상마다 분석 상태·확정 이벤트 수·활성 위험 수 — 테스트 `Se/components/SessionDetail.test.tsx`, 구현 `Se/components/{SessionDetail,SessionVideoCard}.tsx`, `Se/api/{useWorkSession,useSessionVideoSummaries}.ts`
+- [x] T004 [NFR-1] 영상별 analysis 요청을 동시에 4개까지만 — 테스트 `src/shared/lib/limitConcurrency.test.ts`, `SessionDetail.test.tsx`(동시 요청 최대값), 구현 `src/shared/lib/limitConcurrency.ts`, `useSessionVideoSummaries.ts`
+- [x] T005 [R-4] 흐름 요약: 이어 온 위험과 확정 `barrier_not_restored`·`object_removed`·`object_moved`를 역할 순·시각 순으로, 누르면 그 영상 상세를 이벤트(또는 위험 시작 시각)로 — 테스트 `Se/model/sessionFlow.test.ts`, `Se/components/SessionFlow.test.tsx`, 구현 `Se/model/sessionFlow.ts`, `Se/components/SessionFlow.tsx`
+- [x] T006 [R-5] 분석이 끝나지 않은 영상이 있으면 흐름 요약 위에 비교가 완전하지 않다는 안내 — 테스트 `SessionFlow.test.tsx`, 구현 `SessionFlow.tsx`
+- [x] T007 [R-12] media 404면 세션·영상을 찾을 수 없다는 안내, 5xx·네트워크면 다시 시도 — 테스트 `SessionDetail.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `SessionDetail.tsx`, `SessionList.tsx`, `messages.ts`
 
 ## Phase 3: US-2 세션에 영상 올리기 (P1)
 

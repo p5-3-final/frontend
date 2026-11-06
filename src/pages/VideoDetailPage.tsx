@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { AnalysisResults, useEventSelection, useTimelineMarkers } from "../features/analysis";
-import { usePlayerController } from "../features/player";
+import { usePlayerController, useSeekParam } from "../features/player";
 import { VideoDetail } from "../features/upload";
 
 /**
@@ -10,6 +10,8 @@ import { VideoDetail } from "../features/upload";
 export function VideoDetailPage() {
   const { videoId = "" } = useParams();
   const controller = usePlayerController();
+  // 세션 흐름 요약의 위험처럼 이벤트가 아닌 시각으로 연 경우(SPEC-034 R-4)
+  useSeekParam(controller);
   const markers = useTimelineMarkers(videoId);
   const selection = useEventSelection(controller);
   return (

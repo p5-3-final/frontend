@@ -87,8 +87,16 @@ const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
   ANALYSIS_INVALID_REQUEST: INVALID_INPUT_MESSAGE,
 };
 
+// ── SPEC-034 작업 세션·학습용 보존 ──
+const SESSION_MESSAGES: Readonly<Record<string, string>> = {
+  MEDIA_SESSION_NOT_FOUND: "세션을 찾을 수 없습니다.",
+  MEDIA_SESSION_FULL: "세션에는 영상을 100개까지 넣을 수 있습니다.",
+  MEDIA_RETAINED_VIDEO_NOT_FOUND: "이미 철회했거나 보존 기간이 끝난 영상입니다.",
+};
+
 const MESSAGES: Readonly<Record<string, string>> = {
   ...ANALYSIS_MESSAGES,
+  ...SESSION_MESSAGES,
   AUTH_EMAIL_DUPLICATED: "이미 가입된 이메일입니다.",
   AUTH_INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",
   AUTH_ACCOUNT_LOCKED: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.",
