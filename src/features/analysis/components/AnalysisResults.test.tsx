@@ -1,12 +1,14 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ANALYSIS_API,
   ANALYSIS_SOURCE_ID,
   analysisHandlers,
   notAnalyzedSummaryBody,
+  sourceSummaryBody,
 } from "../../../../mocks/analysis";
+import { sourceCompletedBody, sseServer } from "../../../../mocks/notifications";
 import { handlers, MEDIA_API, mediaHandlers, problem, videoBody } from "../../../../mocks/handlers";
 import { renderRoute } from "../../../../tests/render";
 import { server } from "../../../../tests/server";
@@ -120,6 +122,34 @@ describe("AnalysisResults", () => {
     ).toBeVisible();
     expect(within(events).getByRole("button", { name: "다시 시도" })).toBeVisible();
     expect(screen.getByRole("region", { name: "분석 요약" })).toBeVisible();
+    server.events.removeAllListeners();
+  });
+
+  it("[SPEC-031 R-16] 열린 영상의 source.completed를 받으면 요약·이벤트·위험·스냅샷을 다시 불러온다", async () => {
+    let analyzed = false;
+    const sse = sseServer();
+    const requested = videoServer(
+      ...sse.handlers,
+      http.get(`${ANALYSIS_API}/sources/:id/summary`, () =>
+        HttpResponse.json(analyzed ? sourceSummaryBody() : notAnalyzedSummaryBody()),
+      ),
+      ...analysisHandlers(),
+    );
+    renderRoute(DETAIL_PATH);
+    expect(await screen.findByText("아직 분석 결과가 없습니다.")).toBeVisible();
+    await vi.waitFor(() => {
+      expect(sse.connections).toHaveLength(1);
+    });
+
+    analyzed = true;
+    sse.connections[0]?.send(sourceCompletedBody("0192f0d2-0000-7000-8000-000000000999"), "1");
+    sse.connections[0]?.send(sourceCompletedBody(ANALYSIS_SOURCE_ID), "2");
+
+    expect(await screen.findByRole("region", { name: "분석 요약" })).toBeVisible();
+    await screen.findByRole("list", { name: "이벤트 목록" });
+    await screen.findByRole("list", { name: "활성 위험" });
+    const summaryRequests = requested.filter((path) => path.endsWith("/summary"));
+    expect(summaryRequests.length).toBeGreaterThanOrEqual(2);
     server.events.removeAllListeners();
   });
 });

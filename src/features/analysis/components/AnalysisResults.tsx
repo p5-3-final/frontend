@@ -1,6 +1,7 @@
 import type { PlayerController } from "../../player";
 import { ANALYSIS_NOT_ANALYZED_MESSAGE } from "../../../shared/lib/messages";
 import { useSourceSummary } from "../api/useSourceSummary";
+import { useAnalysisLiveRefresh } from "../hooks/useAnalysisLiveRefresh";
 import { useEventSelection } from "../hooks/useEventSelection";
 import { AnalysisError } from "./AnalysisError";
 import { AnalysisProgress } from "./AnalysisProgress";
@@ -19,6 +20,7 @@ export interface AnalysisResultsProps {
 export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) {
   const { data: summary, isPending, error, refetch } = useSourceSummary(sourceId);
   const selection = useEventSelection(controller);
+  useAnalysisLiveRefresh(sourceId);
   if (isPending) {
     return <p className="text-sm text-muted">분석 결과를 불러오는 중입니다.</p>;
   }

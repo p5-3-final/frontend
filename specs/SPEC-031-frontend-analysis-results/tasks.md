@@ -51,7 +51,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 ## Phase 5: US-3 분석 진행 보기 (P1)
 
 - [x] T020 [R-15] 열린 영상의 `job.status`로 진행률·상태를 갱신하고 `terminal`이면 진행 표시를 닫음. 다른 영상 알림은 무시 — 테스트 `A/components/AnalysisProgress.test.tsx`, 구현 `A/components/AnalysisProgress.tsx`
-- [ ] T021 [R-16] 열린 영상의 `source.completed`로 요약·이벤트·위험·스냅샷을 다시 불러옴(`NOT_ANALYZED` → 결과 표시) — 테스트 `AnalysisResults.test.tsx`, 구현 `A/hooks/useAnalysisLiveRefresh.ts`
+- [x] T021 [R-16] 열린 영상의 `source.completed`로 요약·이벤트·위험·스냅샷을 다시 불러옴(`NOT_ANALYZED` → 결과 표시) — 테스트 `AnalysisResults.test.tsx`, 구현 `A/hooks/useAnalysisLiveRefresh.ts`
 
 ## Phase 6: US-4 이벤트 확인·기각 (P2)
 
