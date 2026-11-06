@@ -1,5 +1,6 @@
 export { VideoPlayer } from "./components/VideoPlayer";
 export { usePlayerController, usePlayerSnapshot } from "./hooks/usePlayerController";
+export { SEEK_PARAM, useSeekParam } from "./hooks/useSeekParam";
 export {
   createPlayerController,
   type PlayerController,

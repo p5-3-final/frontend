@@ -103,6 +103,9 @@ export const DEGRADED_MESSAGES = {
   ai_unavailable: "AI 기능을 쓸 수 없어 텍스트 검색 결과만 보여 줍니다.",
 } as const;
 
+export const VIDEO_NAME_LOADING = "영상 이름 불러오는 중";
+export const VIDEO_NAME_FAILED = "이름을 불러오지 못한 영상";
+
 /** 찾은 경로(계약 MomentResult.matchedBy) 이름 */
 export const MATCHED_BY_NAMES = { visual: "시각", text: "텍스트", image: "이미지" } as const;
 

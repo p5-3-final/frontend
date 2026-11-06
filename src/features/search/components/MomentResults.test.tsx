@@ -1,4 +1,6 @@
 import { screen, within } from "@testing-library/react";
+import { http } from "msw";
+import { MEDIA_API, problem } from "../../../../mocks/handlers";
 import { describe, expect, it } from "vitest";
 import { momentBody, momentSearchBody, SEARCH_SOURCE_ID } from "../../../../mocks/search";
 import { renderSearch, searchPath } from "../../../../tests/searchScreen";
@@ -96,6 +98,45 @@ describe("MomentResults", () => {
     expect(
       within(header).getByText("정밀 검색 사용 한도를 넘어 기본 순위로 보여 줍니다."),
     ).toBeVisible();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-7] 내 영상 전체 결과에는 결과마다 영상 이름을 보이고 영상마다 한 번만 묻는다", async () => {
+    const OTHER_ID = "0192f0d2-0000-7000-8000-000000000003";
+    const { requests, stopRecording } = renderSearch(searchPath({ q: "지게차", scope: "all" }), {
+      fixture: {
+        allSearch: momentSearchBody({
+          scope: "all",
+          precise: false,
+          results: [
+            momentBody({ momentId: "0192f320-0000-5000-8000-000000000011" }),
+            momentBody({ momentId: "0192f320-0000-5000-8000-000000000012", sourceId: OTHER_ID }),
+            momentBody({
+              momentId: "0192f320-0000-5000-8000-000000000013",
+              startMs: 90000,
+              endMs: 95000,
+            }),
+          ],
+        }),
+      },
+    });
+
+    const list = await screen.findByRole("list", { name: "검색 결과" });
+    expect(await within(list).findAllByText("crane.mp4")).toHaveLength(2);
+    expect(within(list).getByText("other.mp4")).toBeVisible();
+    const detailRequests = requests.filter((url) => /\/media\/videos\/[^/]+$/.test(url.pathname));
+    expect(detailRequests.map((url) => url.pathname).sort()).toEqual(
+      [`/api/v1/media/videos/${OTHER_ID}`, `/api/v1/media/videos/${SEARCH_SOURCE_ID}`].sort(),
+    );
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-7] 영상 이름을 불러오지 못하면 그 결과에 안내를 보인다", async () => {
+    const { stopRecording } = renderSearch(searchPath({ q: "지게차", scope: "all" }), {
+      extra: [http.get(`${MEDIA_API}/:id`, () => problem(503, "MEDIA_UNAVAILABLE"))],
+    });
+
+    expect(await screen.findByText("이름을 불러오지 못한 영상")).toBeVisible();
     stopRecording();
   });
 });

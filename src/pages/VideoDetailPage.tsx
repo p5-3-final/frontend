@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { AnalysisResults, useEventSelection, useTimelineMarkers } from "../features/analysis";
-import { usePlayerController } from "../features/player";
+import { usePlayerController, useSeekParam } from "../features/player";
 import { VideoDetail } from "../features/upload";
 
 /**
@@ -10,6 +10,8 @@ import { VideoDetail } from "../features/upload";
 export function VideoDetailPage() {
   const { videoId = "" } = useParams();
   const controller = usePlayerController();
+  // 검색 결과에서 오면 `?t=`의 시각에서 시작한다(SPEC-033 R-12).
+  useSeekParam(controller);
   const markers = useTimelineMarkers(videoId);
   const selection = useEventSelection(controller);
   return (

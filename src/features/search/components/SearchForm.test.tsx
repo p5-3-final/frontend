@@ -43,4 +43,25 @@ describe("SearchForm", () => {
     expect(searchRequests(requests)).toEqual([]);
     stopRecording();
   });
+
+  it("[SPEC-033 R-7] 내 영상 전체면 정밀 검색을 끄고 막은 채 전체 검색을 요청한다", async () => {
+    const { user, requests, stopRecording } = renderSearch();
+
+    await user.click(await screen.findByRole("radio", { name: "이 영상" }));
+    await user.click(screen.getByRole("checkbox", { name: "정밀 검색" }));
+    await user.click(screen.getByRole("radio", { name: "내 영상 전체" }));
+    const precise = screen.getByRole("checkbox", { name: "정밀 검색" });
+    expect(precise).toBeDisabled();
+    expect(precise).not.toBeChecked();
+
+    await user.type(screen.getByRole("searchbox", { name: "검색어" }), "지게차");
+    await user.click(screen.getByRole("button", { name: "검색" }));
+
+    await waitFor(() => {
+      expect(searchRequests(requests)).toEqual([
+        `/api/v1/search/moments?q=${encodeURIComponent("지게차")}`,
+      ]);
+    });
+    stopRecording();
+  });
 });

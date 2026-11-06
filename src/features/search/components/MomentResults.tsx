@@ -1,5 +1,10 @@
 import { SearchX } from "lucide-react";
-import { SEARCH_NOT_FOUND_MESSAGE } from "../../../shared/lib/messages";
+import {
+  SEARCH_NOT_FOUND_MESSAGE,
+  VIDEO_NAME_FAILED,
+  VIDEO_NAME_LOADING,
+} from "../../../shared/lib/messages";
+import { useVideoNames, type VideoName } from "../api/useVideoNames";
 import type { MomentSearchResult } from "../model/schemas";
 import { MomentResultItem } from "./MomentResultItem";
 import { SearchResultHeader } from "./SearchResultHeader";
@@ -13,6 +18,12 @@ export interface MomentResultsProps {
  * 정밀 검색에서 기준을 넘은 결과가 없으면(notFound) "찾지 못함"을 먼저 보이고 결과는 참고용으로 흐리게 보인다.
  */
 export function MomentResults({ result }: MomentResultsProps) {
+  // R-7: 내 영상 전체 결과에만 영상 이름을 붙인다. 영상 범위는 고른 영상 하나라 이름을 묻지 않는다.
+  const showNames = result.scope === "all";
+  const names = useVideoNames(
+    result.results.map((moment) => moment.sourceId),
+    showNames,
+  );
   return (
     <div className="flex flex-col gap-3">
       <SearchResultHeader result={result} />
@@ -36,11 +47,22 @@ export function MomentResults({ result }: MomentResultsProps) {
             className={`flex flex-col gap-2 ${result.notFound ? "opacity-60" : ""}`}
           >
             {result.results.map((moment) => (
-              <MomentResultItem key={moment.momentId} moment={moment} />
+              <MomentResultItem
+                key={moment.momentId}
+                moment={moment}
+                videoName={showNames ? videoNameText(names.get(moment.sourceId)) : undefined}
+              />
             ))}
           </ul>
         </>
       )}
     </div>
   );
+}
+
+function videoNameText(name: VideoName | undefined): string {
+  if (name?.status === "success") {
+    return name.fileName;
+  }
+  return name?.status === "error" ? VIDEO_NAME_FAILED : VIDEO_NAME_LOADING;
 }
