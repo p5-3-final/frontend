@@ -156,4 +156,20 @@ describe("키보드 조작", () => {
     await user.keyboard("{Enter}");
     expect(screen.queryByRole("region", { name: "이벤트 상세" })).not.toBeInTheDocument();
   });
+
+  it("[SPEC-031 R-18] 위험 패널의 시작 시각을 키보드로 골라 플레이어를 옮긴다", async () => {
+    const { user } = renderAnalysisDetail(analysisHandlers());
+    const video = await screen.findByLabelText<HTMLVideoElement>("crane.mp4 재생");
+    const panel = await screen.findByRole("region", { name: "위험 상태" });
+    const start = await within(panel).findByRole("button", { name: "시작 01:40로 이동" });
+
+    // 위험 패널은 이벤트 목록 다음에 Tab으로 닿는다.
+    const list = screen.getByRole("list", { name: "이벤트 목록" });
+    within(list).getAllByRole("button").at(-1)?.focus();
+    await user.tab();
+    expect(start).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(video.currentTime).toBe(100);
+  });
 });
