@@ -11,7 +11,14 @@ export const UNSUPPORTED_PLAYBACK_MESSAGE =
   "이 브라우저에서 재생할 수 없는 영상입니다. 원본을 내려받아 다른 플레이어로 확인해 주세요.";
 export const UPLOAD_STORAGE_MESSAGE = "파일을 저장소에 올리지 못했습니다. 다시 시도해 주세요.";
 
+// ── SPEC-031 분석 결과 ──
+export const ANALYSIS_NOT_ANALYZED_MESSAGE = "아직 분석 결과가 없습니다.";
+
+// 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
+const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {};
+
 const MESSAGES: Readonly<Record<string, string>> = {
+  ...ANALYSIS_MESSAGES,
   AUTH_EMAIL_DUPLICATED: "이미 가입된 이메일입니다.",
   AUTH_INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",
   AUTH_ACCOUNT_LOCKED: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.",

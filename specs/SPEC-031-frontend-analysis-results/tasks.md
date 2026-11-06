@@ -33,7 +33,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## Phase 3: US-1 분석 결과 훑어보기 (P1)
 
-- [ ] T009 [R-1] 영상 상세에서 요약을 불러와 `NOT_ANALYZED`면 안내, `READY`면 요약·결과 패널 — 테스트 `A/components/AnalysisResults.test.tsx`, `src/pages/VideoDetailFlow.test.tsx`, 구현 `A/components/AnalysisResults.tsx`, `A/api/useSourceSummary.ts`, `src/pages/VideoDetailPage.tsx`, `A/index.ts`
+- [x] T009 [R-1] 영상 상세에서 요약을 불러와 `NOT_ANALYZED`면 안내, `READY`면 요약·결과 패널 — 테스트 `A/components/AnalysisResults.test.tsx`, `src/pages/VideoDetailFlow.test.tsx`, 구현 `A/components/AnalysisResults.tsx`, `A/api/useSourceSummary.ts`, `src/pages/VideoDetailPage.tsx`, `A/index.ts`
 - [ ] T010 [R-2] 요약 패널: 요약문(상태별 안내), 이벤트·확정·활성 위험 수, 판정하지 않은 유형과 이유, 세션 역할·직전 상태 사용 — 테스트 `A/components/SummaryPanel.test.tsx`, 구현 `A/components/SummaryPanel.tsx`, `src/shared/lib/messages.ts`
 - [ ] T011 [R-3] 이벤트 목록(시작 시각 순, "더 보기"), 유형·severity·판정·확인 상태 거르기(URL 쿼리), 행 표시 항목 — 테스트 `A/components/EventList.test.tsx`, `A/model/eventFilters.test.ts`, 구현 `A/components/{EventList,EventFilters}.tsx`, `A/api/useSourceEvents.ts`, `A/model/eventFilters.ts`
 - [ ] T012 [R-6] 판정 상태 이름 네 가지와 설명이 null일 때 상태별 안내 — 테스트 `A/model/verification.test.ts`, `EventList.test.tsx`, 구현 `A/model/verification.ts`, `EventList.tsx`
