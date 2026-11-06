@@ -24,9 +24,9 @@ updated: 2026-11-06
 ## Phase 2: US-1 문장으로 장면 찾기 (P1)
 
 - [x] T002 [R-1] 1~200자 질의로 영상 범위 검색(정밀 선택값 포함), 받은 순서대로 썸네일·구간·"유사도"·찾은 경로 — 테스트 `S/components/SearchForm.test.tsx`, `S/components/MomentResults.test.tsx`, 구현 `S/components/{SearchForm,MomentResults,MomentResultItem}.tsx`, `S/api/useMomentSearch.ts`
-- [ ] T003 [R-2] 결과 위에 대상어·해석 방법, "장면 외형 기준 검색", 재사용 표시 — 테스트 `MomentResults.test.tsx`, 구현 `S/components/SearchResultHeader.tsx`, `src/shared/lib/messages.ts`
-- [ ] T004 [R-3] `notFound`면 "찾지 못함"을 먼저, 결과는 참고용으로 흐리게 — 테스트 `MomentResults.test.tsx`, 구현 `MomentResults.tsx`
-- [ ] T005 [P] [R-4] `degraded` 이유 네 가지별 안내 — 테스트 `S/model/degraded.test.ts`, `MomentResults.test.tsx`, 구현 `S/model/degraded.ts`, `SearchResultHeader.tsx`
+- [x] T003 [R-2] 결과 위에 대상어·해석 방법, "장면 외형 기준 검색", 재사용 표시 — 테스트 `MomentResults.test.tsx`, 구현 `S/components/SearchResultHeader.tsx`, `src/shared/lib/messages.ts`
+- [x] T004 [R-3] `notFound`면 "찾지 못함"을 먼저, 결과는 참고용으로 흐리게 — 테스트 `MomentResults.test.tsx`, 구현 `MomentResults.tsx`
+- [x] T005 [P] [R-4] `degraded` 이유 네 가지별 안내 — 테스트 `S/model/degraded.test.ts`, `MomentResults.test.tsx`, 구현 `S/model/degraded.ts`, `SearchResultHeader.tsx`
 - [ ] T006 [R-7] "내 영상 전체"면 전체 검색, 정밀 검색 꺼짐·막힘, 결과마다 영상 이름 — 테스트 `SearchForm.test.tsx`, `MomentResults.test.tsx`, 구현 `SearchForm.tsx`, `S/api/useVideoNames.ts`
 - [ ] T007 [R-12] 결과를 누르면 영상 상세를 `seekMs`로 열고, 돌아오면 다시 요청하지 않고 같은 결과 — 테스트 `src/pages/SearchFlow.test.tsx`, 구현 `MomentResultItem.tsx`, `useMomentSearch.ts`, `src/pages/VideoDetailPage.tsx`
 - [ ] T008 [R-13] 400이면 입력 옆 이유, 404 `SEARCH_NOT_INDEXED`면 준비 안 됨 안내, 5xx·네트워크면 다시 시도 — 테스트 `MomentResults.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `SearchForm.tsx`, `MomentResults.tsx`, `messages.ts`

@@ -48,4 +48,54 @@ describe("MomentResults", () => {
     );
     stopRecording();
   });
+
+  it("[SPEC-033 R-2] 결과 위에 대상어·해석 방법과 장면 외형 기준 안내를 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH);
+
+    const header = await screen.findByRole("region", { name: "검색 결과 안내" });
+    expect(within(header).getByText("person without a hard hat")).toBeVisible();
+    expect(within(header).getByText("산업 현장 규칙으로 해석")).toBeVisible();
+    expect(within(header).getByText("장면 외형 기준 검색입니다.")).toBeVisible();
+    expect(within(header).queryByText("저장된 결과를 다시 보여 줍니다.")).not.toBeInTheDocument();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-2] 재사용 결과이면 그 표시를 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: { sourceSearch: momentSearchBody({ reused: true }) },
+    });
+
+    expect(await screen.findByText("저장된 결과를 다시 보여 줍니다.")).toBeVisible();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-3] notFound면 찾지 못함을 먼저 보이고 결과는 참고 결과로 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: { sourceSearch: momentSearchBody({ notFound: true }) },
+    });
+
+    const notFound = await screen.findByText("찾지 못했습니다.");
+    const reference = screen.getByRole("list", { name: "참고 결과" });
+    // 문서 순서상 "찾지 못함"이 목록보다 앞이다.
+    expect(
+      notFound.compareDocumentPosition(reference) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(within(reference).getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.queryByRole("list", { name: "검색 결과" })).not.toBeInTheDocument();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-4] degraded면 이유에 맞는 안내를 결과 위에 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: {
+        sourceSearch: momentSearchBody({ degraded: { reason: "precise_quota_exceeded" } }),
+      },
+    });
+
+    const header = await screen.findByRole("region", { name: "검색 결과 안내" });
+    expect(
+      within(header).getByText("정밀 검색 사용 한도를 넘어 기본 순위로 보여 줍니다."),
+    ).toBeVisible();
+    stopRecording();
+  });
 });

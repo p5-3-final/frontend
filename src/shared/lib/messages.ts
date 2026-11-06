@@ -82,6 +82,27 @@ export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 export const SEARCH_QUERY_MESSAGE = "검색어를 1~200자로 입력해 주세요.";
 export const SEARCH_SOURCE_REQUIRED_MESSAGE = "검색할 영상을 골라 주세요.";
 
+/** 질의 해석 방법(계약 MomentSearchResult.parseMethod) 이름(SPEC-033 R-2) */
+export const PARSE_METHOD_NAMES = {
+  "industrial-rule": "산업 현장 규칙으로 해석",
+  "english-phrase": "영어 문장 그대로 해석",
+  llm: "AI로 해석",
+  "safe-fallback": "기본 규칙으로 해석",
+  image: "이미지로 검색",
+} as const;
+
+export const SEARCH_APPEARANCE_NOTICE = "장면 외형 기준 검색입니다.";
+export const SEARCH_REUSED_NOTICE = "저장된 결과를 다시 보여 줍니다.";
+export const SEARCH_NOT_FOUND_MESSAGE = "찾지 못했습니다.";
+
+/** 축소 응답 이유(계약 Degraded.reason)별 안내(SPEC-033 R-4) */
+export const DEGRADED_MESSAGES = {
+  rerank_timeout: "정밀 검색이 제시간에 끝나지 않아 기본 순위로 보여 줍니다.",
+  circuit_open: "정밀 검색을 잠시 쓸 수 없어 기본 순위로 보여 줍니다.",
+  precise_quota_exceeded: "정밀 검색 사용 한도를 넘어 기본 순위로 보여 줍니다.",
+  ai_unavailable: "AI 기능을 쓸 수 없어 텍스트 검색 결과만 보여 줍니다.",
+} as const;
+
 /** 찾은 경로(계약 MomentResult.matchedBy) 이름 */
 export const MATCHED_BY_NAMES = { visual: "시각", text: "텍스트", image: "이미지" } as const;
 
