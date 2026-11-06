@@ -4,18 +4,18 @@ repo: frontend
 status: Approved
 owner: <이름>
 created: 2026-11-06
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Plan: SPEC-033 검색 화면(문장·이미지 장면 찾기, 주석 클립)과 영상 질문(Video RAG) — frontend
 
 - spec: docs 레포 `docs/specs/SPEC-033-frontend-search/spec.md`
-- 계약: docs 레포 `service-contracts/` 묶음 3.14.0
+- 계약: docs 레포 `service-contracts/` 묶음 4.1.0
   - `openapi/search-service.yaml` 0.1.0: `searchSourceMoments`, `searchAllMoments`, `searchMomentsByImage`, `answerSourceQuestion`, `sendMomentFeedback`, `getGroundingClip`
   - `notifications/v1/notification-message.schema.json`: `grounding.completed`
   - `openapi/media-service.yaml`: `listVideos`, `getVideo`(영상 이름)
 - 관련: SPEC-031(영상 상세 조립, 플레이어 컨트롤러, 알림 연결과 버퍼), SPEC-025·SPEC-026(인덱스·주석 클립)
-- 선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T002(플레이어 컨트롤러), T004·T005(알림 연결), T009(영상 상세 조립)
+- 선행: SPEC-031 T001(계약 lock 4.1.0과 생성 코드), T002(플레이어 컨트롤러), T004·T005(알림 연결), T009(영상 상세 조립)
 
 ## 1. 요약
 
@@ -48,7 +48,7 @@ updated: 2026-11-06
 | 원칙 | 준수 | 비고 |
 | --- | --- | --- |
 | I 스펙 우선 — spec이 Approved 상태인가 | ☑ | docs #128 |
-| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | search-service 0.1.0은 docs #128로 머지됨. SPEC-031 T001이 3.14.0 생성 코드를 만든다 |
+| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | search-service 0.1.0은 docs #128로 머지됨. SPEC-031 T001이 4.1.0 생성 코드를 만든다 |
 | III 테스트 우선 — 모든 R-*에 테스트가 매핑되고, 태스크가 요구사항 단위 TDD 사이클로 나뉘었는가 | ☑ | 2절, tasks.md |
 | IV 서비스 자율성 — 다른 서비스 DB나 코드에 직접 의존하지 않는가 | ☑ | search-service·media-service 공개 API와 SSE만 쓴다 |
 | V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성 없음. 썸네일 지연은 `<img loading="lazy">`, 클립은 `<video>`, 이미지 업로드는 `FormData` |
@@ -105,7 +105,7 @@ updated: 2026-11-06
 - 결과의 `grounding.status`가 `NONE`이면 주석 자리를 두지 않는다. `REQUESTED`면 "주석 클립 만드는 중", `READY`·`FAILED`는 아래와 같다.
 - `useGroundingLiveStatus(groundingIds)`가 `grounding.completed`를 구독한다(버퍼 재생 포함. 검색 응답보다 알림이 먼저 올 수 있다). `READY`면 `getGroundingClip`을 불러 "주석 클립 보기"를 보이고, `FAILED`면 "주석을 만들지 못했습니다."를 보인다. 응답 시점에 이미 `READY`인 결과는 바로 클립 정보를 불러온다.
 - 받은 상태는 검색 결과 캐시를 고치지 않고 그 결과의 주석 query로 둔다(서버 데이터를 복사하지 않는다).
-- "주석 클립 보기"(R-6): `ConfirmDialog`와 같은 `<dialog>`에 `<video controls src={clipUrl}>`, 대상어별 색 범례(`colors`의 색 견본 + 대상어 글자), 현재 재생 위치에 가장 가까운 `frames[].ptsMs`의 객체 수(대상어: n). 클립 주소는 창이 열린 동안만 쓰고 닫으면 버린다(`gcTime: 0`).
+- "주석 클립 보기"(R-6): `ConfirmDialog`와 같은 `<dialog>`에 `<video controls src={clipUrl}>`, 대상어별 색 범례(`colors`의 색 견본 + 대상어 글자), 현재 재생 위치에 가장 가까운 `frames[].ptsMs`의 객체 수(대상어: n). `ptsMs`는 원본 영상 시각이고(계약 예시가 구간 `startMs`와 같은 40000에서 시작), 클립은 결과 구간 `startMs`에서 시작하므로 클립 재생 위치에 `startMs`를 더해 가장 가까운 프레임을 고른다. 클립 주소는 창이 열린 동안만 쓰고 닫으면 버린다(`gcTime: 0`).
 
 ### 이미지 검색 (R-8)
 
@@ -148,7 +148,7 @@ updated: 2026-11-06
 
 - 리스크
   - search-service 계약이 생산자 확인 전 초안이다. 바뀌면 생성 타입·스키마·픽스처를 다시 맞춘다.
-  - 주석 클립의 `frames[].ptsMs`가 원본 영상 시각인지 클립 안 시각인지 계약에 적혀 있지 않다. 클립 시작을 0으로 보고 구현하며, 다르면 보고한다.
+  - 주석 클립의 `frames[].ptsMs`가 원본 영상 시각인지 클립 안 시각인지 계약 설명에 적혀 있지 않다. 계약 예시(구간 `startMs` 40000, 첫 프레임 `ptsMs` 40000)에 맞춰 원본 기준으로 구현한다. 생산자가 다르게 정하면 계약 설명을 고친 뒤 화면을 맞춘다.
   - 정밀 검색은 사용자별 상한이 있다. 화면이 같은 질의를 다시 보내지 않도록 캐시를 오래 둔다.
 - 롤백 방법: `/search` 라우트를 ComingSoon으로 되돌리고 패널 조립을 빼면 된다.
 

@@ -78,6 +78,13 @@ export const SESSION_ROLE_NAMES = {
 export const ANALYSIS_LOAD_FAILED_MESSAGE = "분석 결과를 불러오지 못했습니다.";
 export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 
+// ── SPEC-033 검색 ──
+export const SEARCH_QUERY_MESSAGE = "검색어를 1~200자로 입력해 주세요.";
+export const SEARCH_SOURCE_REQUIRED_MESSAGE = "검색할 영상을 골라 주세요.";
+
+/** 찾은 경로(계약 MomentResult.matchedBy) 이름 */
+export const MATCHED_BY_NAMES = { visual: "시각", text: "텍스트", image: "이미지" } as const;
+
 // 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
 const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
   ANALYSIS_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,

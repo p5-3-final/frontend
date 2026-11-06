@@ -15,15 +15,15 @@ updated: 2026-11-06
 
 경로 약어: `S` = `src/features/search`, `A` = `src/features/analysis`
 
-선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T002(플레이어 컨트롤러), T004·T005(알림 연결과 버퍼), T009(영상 상세 조립)
+선행: SPEC-031 T001(계약 lock 4.1.0과 생성 코드), T002(플레이어 컨트롤러), T004·T005(알림 연결과 버퍼), T009(영상 상세 조립)
 
 ## Phase 1: 준비
 
-- [ ] T001 search 응답 Zod 스키마, URL 쿼리 스키마, query key, API 함수, `apiRequest`의 `FormData` 본문, 계약 예시 픽스처, `/search` 라우트 — 테스트 `S/model/schemas.test.ts`(계약 예시 파싱), `S/model/searchParams.test.ts`, `src/shared/api/client.test.ts`, 구현 `S/model/{schemas,searchParams,queryKeys}.ts`, `S/api/searchApi.ts`, `src/shared/api/client.ts`, `mocks/search.ts`, `src/pages/SearchPage.tsx`, `src/app/routes.tsx`
+- [x] T001 search 응답 Zod 스키마, URL 쿼리 스키마, query key, API 함수, `apiRequest`의 `FormData` 본문, 계약 예시 픽스처, `/search` 라우트 — 테스트 `S/model/schemas.test.ts`(계약 예시 파싱), `S/model/searchParams.test.ts`, `src/shared/api/client.test.ts`, 구현 `S/model/{schemas,searchParams,queryKeys}.ts`, `S/api/searchApi.ts`, `src/shared/api/client.ts`, `mocks/search.ts`, `src/pages/SearchPage.tsx`, `src/app/routes.tsx`
 
 ## Phase 2: US-1 문장으로 장면 찾기 (P1)
 
-- [ ] T002 [R-1] 1~200자 질의로 영상 범위 검색(정밀 선택값 포함), 받은 순서대로 썸네일·구간·"유사도"·찾은 경로 — 테스트 `S/components/SearchForm.test.tsx`, `S/components/MomentResults.test.tsx`, 구현 `S/components/{SearchForm,MomentResults,MomentResultItem}.tsx`, `S/api/useMomentSearch.ts`
+- [x] T002 [R-1] 1~200자 질의로 영상 범위 검색(정밀 선택값 포함), 받은 순서대로 썸네일·구간·"유사도"·찾은 경로 — 테스트 `S/components/SearchForm.test.tsx`, `S/components/MomentResults.test.tsx`, 구현 `S/components/{SearchForm,MomentResults,MomentResultItem}.tsx`, `S/api/useMomentSearch.ts`
 - [ ] T003 [R-2] 결과 위에 대상어·해석 방법, "장면 외형 기준 검색", 재사용 표시 — 테스트 `MomentResults.test.tsx`, 구현 `S/components/SearchResultHeader.tsx`, `src/shared/lib/messages.ts`
 - [ ] T004 [R-3] `notFound`면 "찾지 못함"을 먼저, 결과는 참고용으로 흐리게 — 테스트 `MomentResults.test.tsx`, 구현 `MomentResults.tsx`
 - [ ] T005 [P] [R-4] `degraded` 이유 네 가지별 안내 — 테스트 `S/model/degraded.test.ts`, `MomentResults.test.tsx`, 구현 `S/model/degraded.ts`, `SearchResultHeader.tsx`

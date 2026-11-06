@@ -31,6 +31,25 @@ describe("apiRequest", () => {
     expect(search).toBe("?severity=high&page=0&includeMerged=false");
   });
 
+  it("[SPEC-033 R-8] FormData 본문은 JSON으로 바꾸지 않고 Content-Type을 브라우저에 맡긴다", async () => {
+    let contentType: string | null = null;
+    let sourceId: FormDataEntryValue | null = null;
+    server.use(
+      http.post(ME_URL, async ({ request }) => {
+        contentType = request.headers.get("Content-Type");
+        sourceId = (await request.formData()).get("sourceId");
+        return HttpResponse.json({ nickname: "테스터" });
+      }),
+    );
+    const body = new FormData();
+    body.set("sourceId", "s-1");
+
+    await apiRequest("/api/v1/auth/me", meSchema, { method: "POST", body });
+
+    expect(contentType).toMatch(/^multipart\/form-data; boundary=/);
+    expect(sourceId).toBe("s-1");
+  });
+
   it("로그인 상태면 접근 토큰을 Authorization 헤더로 보낸다", async () => {
     let authorization: string | null = null;
     server.use(
