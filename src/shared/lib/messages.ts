@@ -78,6 +78,58 @@ export const SESSION_ROLE_NAMES = {
 export const ANALYSIS_LOAD_FAILED_MESSAGE = "분석 결과를 불러오지 못했습니다.";
 export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 
+// ── SPEC-032 클릭 조회·객체 질문·위험구역 ──
+
+/** 보호구 착용 상태(taxonomy/v2 ppeState) */
+export const PPE_STATE_NAMES = { worn: "착용", not_worn: "미착용", unknown: "알 수 없음" } as const;
+
+/** 작업자 역할(taxonomy/v2 workerRole). AI 담당자가 값을 더할 수 있어 모르는 값은 원래 값을 보인다. */
+const WORKER_ROLE_NAMES: Readonly<Record<string, string>> = {
+  worker: "작업자",
+  supervisor: "관리자",
+  visitor: "방문자",
+  driver: "운전자",
+  unknown: "알 수 없음",
+};
+
+export function workerRoleName(role: string): string {
+  return WORKER_ROLE_NAMES[role] ?? role;
+}
+
+/** 탐지 클래스(taxonomy/v2 className) 중 자주 보이는 것의 한국어 이름. 목록 밖은 원래 값을 보인다. */
+const OBJECT_CLASS_NAMES: Readonly<Record<string, string>> = {
+  person: "사람",
+  forklift: "지게차",
+  ladder: "사다리",
+  helmet: "안전모",
+  vest: "안전조끼",
+  crane: "크레인",
+  truck: "트럭",
+  excavator: "굴착기",
+  cone: "안전 콘",
+  barrier: "방호 울타리",
+};
+
+export function objectClassName(className: string): string {
+  return OBJECT_CLASS_NAMES[className] ?? className;
+}
+
+/** 구역 종류(계약 ZoneDefinition·stream Zone kind) */
+export const ZONE_KIND_NAMES = {
+  hazard: "위험구역",
+  aisle: "통로",
+  general: "일반",
+  storage: "적치구역",
+} as const;
+
+export const QUESTION_RATE_LIMITED_MESSAGE = "질문이 많습니다. 잠시 뒤 다시 해 주세요.";
+
+const INSPECT_MESSAGES: Readonly<Record<string, string>> = {
+  ANALYSIS_TRACK_NOT_FOUND: "객체를 찾을 수 없습니다.",
+  ANALYSIS_QUESTION_RATE_LIMITED: QUESTION_RATE_LIMITED_MESSAGE,
+  ANALYSIS_ZONE_INVALID: "구역 정의가 저장 조건에 맞지 않습니다.",
+};
+
 // 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
 const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
   ANALYSIS_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,
@@ -89,6 +141,7 @@ const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
 
 const MESSAGES: Readonly<Record<string, string>> = {
   ...ANALYSIS_MESSAGES,
+  ...INSPECT_MESSAGES,
   AUTH_EMAIL_DUPLICATED: "이미 가입된 이메일입니다.",
   AUTH_INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",
   AUTH_ACCOUNT_LOCKED: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.",

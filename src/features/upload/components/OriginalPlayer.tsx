@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ApiError } from "../../../shared/api/problem";
 import { messageForCode } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
@@ -10,6 +11,8 @@ export interface OriginalPlayerProps {
   controller?: PlayerController;
   markers?: readonly TimelineMarker[];
   onMarkerSelect?: (id: string) => void;
+  /** 영상 위 층(SPEC-032) */
+  overlay?: ReactNode;
 }
 
 /** 원본 영상 플레이어. 브라우저가 서명 주소로 저장소에서 바로 읽는다(SPEC-006 R-8). */
@@ -18,6 +21,7 @@ export function OriginalPlayer({
   controller,
   markers,
   onMarkerSelect,
+  overlay,
 }: OriginalPlayerProps) {
   const { data: playback, error, isPending, refetch } = useVideoPlayback(video.id);
 
@@ -39,6 +43,7 @@ export function OriginalPlayer({
       controller={controller}
       markers={markers}
       onMarkerSelect={onMarkerSelect}
+      overlay={overlay}
     />
   );
 }

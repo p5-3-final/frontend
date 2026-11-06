@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 import { resetNotificationsForTest } from "../src/features/notifications/model/notificationStream";
 import { resetUploadsForTest } from "../src/features/upload/model/uploadQueue";
 import { resetSessionForTest } from "../src/shared/api/session";
+import { installResizeObserver } from "./resizeObserver";
 import { server } from "./server";
 
 // 화면은 lazy 라우트와 MSW 스트림을 거쳐 그려진다. 전체 테스트를 병렬로 돌릴 때 기본 1초로는 모자라 3초로 둔다.
@@ -30,6 +31,15 @@ Object.defineProperties(HTMLDialogElement.prototype, {
 Object.defineProperties(HTMLMediaElement.prototype, {
   play: { configurable: true, value: () => Promise.resolve() },
   pause: { configurable: true, value: () => undefined },
+});
+
+installResizeObserver();
+
+// jsdom은 포인터 캡처를 구현하지 않는다(구역 꼭짓점 끌기, SPEC-032 R-11). 호출만 받아 둔다.
+Object.defineProperties(Element.prototype, {
+  setPointerCapture: { configurable: true, value: () => undefined },
+  releasePointerCapture: { configurable: true, value: () => undefined },
+  hasPointerCapture: { configurable: true, value: () => false },
 });
 
 // 등록하지 않은 요청은 실패시켜, 테스트가 모르는 API 호출을 놓치지 않게 한다.
