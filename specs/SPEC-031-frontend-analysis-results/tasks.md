@@ -64,7 +64,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 ## Phase 8: 마무리
 
 - [ ] T024 [NFR-1] E2E: US-1(요약·목록·표시·이동), US-2(위험), US-3(진행 → 완료 → 다시 불러오기), 이벤트 500개 응답 뒤 300ms 안에 목록·표시, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/analysis-results.spec.ts`, 가짜 API `tests/e2e/{fakeAnalysis,fakeNotifications}.ts`
-- [ ] T025 [NFR-3] 근거 프레임·썸네일 서명 주소가 콘솔·브라우저 저장소에 남지 않음 — 테스트 `A/api/analysisSecrets.test.tsx`
+- [x] T025 [NFR-3] 근거 프레임·썸네일 서명 주소가 콘솔·브라우저 저장소에 남지 않음 — 테스트 `A/api/analysisSecrets.test.tsx`
 - [ ] T026 개발용 mock 모드(`VITE_API_MOCKING=true`일 때만 MSW 브라우저 워커, 운영 빌드 제외). 5절 사용자 확인 뒤 진행 — `mocks/browser.ts`, `src/app/main.tsx`, `public/mockServiceWorker.js`, `.env.example`
 - [ ] T027 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README(mock 모드, 알림 연결), mock 모드 시연으로 성공 지표 확인
 
