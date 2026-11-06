@@ -1,9 +1,10 @@
 import { ImageOff } from "lucide-react";
 import { formatMediaTime } from "../../../shared/lib/format";
-import { eventTypeName, SEVERITY_NAMES } from "../../../shared/lib/messages";
+import { eventTypeName } from "../../../shared/lib/messages";
 import { Button } from "../../../shared/ui/Button";
 import type { EventSummary } from "../model/schemas";
 import { descriptionText, verificationName } from "../model/verification";
+import { SeverityBadge } from "./SeverityBadge";
 
 export interface EventListProps {
   events: EventSummary[];
@@ -65,9 +66,7 @@ export function EventList({
                   <span className="flex flex-wrap items-center gap-x-2 text-sm">
                     <span className="font-semibold">{name}</span>
                     <span className="font-mono text-xs text-muted">{time}</span>
-                    {event.severity !== null && (
-                      <span className="text-xs">{SEVERITY_NAMES[event.severity]}</span>
-                    )}
+                    <SeverityBadge severity={event.severity} />
                     <span className="text-xs text-muted">
                       {verificationName(event.verificationStatus)}
                     </span>

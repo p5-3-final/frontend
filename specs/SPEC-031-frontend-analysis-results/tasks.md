@@ -40,7 +40,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 - [x] T013 [R-5] 이벤트를 누르면 플레이어가 `seekMs`로 가고 상세(근거 프레임, 설명, 위험 사유, "안전관리자 확인 필요"와 조치 제안, 판정 방식, 판정 호출 요약)가 열림. `?event=`로 바로 열어도 같음 — 테스트 `A/components/EventDetailPanel.test.tsx`, `AnalysisResults.test.tsx`, 구현 `A/components/EventDetailPanel.tsx`, `A/api/useEvent.ts`, `P/hooks/usePlayerController.ts`, `U/model/paths.ts`
 - [x] T014 [R-4] 자체 플레이어 컨트롤과 진행 막대 위 이벤트 표시(severity 색, 누르면 R-5 동작, 겹침 묶기) — 테스트 `P/components/PlayerControls.test.tsx`, `A/model/timelineMarkers.test.ts`, `P/components/VideoPlayer.test.tsx`(SPEC-006 동작 유지), 구현 `P/components/{PlayerControls,VideoPlayer}.tsx`, `P/model/types.ts`, `A/model/timelineMarkers.ts`
 - [x] T015 [R-17] 분석 API 404면 영상을 찾을 수 없다는 안내, 5xx·네트워크 오류면 "다시 시도". 패널별로 따로 — 테스트 `AnalysisResults.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `AnalysisResults.tsx`, `messages.ts`
-- [ ] T016 [R-18] 목록·위험 패널을 키보드만으로 이동·선택, severity는 색과 글자 함께 — 테스트 `A/components/SeverityBadge.test.tsx`, `src/app/Keyboard.test.tsx`, 구현 `A/components/SeverityBadge.tsx`, `EventList.tsx`
+- [x] T016 [R-18] 목록·위험 패널을 키보드만으로 이동·선택, severity는 색과 글자 함께 — 테스트 `A/components/SeverityBadge.test.tsx`, `src/app/Keyboard.test.tsx`, 구현 `A/components/SeverityBadge.tsx`, `EventList.tsx`
 
 ## Phase 4: US-2 위험 상태 보기 (P1)
 

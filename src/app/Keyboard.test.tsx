@@ -1,5 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { analysisHandlers, eventSummaryBody, eventDetailBody } from "../../mocks/analysis";
+import { renderAnalysisDetail } from "../../tests/analysisDetail";
 import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../../mocks/handlers";
 import { http, HttpResponse } from "msw";
 import { renderRoute } from "../../tests/render";
@@ -123,5 +125,35 @@ describe("키보드 조작", () => {
     within(dialog).getByRole("button", { name: "취소" }).focus();
     await user.keyboard("{Enter}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("[SPEC-031 R-18] 이벤트 목록을 Tab으로 지나 Enter로 이벤트를 열고 상세를 닫는다", async () => {
+    const fall = eventSummaryBody({
+      eventId: "0192f300-0000-5000-8000-000000000102",
+      eventType: "fall",
+      startMs: 130_000,
+      seekMs: 128_000,
+    });
+    const { user } = renderAnalysisDetail(
+      analysisHandlers({
+        events: [eventSummaryBody(), fall],
+        details: [eventDetailBody({ event: fall })],
+      }),
+    );
+    const list = await screen.findByRole("list", { name: "이벤트 목록" });
+    const [first, second] = within(list).getAllByRole("button");
+
+    screen.getByLabelText("확인 상태").focus();
+    await user.tab();
+    expect(first).toHaveFocus();
+    await user.tab();
+    expect(second).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    const detail = await screen.findByRole("region", { name: "이벤트 상세" });
+    expect(await within(detail).findByText("쓰러짐")).toBeVisible();
+    within(detail).getByRole("button", { name: "이벤트 상세 닫기" }).focus();
+    await user.keyboard("{Enter}");
+    expect(screen.queryByRole("region", { name: "이벤트 상세" })).not.toBeInTheDocument();
   });
 });

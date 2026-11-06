@@ -1,13 +1,14 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { formatMediaTime } from "../../../shared/lib/format";
-import { eventTypeName, SEVERITY_NAMES } from "../../../shared/lib/messages";
+import { eventTypeName } from "../../../shared/lib/messages";
 import { Panel } from "../../../shared/ui/Panel";
 import type { PlayerController } from "../../player";
 import { useEvent } from "../api/useEvent";
 import { vlmAnalysisSchema, type EventDetail } from "../model/schemas";
 import { descriptionText, verificationName } from "../model/verification";
 import { AnalysisError } from "./AnalysisError";
+import { SeverityBadge } from "./SeverityBadge";
 
 export interface EventDetailPanelProps {
   eventId: string;
@@ -81,7 +82,7 @@ function EventDetailBody({
         <span className="font-mono text-muted">
           {formatMediaTime(event.startMs)}–{formatMediaTime(event.endMs)}
         </span>
-        {event.severity !== null && <span>{SEVERITY_NAMES[event.severity]}</span>}
+        <SeverityBadge severity={event.severity} />
         <span className="text-muted">{verificationName(event.verificationStatus)}</span>
       </p>
       {detail.evidenceFrames.length > 0 && (
