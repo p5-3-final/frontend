@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import { z } from "zod";
 import {
   eventTypeSchema,
   reviewStateSchema,
@@ -72,4 +72,61 @@ export function toEventSearchParams(params: URLSearchParams, query: EventQuery):
     next.set(URL_KEYS[field], value);
   }
   return next;
+}
+
+/** 전체 이벤트 화면의 URL 상태(SPEC-031 R-11). 날짜는 `YYYY-MM-DD`(서울 날짜)다. */
+export interface MyEventFilters {
+  query: EventQuery;
+  fromDate?: string;
+  toDate?: string;
+  /** 0부터 센 쪽 번호 */
+  page: number;
+}
+
+const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const pageSchema = z.coerce.number().int().min(0);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** 서울 자정(포함). `<input type="date">` 값은 날짜만이라 서울 시간대로 읽는다. */
+function seoulMidnight(date: string): Date {
+  return new Date(`${date}T00:00:00+09:00`);
+}
+
+export function parseMyEventFilters(params: URLSearchParams): MyEventFilters {
+  const fromDate = read(params, "from", dateSchema);
+  const toDate = read(params, "to", dateSchema);
+  return {
+    query: parseEventQuery(params),
+    ...(fromDate === undefined ? {} : { fromDate }),
+    ...(toDate === undefined ? {} : { toDate }),
+    page: read(params, "page", pageSchema) ?? 0,
+  };
+}
+
+/** URL 상태를 쓴다. 거르기를 바꾸면 첫 쪽부터 다시 보도록 쪽 번호는 0일 때 뺀다. */
+export function toMyEventSearchParams(filters: MyEventFilters): URLSearchParams {
+  const next = toEventSearchParams(new URLSearchParams(), filters.query);
+  if (filters.fromDate !== undefined) {
+    next.set("from", filters.fromDate);
+  }
+  if (filters.toDate !== undefined) {
+    next.set("to", filters.toDate);
+  }
+  if (filters.page > 0) {
+    next.set("page", String(filters.page));
+  }
+  return next;
+}
+
+/** listMyEvents 쿼리. 종료일은 그날 끝까지 포함하도록 다음 날 서울 자정을 상한(제외)으로 보낸다(계약 to는 제외). */
+export function toMyEventQuery(filters: MyEventFilters): MyEventQuery {
+  return {
+    ...filters.query,
+    ...(filters.fromDate === undefined
+      ? {}
+      : { from: seoulMidnight(filters.fromDate).toISOString() }),
+    ...(filters.toDate === undefined
+      ? {}
+      : { to: new Date(seoulMidnight(filters.toDate).getTime() + DAY_MS).toISOString() }),
+  };
 }

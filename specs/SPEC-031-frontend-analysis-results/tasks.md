@@ -59,7 +59,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## Phase 7: US-5 전체 이벤트 보기 (P2)
 
-- [ ] T023 [R-11] "이벤트" 메뉴: 내 영상 전체 최신순 쪽 나눔, 유형·severity·판정·확인 상태·기간 거르기, 누르면 그 영상 상세가 이벤트가 열린 채로 — 테스트 `A/components/AllEventsList.test.tsx`, `src/pages/EventsFlow.test.tsx`, 구현 `A/components/AllEventsList.tsx`, `A/api/useMyEvents.ts`, `src/pages/EventsPage.tsx`, `src/app/routes.tsx`
+- [x] T023 [R-11] "이벤트" 메뉴: 내 영상 전체 최신순 쪽 나눔, 유형·severity·판정·확인 상태·기간 거르기, 누르면 그 영상 상세가 이벤트가 열린 채로 — 테스트 `A/components/AllEventsList.test.tsx`, `src/pages/EventsFlow.test.tsx`, 구현 `A/components/AllEventsList.tsx`, `A/api/useMyEvents.ts`, `src/pages/EventsPage.tsx`, `src/app/routes.tsx`
 
 ## Phase 8: 마무리
 
