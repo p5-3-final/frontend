@@ -99,17 +99,24 @@ describe("키보드 조작", () => {
     await user.keyboard("{Enter}");
     const player = await screen.findByLabelText("parking.mp4 재생");
 
-    // 상세 화면은 목록 링크 → 삭제 → 플레이어 → 원본 내려받기 순서로 지난다.
+    expect(player).toBeInTheDocument();
+    // 상세 화면은 목록 링크 → 삭제 → 플레이어 컨트롤(재생·위치·음소거·전체 화면) → 원본 내려받기 순서로 지난다.
+    // SPEC-031 R-4로 기본 컨트롤 대신 자체 컨트롤을 쓴다.
     screen.getByRole("link", { name: "목록으로 돌아가기" }).focus();
     await user.tab();
     expect(screen.getByRole("button", { name: "parking.mp4 삭제" })).toHaveFocus();
     await user.tab();
-    expect(player).toHaveFocus();
+    expect(screen.getByRole("button", { name: "재생" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("slider", { name: "재생 위치" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "음소거" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "전체 화면" })).toHaveFocus();
     await user.tab();
     expect(screen.getByRole("link", { name: "원본 내려받기" })).toHaveFocus();
 
-    await user.tab({ shift: true });
-    await user.tab({ shift: true });
+    screen.getByRole("button", { name: "parking.mp4 삭제" }).focus();
     await user.keyboard("{Enter}");
     const dialog = screen.getByRole("dialog", { name: "영상 삭제" });
     // 테스트의 showModal 대체 구현은 초점을 창 안으로 옮기지 않는다. 실제 모달의 초점 이동은 E2E가 확인한다(tests/setup.ts).

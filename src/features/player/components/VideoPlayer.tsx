@@ -3,6 +3,8 @@ import { UNSUPPORTED_PLAYBACK_MESSAGE } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
 import { usePlayerController } from "../hooks/usePlayerController";
 import type { PlayerController } from "../model/playerController";
+import type { TimelineMarker } from "../model/types";
+import { PlayerControls } from "./PlayerControls";
 
 // 서명 만료는 저장소 시계로 판단한다. 브라우저 시계가 조금 늦어도 만료로 볼 수 있게 만료 1분 전부터 만료로 친다.
 const EXPIRY_MARGIN_MS = 60_000;
@@ -20,9 +22,16 @@ export interface VideoPlayerProps {
   controller?: PlayerController;
   /** 영상 위에 겹쳐 그릴 층(SPEC-032 오버레이·클릭 조회) */
   overlay?: ReactNode;
+  /** 진행 막대 위 표시(SPEC-031 R-4) */
+  markers?: readonly TimelineMarker[];
+  onMarkerSelect?: (id: string) => void;
 }
 
-/** 영상 플레이어. 서명 주소 만료 시 새 주소로 보던 위치부터 이어서 재생한다(SPEC-006 R-10, R-11). */
+/**
+ * 영상 플레이어. 서명 주소 만료 시 새 주소로 보던 위치부터 이어서 재생한다(SPEC-006 R-10, R-11).
+ * 브라우저 기본 컨트롤 대신 자체 컨트롤을 써서 진행 막대 위에 이벤트를 표시한다(SPEC-031 R-4).
+ * 키보드는 컨트롤의 버튼과 진행 막대로 조작한다(SPEC-006 NFR-4).
+ */
 export function VideoPlayer({
   label,
   src,
@@ -31,11 +40,14 @@ export function VideoPlayer({
   onExpired,
   controller,
   overlay,
+  markers,
+  onMarkerSelect,
 }: VideoPlayerProps) {
   const ownController = usePlayerController();
   const player = controller ?? ownController;
   // 새 주소로 바꾼 뒤 되돌릴 재생 위치. 화면에 그리는 값이 아니라 ref에 둔다.
   const resumeRef = useRef<{ time: number; playing: boolean } | null>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [refreshed, setRefreshed] = useState(false);
   const [unsupported, setUnsupported] = useState(false);
 
@@ -92,15 +104,12 @@ export function VideoPlayer({
   }
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative">
+      <div ref={frameRef} className="relative flex flex-col gap-1 rounded-xl bg-black">
         {/* eslint-disable-next-line jsx-a11y/media-has-caption -- 사용자가 올린 원본에는 자막 파일이 없다 (#26) */}
         <video
           ref={attachVideo}
           aria-label={label}
           src={src}
-          controls
-          // SPEC-006 NFR-4: Safari 등은 기본 설정에서 <video>를 Tab으로 건너뛰므로 명시적으로 초점을 받게 한다.
-          tabIndex={0}
           playsInline
           preload="metadata"
           onError={handleError}
@@ -108,6 +117,15 @@ export function VideoPlayer({
           className="max-h-[70vh] w-full rounded-xl bg-black"
         />
         {overlay}
+        <PlayerControls
+          controller={player}
+          markers={markers}
+          onMarkerSelect={onMarkerSelect}
+          onFullscreen={() => {
+            // 영상만이 아니라 표시와 오버레이까지 함께 전체 화면으로 보인다.
+            frameRef.current?.requestFullscreen().catch(() => undefined);
+          }}
+        />
       </div>
       {download}
     </div>

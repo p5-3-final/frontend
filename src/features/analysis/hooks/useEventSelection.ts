@@ -11,6 +11,8 @@ export interface EventSelection {
   selectedId: string | undefined;
   /** 이벤트를 열고 플레이어를 그 이벤트의 seekMs로 옮긴다(SPEC-031 R-5). */
   select: (event: { eventId: string; seekMs: number }) => void;
+  /** seekMs를 모르는 곳(진행 막대 표시)에서 연다. 상세를 받은 뒤 상세 패널이 seekMs로 옮긴다. */
+  open: (eventId: string) => void;
   close: () => void;
 }
 
@@ -18,19 +20,23 @@ export interface EventSelection {
 export function useEventSelection(controller: PlayerController): EventSelection {
   const [searchParams, setSearchParams] = useSearchParams();
   const parsed = eventIdSchema.safeParse(searchParams.get(EVENT_PARAM));
+  const open = (eventId: string) => {
+    setSearchParams(
+      (params) => {
+        const next = new URLSearchParams(params);
+        next.set(EVENT_PARAM, eventId);
+        return next;
+      },
+      { replace: true },
+    );
+  };
   return {
     selectedId: parsed.success ? parsed.data : undefined,
     select: (event) => {
       controller.seek(event.seekMs);
-      setSearchParams(
-        (params) => {
-          const next = new URLSearchParams(params);
-          next.set(EVENT_PARAM, event.eventId);
-          return next;
-        },
-        { replace: true },
-      );
+      open(event.eventId);
     },
+    open,
     close: () => {
       setSearchParams(
         (params) => {

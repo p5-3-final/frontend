@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import {
@@ -57,6 +57,23 @@ describe("AnalysisResults", () => {
     expect(screen.getByRole("region", { name: "이벤트" })).toBeVisible();
     expect(screen.getByRole("region", { name: "위험 상태" })).toBeVisible();
     expect(screen.getByRole("region", { name: "상태 스냅샷" })).toBeVisible();
+    server.events.removeAllListeners();
+  });
+
+  it("[SPEC-031 R-4] 진행 막대 위 이벤트 표시를 누르면 그 이벤트 상세가 열리고 seekMs로 간다", async () => {
+    videoServer(...analysisHandlers());
+    const { user } = renderRoute(DETAIL_PATH);
+    const video = await screen.findByLabelText<HTMLVideoElement>("crane.mp4 재생");
+    Object.defineProperty(video, "duration", { configurable: true, value: 600 });
+    fireEvent.durationChange(video);
+    await screen.findByRole("region", { name: "분석 요약" });
+
+    const markers = await screen.findByRole("list", { name: "이벤트 표시" });
+    await user.click(within(markers).getByRole("button", { name: "보호구 미착용 01:35 보통" }));
+
+    expect(await screen.findByRole("region", { name: "이벤트 상세" })).toBeVisible();
+    await screen.findByText("안전관리자 확인 필요");
+    expect(video.currentTime).toBe(93);
     server.events.removeAllListeners();
   });
 });

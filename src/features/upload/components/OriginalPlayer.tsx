@@ -1,17 +1,24 @@
 import { ApiError } from "../../../shared/api/problem";
 import { messageForCode } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
-import { VideoPlayer, type PlayerController } from "../../player";
+import { VideoPlayer, type PlayerController, type TimelineMarker } from "../../player";
 import { useVideoPlayback } from "../api/useVideoPlayback";
 import type { Video } from "../model/schemas";
 
 export interface OriginalPlayerProps {
   video: Video;
   controller?: PlayerController;
+  markers?: readonly TimelineMarker[];
+  onMarkerSelect?: (id: string) => void;
 }
 
 /** 원본 영상 플레이어. 브라우저가 서명 주소로 저장소에서 바로 읽는다(SPEC-006 R-8). */
-export function OriginalPlayer({ video, controller }: OriginalPlayerProps) {
+export function OriginalPlayer({
+  video,
+  controller,
+  markers,
+  onMarkerSelect,
+}: OriginalPlayerProps) {
   const { data: playback, error, isPending, refetch } = useVideoPlayback(video.id);
 
   if (isPending) {
@@ -30,6 +37,8 @@ export function OriginalPlayer({ video, controller }: OriginalPlayerProps) {
         void refetch();
       }}
       controller={controller}
+      markers={markers}
+      onMarkerSelect={onMarkerSelect}
     />
   );
 }

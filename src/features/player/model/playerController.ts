@@ -3,6 +3,7 @@ export interface PlayerSnapshot {
   currentMs: number;
   durationMs: number;
   paused: boolean;
+  muted: boolean;
 }
 
 /**
@@ -14,6 +15,7 @@ export interface PlayerController {
   seek: (ms: number) => void;
   play: () => void;
   pause: () => void;
+  setMuted: (muted: boolean) => void;
   getCurrentMs: () => number;
   subscribe: (listener: () => void) => () => void;
   getSnapshot: () => PlayerSnapshot;
@@ -21,13 +23,21 @@ export interface PlayerController {
   attach: (element: HTMLVideoElement | null) => void;
 }
 
-const MEDIA_EVENTS = ["timeupdate", "durationchange", "loadedmetadata", "play", "pause", "seeked"];
+const MEDIA_EVENTS = [
+  "timeupdate",
+  "durationchange",
+  "loadedmetadata",
+  "play",
+  "pause",
+  "seeked",
+  "volumechange",
+];
 
 /** `<video>` 하나를 감싸는 조작 창구를 만든다. */
 export function createPlayerController(): PlayerController {
   let element: HTMLVideoElement | null = null;
   let pendingSeekMs: number | null = null;
-  let snapshot: PlayerSnapshot = { currentMs: 0, durationMs: 0, paused: true };
+  let snapshot: PlayerSnapshot = { currentMs: 0, durationMs: 0, paused: true, muted: false };
   const listeners = new Set<() => void>();
 
   const read = (): PlayerSnapshot => {
@@ -40,6 +50,7 @@ export function createPlayerController(): PlayerController {
       currentMs: Math.round(element.currentTime * 1000),
       durationMs: Math.round(duration * 1000),
       paused: element.paused,
+      muted: element.muted,
     };
   };
 
@@ -48,7 +59,8 @@ export function createPlayerController(): PlayerController {
     if (
       next.currentMs === snapshot.currentMs &&
       next.durationMs === snapshot.durationMs &&
-      next.paused === snapshot.paused
+      next.paused === snapshot.paused &&
+      next.muted === snapshot.muted
     ) {
       return;
     }
@@ -95,6 +107,12 @@ export function createPlayerController(): PlayerController {
     },
     pause() {
       element?.pause();
+    },
+    setMuted(muted) {
+      if (element !== null) {
+        element.muted = muted;
+        notify();
+      }
     },
     getCurrentMs: () => read().currentMs,
     subscribe(listener) {

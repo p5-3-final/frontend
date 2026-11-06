@@ -5,3 +5,4 @@ export {
   type PlayerController,
   type PlayerSnapshot,
 } from "./model/playerController";
+export type { TimelineMarker } from "./model/types";
