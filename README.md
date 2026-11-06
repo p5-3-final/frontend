@@ -51,8 +51,10 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 | --- | --- |
 | `/login`, `/signup` | 로그인, 회원가입 |
 | `/analysis` | 영상 분석(로그인 후 첫 화면): 영상 업로드와 내 영상 목록·삭제 |
-| `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제 |
-| `/events`, `/search`, `/history`, `/settings` | 준비 중 |
+| `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제, 분석 결과(요약·이벤트·위험·스냅샷). `?event=<id>`로 이벤트 상세를 연다 |
+| `/events` | 내 영상 전체 이벤트(종류·심각도·판정·검토·기간 거르기) |
+| `/stream/sessions/:sessionId` | 실시간 세션: 열려 있으면 현재 위험·긴급 알림·타임라인, 닫히면 분석 결과 |
+| `/search`, `/history`, `/settings` | 준비 중 |
 
 ## 영상 업로드
 
@@ -68,6 +70,27 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 
 - 브라우저가 재생하지 못하는 형식·코덱(mkv·avi의 일부 코덱, Chromium의 H.264 등)은 안내와 "원본 내려받기" 링크를 보여 준다.
 - Playwright Chromium은 H.264 mp4를 재생하지 못해서 E2E는 재생 불가 안내로 확인한다. 실제 재생은 로컬 compose와 데스크톱 Chrome으로 확인한다.
+
+## 분석 결과와 알림 연결
+
+- 분석 결과는 analysis-api(`/api/v1/analysis/...`), 실시간 세션은 stream-service(`/api/v1/stream/sessions/...`)에서 읽는다. 계약 버전은 `service-contracts.lock`에 고정한다.
+- 알림은 로그인하면 한 번 연결한다(`startNotifications`). 단기 티켓(`POST /api/v1/auth/sse-tickets`)을 받아 `GET /api/v1/notify/stream?ticket=`을 `fetch` 스트림으로 읽는다(EventSource는 헤더를 보낼 수 없어 쓰지 않는다).
+  - 끊기면 1초부터 30초까지 늘려 가며 새 티켓으로 다시 연결하고 `Last-Event-ID`로 놓친 메시지를 받는다. 45초 동안 아무것도 오지 않으면 끊고 다시 연결한다.
+  - 최근 100건(60초 이내)을 보관해, 늦게 열린 화면도 `replayBuffered`로 받아 볼 수 있다. 로그아웃하면 연결과 보관분을 지운다.
+  - 화면은 `useNotification(types, handler, { sourceId })`로 필요한 종류만 받는다. 알림을 받으면 해당 조회를 다시 읽는다(진행률은 화면에 바로 반영한다).
+- 라이브 HLS는 Safari처럼 HLS를 바로 재생하는 브라우저에서만 재생된다. Chromium 재생은 HLS 라이브러리 도입 결정 뒤에 지원한다.
+
+## mock 모드
+
+아직 없는 서비스(analysis·notification·stream)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
+
+```bash
+VITE_API_MOCKING=true pnpm dev
+```
+
+- MSW 서비스 워커(`mocks/public/mockServiceWorker.js`)는 mock 모드에서만 제공한다. 배포 빌드에는 들어가지 않는다.
+- 처음 연 영상은 "분석 중"으로 시작해 진행률 알림을 몇 번 받은 뒤 완료 알림과 함께 결과를 보인다. 핸들러는 `mocks/browser.ts`에 있다.
+- MSW를 올리면(`pnpm up msw`) `pnpm exec msw init mocks/public`으로 워커 파일을 다시 만든다.
 
 ## 문서
 

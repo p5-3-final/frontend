@@ -59,19 +59,19 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## Phase 7: US-5 전체 이벤트 보기 (P2)
 
-- [x] T023 [R-11] "이벤트" 메뉴: 내 영상 전체 최신순 쪽 나눔, 유형·severity·판정·확인 상태·기간 거르기, 누르면 그 영상 상세가 이벤트가 열린 채로 — 테스트 `A/components/AllEventsList.test.tsx`, `src/pages/EventsFlow.test.tsx`, 구현 `A/components/AllEventsList.tsx`, `A/api/useMyEvents.ts`, `src/pages/EventsPage.tsx`, `src/app/routes.tsx`
+- [x] T023 [R-11] "이벤트" 메뉴: 내 영상 전체 최신순 쪽 나눔, 유형·severity·판정·확인 상태·기간 거르기, 누르면 그 영상 상세가 이벤트가 열린 채로 — 테스트 `A/components/AllEventsList.test.tsx`, `src/pages/EventsFlow.test.tsx`, 구현 `A/components/AllEventsList.tsx`, `A/api/useMyEvents.ts`, `src/pages/EventsPage.tsx`, `src/app/featureRoutes/analysisRoutes.tsx`
 
 ## Phase 8: 마무리
 
 - [x] T024 [NFR-1] E2E: US-1(요약·목록·표시·이동), US-2(위험), US-3(진행 → 완료 → 다시 불러오기), 이벤트 500개 응답 뒤 300ms 안에 목록·표시, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/analysis-results.spec.ts`, 가짜 API `tests/e2e/{fakeAnalysis,fakeNotifications}.ts`
 - [x] T025 [NFR-3] 근거 프레임·썸네일 서명 주소가 콘솔·브라우저 저장소에 남지 않음 — 테스트 `A/api/analysisSecrets.test.tsx`
-- [x] T026 개발용 mock 모드(`VITE_API_MOCKING=true`일 때만 MSW 브라우저 워커, 운영 빌드 제외). 5절 사용자 확인 뒤 진행 — `mocks/browser.ts`, `src/app/main.tsx`, `public/mockServiceWorker.js`, `.env.example`
-- [ ] T027 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README(mock 모드, 알림 연결), mock 모드 시연으로 성공 지표 확인
+- [x] T026 개발용 mock 모드(`VITE_API_MOCKING=true`일 때만 MSW 브라우저 워커, 운영 빌드 제외). 5절 사용자 확인 뒤 진행 — `mocks/browser.ts`, `src/app/main.tsx`, `mocks/public/mockServiceWorker.js`(mock 모드에서만 `publicDir`), `vite.config.ts`. `.env.example`은 작업 도구가 읽기를 막아 고치지 못했다(PR에 적음)
+- [x] T027 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README(mock 모드, 알림 연결), mock 모드 시연으로 성공 지표 확인
 
 ## Phase 8: v5.1 추가(계약 묶음 4.0.0)
 
 - [x] T028 [R-19] `gen:api`에 `stream-service` 추가, `S/model/schemas.ts`, `S/api/streamApi.ts`와 훅, `mocks/stream.ts` 픽스처 — 테스트 `S/api/streamApi.test.ts`, 구현 `package.json`, `src/api/generated/stream-service.ts`, `S/`
-- [x] T029 [R-19] `/stream/sessions/:sessionId` 화면: LIVE면 stream 조회(10초 폴링)와 HLS 재생, CLOSED면 analysis API로 전환, `AnalysisResults` 출처 props — 테스트 `useLiveSession.test.tsx`, `StreamSessionPage.test.tsx`, 구현 `src/pages/StreamSessionPage.tsx`, `src/app/routes.tsx`, `A/components/AnalysisResults.tsx`
+- [x] T029 [R-19] `/stream/sessions/:sessionId` 화면: LIVE면 stream 조회(10초 폴링)와 HLS 재생, CLOSED면 analysis API로 전환(페이지가 `LiveSessionView`와 `AnalysisResults`를 바꿔 그림, plan 9절) — 테스트 `useLiveSession.test.tsx`, `StreamSessionPage.test.tsx`, 구현 `src/pages/StreamSessionPage.tsx`, `src/app/featureRoutes/streamRoutes.tsx`, `S/components/LiveSessionView.tsx`
 - [x] T030 [R-20] 알림 스키마 `alert.raised`, `alertFeed` 상태 전이, 앱 상단 `AlertBanner`(2초 안 표시, 세션 화면 이동) — 테스트 `alertFeed.test.ts`, `AlertBanner.test.tsx`, 구현 `N/model/schemas.ts`, `S/model/alertFeed.ts`, `S/components/AlertBanner.tsx`, `src/app/AppShell.tsx`
 - [x] T031 [R-21] 알림 스키마 `state.updated`, `applyStateUpdate`(sequence 순서), `LiveRiskPanel` 구독 — 테스트 `applyStateUpdate.test.ts`, `LiveRiskPanel.test.tsx`, 구현 `S/model/applyStateUpdate.ts`, `S/components/LiveRiskPanel.tsx`
 - [x] T032 [R-22] [R-23] 요약 패널의 일부 누락·예산 초과 안내, `unverified` 건수 집계 — 테스트 `SummaryPanel.test.tsx`, `eventFilters.test.ts`, 구현 `A/components/SummaryPanel.tsx`, `A/model/eventFilters.ts`, `src/shared/lib/messages.ts`
@@ -79,7 +79,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
-- [ ] typecheck, lint, format:check, test, e2e 통과
-- [ ] plan.md와 실제 구현이 일치함
+- [x] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
+- [x] typecheck, lint, format:check, test, e2e 통과
+- [x] plan.md와 실제 구현이 일치함
 - [ ] docs 레포 spec 상태 갱신 (`Implementing` / `Done`)
