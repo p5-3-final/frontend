@@ -19,11 +19,11 @@ updated: 2026-11-07
 
 ## Phase 1: 준비
 
-- [ ] T001 quality 응답 Zod 스키마(생성 타입 `satisfies`, `analysis`는 SPEC-031 2차 스키마), query key, API 함수, 계약 예시 픽스처, `/quality/*` lazy 라우트와 탭 틀 — 테스트 `Q/model/schemas.test.ts`(계약 예시 파싱), 구현 `Q/model/{schemas,queryKeys}.ts`, `Q/api/qualityApi.ts`, `mocks/quality.ts`, `src/pages/QualityPage.tsx`, `src/app/routes.tsx`, `Q/index.ts`
+- [x] T001 quality 응답 Zod 스키마(생성 타입 `satisfies`, `analysis`는 SPEC-031 2차 스키마), query key, API 함수, 계약 예시 픽스처, `/quality/*` lazy 라우트와 탭 틀 — 테스트 `Q/model/schemas.test.ts`(계약 예시 파싱), 구현 `Q/model/{schemas,queryKeys}.ts`, `Q/api/qualityApi.ts`, `mocks/quality.ts`, `src/pages/QualityPage.tsx`, `src/app/routes.tsx`, `Q/index.ts`
 
 ## Phase 2: US-1 검토 큐 처리 (P1)
 
-- [ ] T002 [R-1] OPERATOR에게만 "품질" 메뉴, USER는 숨김, 품질 경로로 직접 들어오면 권한 없음 — 테스트 `src/app/layout/AppLayout.test.tsx`, `Q/components/RequireOperator.test.tsx`, 구현 `src/app/layout/{menu.ts,Sidebar.tsx,MobileNav.tsx}`, `Q/components/RequireOperator.tsx`
+- [x] T002 [R-1] OPERATOR에게만 "품질" 메뉴, USER는 숨김, 품질 경로로 직접 들어오면 권한 없음 — 테스트 `src/app/layout/AppLayout.test.tsx`, `Q/components/RequireOperator.test.tsx`, 구현 `src/app/layout/{menu.ts,Sidebar.tsx,MobileNav.tsx}`, `Q/components/RequireOperator.tsx`
 - [ ] T003 [R-2] 검토 큐 목록: 상태·사유·유형 거르기(URL), 만든 순서 쪽 나눔, 유형·구간·판정 방식·사유·상태·맡은 사람("나" 표시) — 테스트 `Q/components/review/ReviewQueue.test.tsx`, 구현 `Q/components/review/ReviewQueue.tsx`, `Q/api/useReviewItems.ts`
 - [ ] T004 [R-3] "맡기" 성공하면 상세, 409면 "이미 다른 사람이 맡음"·"이미 라벨됨"과 목록 다시 — 테스트 `ReviewQueue.test.tsx`, 구현 `Q/api/useAssignReviewItem.ts`, `ReviewQueue.tsx`, `src/shared/lib/messages.ts`
 - [ ] T005 [R-4] 검토 상세: 근거 프레임(서명 주소), 판정 결과, 판정 방식, 판정 이유, 이미지가 만료돼 못 읽으면 상세를 한 번 다시 불러옴 — 테스트 `Q/components/review/ReviewDetail.test.tsx`, 구현 `Q/components/review/{ReviewDetail,EvidenceFrames}.tsx`, `Q/api/useReviewItem.ts`

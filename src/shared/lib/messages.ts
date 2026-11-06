@@ -78,6 +78,10 @@ export const SESSION_ROLE_NAMES = {
 export const ANALYSIS_LOAD_FAILED_MESSAGE = "분석 결과를 불러오지 못했습니다.";
 export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 
+// ── SPEC-035 품질 화면 ──
+/** OPERATOR가 아니거나 품질 API가 403일 때(SPEC-035 R-1, R-20) */
+export const QUALITY_FORBIDDEN_MESSAGE = "이 화면을 볼 권한이 없습니다.";
+
 // 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
 const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
   ANALYSIS_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,
