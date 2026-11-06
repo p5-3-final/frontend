@@ -56,6 +56,17 @@ export const REVIEW_STATE_NAMES = {
   DISMISSED: "기각",
 } as const;
 
+/** job 분석 상태(job.status 알림의 status, SPEC-031 R-15). 모르는 값은 원래 값을 보인다. */
+export const JOB_STATUS_NAMES: Readonly<Record<string, string>> = {
+  PLANNED: "분석 준비 중",
+  RUNNING: "분석 중",
+  ANALYZED: "결과 정리 중",
+  COMPLETED: "분석 완료",
+  COMPLETED_WITH_ERRORS: "일부 오류로 분석 완료",
+  TIMED_OUT: "분석 시간 초과",
+  CANCELLED: "분석 취소됨",
+};
+
 /** 작업 세션 역할(SPEC-017) */
 export const SESSION_ROLE_NAMES = {
   BEFORE: "작업 전 영상",

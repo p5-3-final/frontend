@@ -3,6 +3,7 @@ import { ANALYSIS_NOT_ANALYZED_MESSAGE } from "../../../shared/lib/messages";
 import { useSourceSummary } from "../api/useSourceSummary";
 import { useEventSelection } from "../hooks/useEventSelection";
 import { AnalysisError } from "./AnalysisError";
+import { AnalysisProgress } from "./AnalysisProgress";
 import { EventDetailPanel } from "./EventDetailPanel";
 import { EventsPanel } from "./EventsPanel";
 import { RiskPanel } from "./RiskPanel";
@@ -33,13 +34,18 @@ export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) 
   }
   if (summary.status === "NOT_ANALYZED") {
     return (
-      <p className="rounded-xl border border-line bg-panel p-4 text-sm text-muted">
-        {ANALYSIS_NOT_ANALYZED_MESSAGE}
-      </p>
+      <div className="flex flex-col gap-2">
+        <AnalysisProgress key={sourceId} sourceId={sourceId} awaiting />
+        <p className="rounded-xl border border-line bg-panel p-4 text-sm text-muted">
+          {ANALYSIS_NOT_ANALYZED_MESSAGE}
+        </p>
+      </div>
     );
   }
   return (
     <div className="flex flex-col gap-4">
+      {/* 결과가 있는 영상도 재분석 중이면 진행 알림이 온다. 그때만 보인다. */}
+      <AnalysisProgress key={sourceId} sourceId={sourceId} awaiting={false} />
       <SummaryPanel summary={summary} controller={controller} />
       {/* 1024px 이상은 목록과 상세를 두 칸으로, 그 미만은 쌓는다(plan 화면 배치). */}
       <div className="grid gap-4 lg:grid-cols-2">
