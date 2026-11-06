@@ -1,2 +1,4 @@
 export { QualityTabs } from "./components/QualityTabs";
 export { RequireOperator } from "./components/RequireOperator";
+export { ReviewDetail } from "./components/review/ReviewDetail";
+export { ReviewQueue } from "./components/review/ReviewQueue";

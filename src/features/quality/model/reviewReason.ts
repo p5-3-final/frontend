@@ -29,8 +29,8 @@ export function reviewReasonName(reason: string): string {
 // SPEC-035 R-21: 예산·호출 상한으로 판정을 건너뛴 항목은 재분석하면 다시 판정되므로 라벨 대신 재분석을 고를 수 있게 알린다.
 const AUTO_JUDGED_AFTER_REANALYSIS = new Set(["budget_exceeded", "call_cap_reached"]);
 
-export const REANALYSIS_NOTICE =
-  "재분석 뒤 자동 판정됨: 예산·호출 상한으로 판정을 건너뛴 항목입니다.";
+export const REANALYSIS_NOTICE_SHORT = "재분석 뒤 자동 판정됨";
+export const REANALYSIS_NOTICE = `${REANALYSIS_NOTICE_SHORT}: 예산·호출 상한으로 판정을 건너뛴 항목이라 재분석하면 다시 판정합니다.`;
 
 /** 재분석하면 자동으로 판정되는 사유인지 */
 export function isAutoJudgedAfterReanalysis(reason: string): boolean {

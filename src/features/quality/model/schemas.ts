@@ -11,6 +11,7 @@ type Json<
 // 계약 eventType(taxonomy/v2). 목록은 analysis와 같은 원본이라 그 목록을 쓰고 quality 생성 타입으로 다시 확인한다.
 export const eventTypeSchema = z.enum(EVENT_TYPES) satisfies z.ZodType<Schemas["eventType"]>;
 export type EventType = z.infer<typeof eventTypeSchema>;
+export const EVENT_TYPES_FOR_FILTER: readonly EventType[] = EVENT_TYPES;
 
 export const VERDICTS = ["correct", "incorrect", "uncertain"] as const;
 export type Verdict = (typeof VERDICTS)[number];

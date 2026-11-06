@@ -24,13 +24,13 @@ updated: 2026-11-07
 ## Phase 2: US-1 검토 큐 처리 (P1)
 
 - [x] T002 [R-1] OPERATOR에게만 "품질" 메뉴, USER는 숨김, 품질 경로로 직접 들어오면 권한 없음 — 테스트 `src/app/layout/AppLayout.test.tsx`, `Q/components/RequireOperator.test.tsx`, 구현 `src/app/layout/{menu.ts,Sidebar.tsx,MobileNav.tsx}`, `Q/components/RequireOperator.tsx`
-- [ ] T003 [R-2] 검토 큐 목록: 상태·사유·유형 거르기(URL), 만든 순서 쪽 나눔, 유형·구간·판정 방식·사유·상태·맡은 사람("나" 표시) — 테스트 `Q/components/review/ReviewQueue.test.tsx`, 구현 `Q/components/review/ReviewQueue.tsx`, `Q/api/useReviewItems.ts`
-- [ ] T004 [R-3] "맡기" 성공하면 상세, 409면 "이미 다른 사람이 맡음"·"이미 라벨됨"과 목록 다시 — 테스트 `ReviewQueue.test.tsx`, 구현 `Q/api/useAssignReviewItem.ts`, `ReviewQueue.tsx`, `src/shared/lib/messages.ts`
-- [ ] T005 [R-4] 검토 상세: 근거 프레임(서명 주소), 판정 결과, 판정 방식, 판정 이유, 이미지가 만료돼 못 읽으면 상세를 한 번 다시 불러옴 — 테스트 `Q/components/review/ReviewDetail.test.tsx`, 구현 `Q/components/review/{ReviewDetail,EvidenceFrames}.tsx`, `Q/api/useReviewItem.ts`
-- [ ] T006 [R-5] 라벨 입력은 맡은 사람에게만, 이벤트 유무가 켜지면 유형·시작·끝 필수와 끝 > 시작, 꺼지면 유형 비움 — 테스트 `Q/model/labelSchema.test.ts`, `Q/components/review/ReviewLabelForm.test.tsx`, 구현 `Q/model/labelSchema.ts`, `Q/components/review/ReviewLabelForm.tsx`
-- [ ] T007 [R-6] "저장 후 다음": 저장하고 같은 거르기의 다음 `UNASSIGNED`를 맡아 열기(409면 다음 후보), 없으면 "남은 항목 없음" — 테스트 `ReviewDetail.test.tsx`, 구현 `Q/api/useLabelAndNext.ts`, `ReviewDetail.tsx`
-- [ ] T008 [R-7] "내려놓기"하고 목록으로 — 테스트 `ReviewDetail.test.tsx`, 구현 `Q/api/useReleaseReviewItem.ts`, `ReviewDetail.tsx`
-- [ ] T009 [R-20] 품질 API 403이면 권한 없음, 5xx·네트워크면 다시 시도 — 테스트 `Q/components/QualityError.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `Q/components/QualityError.tsx`, `messages.ts`
+- [x] T003 [R-2] 검토 큐 목록: 상태·사유·유형 거르기(URL), 만든 순서 쪽 나눔, 유형·구간·판정 방식·사유·상태·맡은 사람("나" 표시) — 테스트 `Q/components/review/ReviewQueue.test.tsx`, 구현 `Q/components/review/ReviewQueue.tsx`, `Q/api/useReviewItems.ts`
+- [x] T004 [R-3] "맡기" 성공하면 상세, 409면 "이미 다른 사람이 맡음"·"이미 라벨됨"과 목록 다시 — 테스트 `ReviewQueue.test.tsx`, 구현 `Q/api/useAssignReviewItem.ts`, `ReviewQueue.tsx`, `src/shared/lib/messages.ts`
+- [x] T005 [R-4] 검토 상세: 근거 프레임(서명 주소), 판정 결과, 판정 방식, 판정 이유, 이미지가 만료돼 못 읽으면 상세를 한 번 다시 불러옴 — 테스트 `Q/components/review/ReviewDetail.test.tsx`, 구현 `Q/components/review/{ReviewDetail,EvidenceFrames}.tsx`, `Q/api/useReviewItem.ts`
+- [x] T006 [R-5] 라벨 입력은 맡은 사람에게만, 이벤트 유무가 켜지면 유형·시작·끝 필수와 끝 > 시작, 꺼지면 유형 비움 — 테스트 `Q/model/labelSchema.test.ts`, `Q/components/review/ReviewLabelForm.test.tsx`, 구현 `Q/model/labelSchema.ts`, `Q/components/review/ReviewLabelForm.tsx`
+- [x] T007 [R-6] "저장 후 다음": 저장하고 같은 거르기의 다음 `UNASSIGNED`를 맡아 열기(409면 다음 후보), 없으면 "남은 항목 없음" — 테스트 `ReviewDetail.test.tsx`, 구현 `Q/api/useLabelAndNext.ts`, `ReviewDetail.tsx`
+- [x] T008 [R-7] "내려놓기"하고 목록으로 — 테스트 `ReviewDetail.test.tsx`, 구현 `Q/api/useReleaseReviewItem.ts`, `ReviewDetail.tsx`
+- [x] T009 [R-20] 품질 API 403이면 권한 없음, 5xx·네트워크면 다시 시도 — 테스트 `Q/components/QualityError.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `Q/components/QualityError.tsx`, `messages.ts`
 
 ## Phase 3: US-2 Golden Set 버전 확정 (P1)
 
@@ -64,7 +64,7 @@ updated: 2026-11-07
 
 ## Phase 7: v5.1 추가(계약 묶음 4.0.0)
 
-- [ ] T025 [R-21] `reviewReason`(열린 목록·이름·안내), 검토 큐 사유 필터, 상세의 재분석 안내 — 테스트 `reviewReason.test.ts`, `ReviewFilters.test.tsx`, `ReviewDetail.test.tsx`, 구현 `Q/model/reviewReason.ts`, `Q/components/review/ReviewFilters.tsx`, `Q/components/review/ReviewDetail.tsx`, `src/shared/lib/messages.ts`
+- [x] T025 [R-21] `reviewReason`(열린 목록·이름·안내), 검토 큐 사유 필터, 상세의 재분석 안내 — 테스트 `reviewReason.test.ts`, `ReviewFilters.test.tsx`, `ReviewDetail.test.tsx`, 구현 `Q/model/reviewReason.ts`, `Q/components/review/ReviewFilters.tsx`, `Q/components/review/ReviewDetail.tsx`, `src/shared/lib/messages.ts`
 - [ ] T026 [R-22] `useAlertReport`와 처리 단계 탭의 긴급 알림 지표(p50·p95·dismissed 비율·미해결) — 테스트 `AlertReportPanel.test.tsx`, 구현 `Q/api/useAlertReport.ts`, `Q/components/stages/AlertReportPanel.tsx`, `mocks/quality.ts`
 
 ## 완료 조건 (Definition of Done)
