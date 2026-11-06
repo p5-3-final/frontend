@@ -1,5 +1,6 @@
 # lint.md 설정 단위 예외: 생성 코드
 src/api/generated
+mocks/public/mockServiceWorker.js
 pnpm-lock.yaml
 dist
 coverage
