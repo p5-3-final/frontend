@@ -28,8 +28,8 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 - [x] T004 [R-12] 로그인하면 티켓을 받아 스트림에 연결하고 메시지를 구독자에게 전달(SSE 해석기, 메시지 Zod 스키마와 계약 예시 파싱, `ping` 무시) — 테스트 `N/model/parseSse.test.ts`, `N/model/notificationStream.test.ts`, `N/model/schemas.test.ts`, 구현 `N/model/{parseSse,notificationStream,schemas}.ts`, `N/api/sseTicket.ts`, `src/app/AppProviders.tsx`, `mocks/notifications.ts`
 - [x] T005 [R-12] [NFR-2] 여러 화면이 구독해도 연결 요청은 한 번, 구독 해제 시 연결은 유지 — 테스트 `N/hooks/useNotification.test.tsx`, 구현 `N/hooks/{useNotification,useNotificationStatus}.ts`, `N/index.ts`
 - [x] T006 [R-13] 끊기면 1·2·4·8·16·30초 대기 후 새 티켓으로 다시 연결하고 `Last-Event-ID`를 보냄. 45초 무응답도 끊김. 연결되면 대기 1초로 초기화 — 테스트 `notificationStream.test.ts`(가짜 타이머), 구현 `notificationStream.ts`
-- [ ] T007 [R-14] 로그아웃하면 연결을 닫고 재연결하지 않음, 마지막 id·버퍼를 버림 — 테스트 `notificationStream.test.ts`, 구현 `notificationStream.ts`
-- [ ] T008 [P] [NFR-3] SSE 티켓이 콘솔·`localStorage`·`sessionStorage`에 남지 않음 — 테스트 `N/model/notificationSecrets.test.ts`, 구현 `sseTicket.ts`, `notificationStream.ts`
+- [x] T007 [R-14] 로그아웃하면 연결을 닫고 재연결하지 않음, 마지막 id·버퍼를 버림 — 테스트 `notificationStream.test.ts`, 구현 `notificationStream.ts`
+- [x] T008 [P] [NFR-3] SSE 티켓이 콘솔·`localStorage`·`sessionStorage`에 남지 않음 — 테스트 `N/model/notificationSecrets.test.ts`, 구현 `sseTicket.ts`, `notificationStream.ts`
 
 ## Phase 3: US-1 분석 결과 훑어보기 (P1)
 

@@ -134,7 +134,25 @@ async function connect() {
   scheduleReconnect();
 }
 
+/** 연결과 대기를 모두 끝내고 이어 받기 정보를 버린다. 다른 사용자가 같은 탭에서 로그인할 수 있다(R-14). */
+function close() {
+  const current = abort;
+  abort = null;
+  current?.abort();
+  clearTimeout(reconnectTimer);
+  clearTimeout(idleTimer);
+  reconnectTimer = undefined;
+  attempt = 0;
+  lastEventId = undefined;
+  buffer = [];
+  setStatus("idle");
+}
+
 function handleSessionChange() {
+  if (getSessionStatus() === "anonymous") {
+    close();
+    return;
+  }
   if (getSessionStatus() === "authenticated" && abort === null && reconnectTimer === undefined) {
     void connect();
   }
@@ -187,17 +205,8 @@ export function subscribeConnectionStatus(listener: () => void): () => void {
 
 /** 테스트에서 연결을 끊고 모듈 상태를 처음으로 되돌린다. */
 export function resetNotificationsForTest(): void {
-  const current = abort;
-  abort = null;
-  current?.abort();
-  clearTimeout(reconnectTimer);
-  clearTimeout(idleTimer);
-  reconnectTimer = undefined;
-  attempt = 0;
+  close();
   started = false;
-  status = "idle";
-  lastEventId = undefined;
-  buffer = [];
   listeners.clear();
   statusListeners.clear();
 }

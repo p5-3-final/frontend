@@ -178,4 +178,49 @@ describe("notificationStream", () => {
     expect(sse.connections).toHaveLength(2);
     expect(sse.connections[1]?.lastEventId).toBe("1");
   });
+
+  it("[SPEC-031 R-14] 로그아웃하면 연결을 닫고 다시 연결하지 않으며 마지막 id와 버퍼를 버린다", async () => {
+    useFakeTimeouts();
+    const { sse, received } = setUp();
+    startSession("access-1");
+    startNotifications();
+    await settle(() => sse.connections.length === 1);
+    sse.connections[0]?.send(jobStatusBody(SOURCE_ID), "5");
+    await settle(() => received.length === 1);
+
+    endSession();
+    await settle();
+    await vi.advanceTimersByTimeAsync(60_000);
+    await settle();
+
+    expect(sse.connections).toHaveLength(1);
+    expect(sse.ticketRequests).toHaveLength(1);
+    expect(getConnectionStatus()).toBe("idle");
+    const replayed: NotificationMessage[] = [];
+    subscribeNotifications((message) => replayed.push(message), { replayBuffered: true });
+    expect(replayed).toHaveLength(0);
+
+    // 다시 로그인하면 처음처럼 Last-Event-ID 없이 연결한다.
+    startSession("access-2");
+    await settle(() => sse.connections.length === 2);
+    expect(sse.connections[1]?.lastEventId).toBeNull();
+  });
+
+  it("[SPEC-031 R-14] 재연결 대기 중에 로그아웃하면 대기를 취소한다", async () => {
+    useFakeTimeouts();
+    const { sse } = setUp();
+    sse.failTicketWith(() => new HttpResponse(null, { status: 503 }));
+    startSession("access-1");
+    startNotifications();
+    await settle(() => sse.ticketRequests.length === 1);
+    await settle();
+    expect(getConnectionStatus()).toBe("reconnecting");
+
+    endSession();
+    await vi.advanceTimersByTimeAsync(60_000);
+    await settle();
+
+    expect(sse.ticketRequests).toHaveLength(1);
+    expect(getConnectionStatus()).toBe("idle");
+  });
 });
