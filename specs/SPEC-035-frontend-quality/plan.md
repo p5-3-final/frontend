@@ -4,7 +4,7 @@ repo: frontend
 status: Approved
 owner: <이름>
 created: 2026-11-06
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Plan: SPEC-035 품질 화면(검토 큐·Golden Set·평가 실행·처리 단계·데이터셋 가져오기) — frontend
@@ -15,7 +15,9 @@ updated: 2026-11-06
   - `events/_vlm-analysis.schema.json`: `ReviewItem.analysis` 형식
 - 관련: SPEC-002(메뉴·레이아웃), SPEC-029·SPEC-030(quality-service), SPEC-031(auth `useHasRole`·`useMe`, 판정 상태·severity 이름)
 - 이 spec의 backend 몫(`ReviewItem.evidenceFrameUrls` 채우기)은 backend 레포 plan이 맡는다. 이 plan은 frontend 몫(R-1~R-20, NFR-1, NFR-2)만 다룬다.
-- 선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T022(auth `useHasRole`·`useMe` 내보내기)
+- 선행: SPEC-031 T001(계약 lock 4.0.0과 생성 코드), T022(auth `useHasRole`·`useMe` 내보내기)
+
+- v5.1(계약 묶음 4.0.0, 2026-11-07): `openapi/quality-service.yaml` 2.0.0은 검토 사유를 열린 목록(`x-extensible-enum`)으로 바꾸고 `budget_exceeded`·`call_cap_reached`·`model_unavailable`·`alert_dismissed`를 더했으며 목록 필터 `reason`과 알림 지표 리포트 `getAlertReport`를 더했다. R-21(사유 필터·안내)·R-22(긴급 알림 지표)를 아래 설계 절대로 더한다. 생성 코드는 SPEC-031 T028이 만든다.
 
 ## 1. 요약
 
@@ -47,6 +49,8 @@ updated: 2026-11-06
 | R-18 | `Q/components/datasets/DatasetImportDetail` | `DatasetImportDetail.test.tsx` |
 | R-19 | `Q/components/datasets/FeatureExportPanel`, `Q/model/exportSchema` | `FeatureExportPanel.test.tsx` |
 | R-20 | `Q/components/QualityError`, `src/shared/lib/messages.ts` | `QualityError.test.tsx`, `messages.test.ts` |
+| R-21 | `Q/model/reviewReason.ts`(열린 목록·한국어 이름·안내 문구), `Q/components/review/ReviewFilters`(사유 필터), `ReviewDetail`(예산·상한 안내) | `reviewReason.test.ts`, `ReviewFilters.test.tsx`, `ReviewDetail.test.tsx` |
+| R-22 | `Q/api/useAlertReport`(`getAlertReport`), `Q/components/stages/AlertReportPanel` | `AlertReportPanel.test.tsx` |
 | NFR-1 | `useLabelAndNext`(저장 직후 다음 항목 맡기), `ReviewDetail` | Playwright `quality.spec.ts`(저장 응답 뒤 300ms) |
 | NFR-2 | `src/app/routes.tsx`(품질 라우트 lazy 하나) | Playwright `quality.spec.ts`(USER 첫 화면이 품질 묶음을 받지 않음) |
 
@@ -55,7 +59,7 @@ updated: 2026-11-06
 | 원칙 | 준수 | 비고 |
 | --- | --- | --- |
 | I 스펙 우선 — spec이 Approved 상태인가 | ☑ | docs #130 |
-| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | quality 1.2.0(`evidenceFrameUrls`)은 docs #130으로 머지됨. SPEC-031 T001이 3.14.0 생성 코드를 만든다 |
+| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | quality 1.2.0(`evidenceFrameUrls`)은 docs #130으로 머지됨. SPEC-031 T001이 4.0.0 생성 코드를 만든다 |
 | III 테스트 우선 — 모든 R-*에 테스트가 매핑되고, 태스크가 요구사항 단위 TDD 사이클로 나뉘었는가 | ☑ | 2절, tasks.md |
 | IV 서비스 자율성 — 다른 서비스 DB나 코드에 직접 의존하지 않는가 | ☑ | quality-service 공개 API만 쓴다 |
 | V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성 없음. 그래프는 SVG 직접(축·선 두 개·점), 폴링은 `refetchInterval`. 선택지는 5절(사용자 확인 필요) |
@@ -190,3 +194,9 @@ sequenceDiagram
 
 - 새 환경변수 없음.
 - quality-service(SPEC-029·SPEC-030)와 `evidenceFrameUrls`를 채우는 backend 변경이 배포된 뒤에 배포하는 것이 좋다. 그 전에는 OPERATOR 화면에 오류 안내가 보이고 USER에게는 영향이 없다.
+
+## 9. v5.1 추가 설계(계약 묶음 4.0.0, 2026-11-07)
+
+- 사유는 `x-extensible-enum`이라 생성 타입이 `string`이다. `reviewReason`은 알려진 값(`reviewRequired`·`budget_exceeded`·`call_cap_reached`·`model_unavailable`·`alert_dismissed`·표본)에 한국어 이름을 붙이고 모르는 값은 원문 그대로 표시한다. 필터는 알려진 값만 고를 수 있다.
+- `budget_exceeded`·`call_cap_reached` 항목의 상세에는 "재분석 뒤 자동 판정됨" 안내를 붙인다(운영자가 라벨 대신 재분석을 고를 수 있게).
+- 처리 단계 탭에 `AlertReportPanel`을 더한다. 기간 입력은 추이 그래프의 것을 재사용하고 카메라 필터는 선택이다. p50·p95는 ms, `dismissed` 비율은 %로 표시하며 미해결 건수를 따로 보여 준다.

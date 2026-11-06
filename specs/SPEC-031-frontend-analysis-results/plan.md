@@ -4,7 +4,7 @@ repo: frontend
 status: Approved
 owner: <이름>
 created: 2026-11-06
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Plan: SPEC-031 분석 결과 화면(이벤트 타임라인·위험 상태·요약)과 실시간 알림 — frontend
@@ -18,15 +18,17 @@ updated: 2026-11-06
   - `events/_vlm-analysis.schema.json`, `events/_risk-forecast.schema.json`: 응답 안의 `analysis`·`forecast` 형식
 - 관련: SPEC-002(레이아웃, API 클라이언트, 세션), SPEC-005·SPEC-006(영상 목록·상세·원본 플레이어), SPEC-032~SPEC-035(이 plan의 T001·알림 연결·플레이어 컨트롤을 그대로 쓴다)
 
+- v5.1(계약 묶음 4.0.0, 2026-11-07, ADR-0015): `openapi/stream-service.yaml` 1.0.0(세션 조회 `getSession`, `state`·`events`·`alerts`), 알림 메시지 종류 `alert.raised`·`state.updated`(생산자 notification-service 확인 필요), analysis 요약의 `partial`·`missingCounts`·`revision`과 이벤트의 `unverifiedReason`(생산자 analysis-api 확인 필요)이 더해졌다. R-19(실시간 세션 화면)·R-20(긴급 알림)·R-21(`state.updated` 순서 적용)·R-22(일부 누락 표시)·R-23(예산·상한 초과 표시)를 아래 설계 절대로 더한다. T001의 lock은 4.0.0이고 `gen:api`에 `stream-service`를 더한다.
+
 ## 1. 요약
 
 영상 상세 화면(`/analysis/videos/:videoId`)의 플레이어 아래에 분석 결과(요약, 이벤트 목록·상세, 위험, 스냅샷, 진행률)를 붙이고, "이벤트" 메뉴(`/events`)에 내 영상 전체 이벤트 목록을 만든다. 플레이어는 `upload`에서 `player` feature로 옮기고, 이벤트 위치를 진행 막대에 그리려고 브라우저 기본 컨트롤 대신 자체 컨트롤을 둔다. 실시간 알림은 로그인한 동안 탭마다 연결 하나를 모듈 저장소에 열어 두고 화면은 구독만 한다. 브라우저 `EventSource`는 새 연결에 `Last-Event-ID` 헤더를 넣을 수 없어 `fetch` 스트림과 직접 만든 작은 SSE 해석기를 기본안으로 둔다(사용자 확인 필요, 5절). analysis·notification은 다른 담당자 서비스라 아직 구현이 없으므로, 테스트와 화면 개발은 계약 예시로 응답하는 MSW로 한다.
 
-이 plan의 T001(계약 lock 3.14.0과 생성 코드 다시 만들기)은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 나머지 네 plan은 SPEC-031 T001 완료에 의존한다.
+이 plan의 T001(계약 lock 4.0.0과 생성 코드 다시 만들기)은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 나머지 네 plan은 SPEC-031 T001 완료에 의존한다.
 
 ## 2. 담당 요구사항
 
-경로 약어: `A` = `src/features/analysis`, `N` = `src/features/notifications`, `P` = `src/features/player`, `U` = `src/features/upload`
+경로 약어: `A` = `src/features/analysis`, `N` = `src/features/notifications`, `P` = `src/features/player`, `U` = `src/features/upload`, `S` = `src/features/stream`
 
 | 요구사항 | 담당 모듈 / 컴포넌트 | 검증 테스트 |
 | --- | --- | --- |
@@ -48,6 +50,11 @@ updated: 2026-11-06
 | R-16 | `A/hooks/useAnalysisLiveRefresh` | `AnalysisResults.test.tsx` |
 | R-17 | `AnalysisResults`, `src/shared/lib/messages.ts` | `AnalysisResults.test.tsx`, `messages.test.ts` |
 | R-18 | `EventList`, `RiskPanel`, `A/components/SeverityBadge` | `src/app/Keyboard.test.tsx`에 분석 결과 시나리오 추가, `SeverityBadge.test.tsx` |
+| R-19 | `S/api/streamApi.ts`, `S/hooks/useLiveSession`(세션·state·events·alerts, 10초 폴링), `src/pages/StreamSessionPage.tsx`(`/stream/sessions/:sessionId`), `A/components/AnalysisResults`(데이터 출처를 props로 받음) | `useLiveSession.test.tsx`, `StreamSessionPage.test.tsx`(LIVE면 stream API, CLOSED면 analysis API) |
+| R-20 | `N/model/schemas.ts`(`alert.raised`), `S/model/alertFeed.ts`(candidateId별 상태 전이), `S/components/AlertBanner`(앱 상단) | `alertFeed.test.ts`, `AlertBanner.test.tsx`(수신 2초 안 표시, pending → confirmed → dismissed) |
+| R-21 | `N/model/schemas.ts`(`state.updated`), `S/model/applyStateUpdate.ts`(sequence 비교, 작은 값 버림), `S/components/LiveRiskPanel` | `applyStateUpdate.test.ts`, `LiveRiskPanel.test.tsx` |
+| R-22 | `A/components/SummaryPanel`(`partial`·`missingCounts`) | `SummaryPanel.test.tsx` |
+| R-23 | `A/model/eventFilters.ts`(`unverifiedReason` 집계), `A/components/SummaryPanel`(재분석 안내) | `eventFilters.test.ts`, `SummaryPanel.test.tsx` |
 | NFR-1 | `EventList`, `PlayerControls` | Playwright `analysis-results.spec.ts`(이벤트 500개 응답 뒤 300ms) |
 | NFR-2 | `notificationStream`(모듈 하나) | `useNotification.test.tsx`(구독 화면 3개, 연결 요청 1번) |
 | NFR-3 | `sseTicket`, `notificationStream`, 서명 주소를 쓰는 `<img>` | `N/model/notificationSecrets.test.ts`, `A/api/analysisSecrets.test.tsx` |
@@ -57,7 +64,7 @@ updated: 2026-11-06
 | 원칙 | 준수 | 비고 |
 | --- | --- | --- |
 | I 스펙 우선 — spec이 Approved 상태인가 | ☑ | docs #126 |
-| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | analysis 0.3.0·notification 0.1.0은 docs #126로 머지됨. lock을 3.14.0으로 올리고 `pnpm gen:api`로 생성한다(T001). SSE 메시지 형식은 OpenAPI가 참조하지 않아 생성되지 않는다(4절 "API / 이벤트") |
+| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | analysis 0.3.0·notification 0.1.0은 docs #126로 머지됨. lock을 4.0.0으로 올리고 `pnpm gen:api`로 생성한다(T001). SSE 메시지 형식은 OpenAPI가 참조하지 않아 생성되지 않는다(4절 "API / 이벤트") |
 | III 테스트 우선 — 모든 R-*에 테스트가 매핑되고, 태스크가 요구사항 단위 TDD 사이클로 나뉘었는가 | ☑ | 2절, tasks.md |
 | IV 서비스 자율성 — 다른 서비스 DB나 코드에 직접 의존하지 않는가 | ☑ | api-gateway 경유 API와 SSE만 쓴다 |
 | V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성 없음. SSE는 `fetch` 스트림 + 해석기 약 60줄, 플레이어 컨트롤은 기본 `<button>`·`<input type="range">`. 선택지는 5절(사용자 확인 필요) |
@@ -72,10 +79,10 @@ updated: 2026-11-06
 
 | 경로 | 변경 |
 | --- | --- |
-| `service-contracts.lock` | 2.0.1 → 3.14.0(`scripts/fetch-service-contracts.sh --update 3.14.0`) |
+| `service-contracts.lock` | 2.0.1 → 4.0.0(`scripts/fetch-service-contracts.sh --update 4.0.0`) |
 | `package.json` `gen:api` | `analysis-service`, `notification-service`, `search-service`, `quality-service`도 생성. SPEC-032~SPEC-035가 같은 생성 코드를 쓰므로 여기서 한 번에 넣는다 |
-| `src/api/generated/` | 다시 생성. `auth-service.ts`·`media-service.ts`도 3.14.0으로 바뀐다 |
-| `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts` | 3.14.0 `VideoResponse`의 새 필수 필드(`session`, `retentionConsent`)와 선택 필드(`durationSec`, `estimatedProcessingSec`, `rejectReason`)를 맞춘다. 하위호환 분기를 남기지 않는다 |
+| `src/api/generated/` | 다시 생성. `auth-service.ts`·`media-service.ts`도 4.0.0으로 바뀐다 |
+| `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts` | 4.0.0 `VideoResponse`의 새 필수 필드(`session`, `retentionConsent`)와 선택 필드(`durationSec`, `estimatedProcessingSec`, `rejectReason`)를 맞춘다. 하위호환 분기를 남기지 않는다 |
 | `src/shared/api/client.ts` | `RequestOptions.query`(쿼리 문자열 만들기, `undefined` 값은 뺀다) |
 | `src/shared/lib/messages.ts` | `ANALYSIS_*` 오류 문구, 판정 상태·severity·이벤트 유형 한국어 이름 |
 | `src/features/player/` (새로 채움) | `components/VideoPlayer.tsx`(SPEC-006 `OriginalPlayer`를 옮김), `components/PlayerControls.tsx`, `hooks/usePlayerController.ts`, `model/types.ts`(`TimelineMarker`), `index.ts` |
@@ -242,3 +249,26 @@ sequenceDiagram
 - 새 환경변수 `VITE_API_MOCKING`(개발 전용, 기본 꺼짐)을 레포 `.env.example`에 추가한다. 운영 gitops 설정에는 넣지 않는다.
 - nginx에 CSP가 없어 SSE 주소를 따로 허용할 필요가 없다. 나중에 CSP를 넣으면 `connect-src`에 api-gateway를, `img-src`에 저장소(서명 주소)를 넣는다.
 - analysis-api·notification-service가 배포되기 전에는 운영에서 분석 결과 패널이 오류 안내를 보인다. 두 서비스 배포 뒤 frontend를 배포하거나, 그 전 배포에서도 영상 정보·재생은 그대로 쓸 수 있다.
+
+## 9. v5.1 추가 설계(계약 묶음 4.0.0, 2026-11-07)
+
+### 실시간 세션 화면(R-19)
+
+- 실시간 세션은 업로드 영상과 다른 라우트 `/stream/sessions/:sessionId`로 연다(카메라 화면 SPEC-034에서 이동). `sessionId`는 `sourceId`와 같다(계약 설명). media 영상 상세는 바꾸지 않는다.
+- `useLiveSession`은 `getSession`으로 상태를 읽고, `LIVE`·`STARTING`·`STOPPING`이면 `state`·`events`·`alerts`를 10초마다 다시 읽는다(알림 연결이 끊겼을 때의 대비). `CLOSED`·`FAILED`가 되면 stream 조회를 멈추고 analysis API(SPEC-031 R-1~R-9의 훅)로 바꾼다. 재생은 `playback`의 HLS 주소를 `VideoPlayer`에 넘긴다.
+- `AnalysisResults`는 데이터 출처(analysis 훅 또는 live 훅)를 props로 받도록 바꾼다. 화면 구성은 같다.
+
+### 긴급 알림(R-20)
+
+- 알림 연결(SPEC-031 R-10~R-12)의 메시지 종류에 `alert.raised`·`state.updated`를 더한다. Zod 스키마는 계약 `alert.raised.schema.json`·`state.updated.schema.json`을 옮긴 2차 스키마다.
+- `alertFeed`는 candidateId별로 마지막 상태를 둔다. `pending`은 "확인 중", `confirmed`는 severity·설명, `dismissed`는 접힌 상태다. 순서가 뒤집혀 `confirmed`가 먼저 오면 그대로 두고 뒤의 `pending`은 버린다.
+- `AlertBanner`는 `AppShell` 상단에 두어 어느 화면에서든 보인다. 수신부터 표시까지 2초 안(실제는 렌더 한 번). 클릭하면 세션 화면으로 이동한다.
+
+### `state.updated` 적용(R-21)
+
+- `applyStateUpdate(state, message)`는 `message.sequence > state.lastSequence`일 때만 스냅샷·위험 전이·노출 증분을 반영하고, 작거나 같으면 버린다. 열려 있는 세션 화면의 `LiveRiskPanel`이 구독한다. 폴링 결과와 알림이 겹쳐도 sequence 비교로 한 번만 반영된다.
+
+### 일부 누락·예산 초과 표시(R-22·R-23)
+
+- 요약 응답(`getSourceSummary`)의 `partial`·`missingCounts`가 있으면 요약 패널에 "일부 이벤트가 누락되었습니다(N건)"를 표시한다. 필드가 없으면 표시하지 않는다(생산자 확인 필요).
+- 이벤트 목록의 `unverifiedReason`이 `budget_exceeded`·`call_cap_reached`인 건수를 세어 "예산·상한 초과로 판정하지 않은 이벤트 N건"과 운영자용 재분석 안내를 표시한다. 건수는 첫 페이지가 아니라 `listSourceEvents`를 `verificationStatus=unverified`로 따로 읽어 센다.

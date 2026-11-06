@@ -1,7 +1,7 @@
 ---
 spec: SPEC-034
 repo: frontend
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Tasks: SPEC-034 작업 세션·분석 이력 화면과 학습용 보존 설정 화면 — frontend
@@ -15,7 +15,7 @@ updated: 2026-11-06
 
 경로 약어: `Se` = `src/features/sessions`, `St` = `src/features/settings`, `U` = `src/features/upload`
 
-선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T003(analysis 스키마·API), T013(`videoDetailPath`의 `?event=`·`?t=`), T022(auth `useMe` 내보내기)
+선행: SPEC-031 T001(계약 lock 4.0.0과 생성 코드), T003(analysis 스키마·API), T013(`videoDetailPath`의 `?event=`·`?t=`), T022(auth `useMe` 내보내기)
 
 ## Phase 1: 준비
 
@@ -49,6 +49,12 @@ updated: 2026-11-06
 - [ ] T016 E2E: 세션 만들기 → 작업 전·후 영상 올리기 → 세션 상세 역할별 표시 → 흐름 요약 이동, 세션 상세 응답 뒤 300ms, 보존 설정 바꾸기, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/sessions.spec.ts`, 가짜 API `tests/e2e/fakeMedia.ts`, `tests/e2e/fakeAnalysis.ts`
 - [ ] T017 키보드만으로 세션 고르기·역할 고르기·철회 확인 — 테스트 `src/app/Keyboard.test.tsx`
 - [ ] T018 계약과 구현 일치 확인(생성 타입 diff 없음), README, 로컬 compose(media·auth 실제, analysis mock) 시연으로 성공 지표 확인
+
+## Phase 7: v5.1 추가(계약 묶음 4.0.0)
+
+- [ ] T019 [R-13] 카메라 스키마·API 훅, 목록·등록 폼(비밀값 참조만), `/history/cameras` 라우트와 탭 — 테스트 `CameraList.test.tsx`, `CameraForm.test.tsx`, 구현 `Ca/model`, `Ca/api`, `Ca/components/CameraList.tsx`, `CameraForm.tsx`, `src/pages/CamerasPage.tsx`, `src/app/routes.tsx`, `mocks/stream.ts`
+- [ ] T020 [R-13] 카메라 상세: 세션 start·stop, 409 안내, 15초 폴링, LIVE 세션 이동 — 테스트 `CameraDetail.test.tsx`, 구현 `Ca/components/CameraDetail.tsx`, `src/pages/CameraDetailPage.tsx`
+- [ ] T021 [R-14] `sessionChain`과 세션 이력(회전 표식), E2E(등록 → start → LIVE 이동 → stop → 이력) — 테스트 `sessionChain.test.ts`, `CameraSessionHistory.test.tsx`, `tests/e2e/cameras.spec.ts`, 구현 `Ca/model/sessionChain.ts`, `Ca/components/CameraSessionHistory.tsx`, `tests/e2e/fakeStream.ts`
 
 ## 완료 조건 (Definition of Done)
 
