@@ -33,7 +33,7 @@ export function LiveSessionView({ sessionId, live }: LiveSessionViewProps) {
         </p>
       )}
       <div className="grid gap-4 lg:grid-cols-2">
-        <LiveRiskPanel state={live.state} />
+        <LiveRiskPanel sessionId={sessionId} state={live.state} />
         <SessionAlertList alerts={live.alerts} />
       </div>
       <LiveTimeline events={live.events} />

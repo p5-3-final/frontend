@@ -1,16 +1,45 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { formatMediaTime } from "../../../shared/lib/format";
 import { eventTypeName } from "../../../shared/lib/messages";
 import { Panel } from "../../../shared/ui/Panel";
+import { useNotification } from "../../notifications";
+import { applyStateUpdate, type LiveCounts } from "../model/applyStateUpdate";
+import { streamQueryKeys } from "../model/queryKeys";
 import type { SessionState } from "../model/schemas";
 
 export interface LiveRiskPanelProps {
+  sessionId: string;
   state: SessionState | undefined;
 }
 
-/** 실시간 세션의 구역 상태와 활성 위험(SPEC-031 R-19, R-21). */
-export function LiveRiskPanel({ state }: LiveRiskPanelProps) {
+/**
+ * 실시간 세션의 구역 상태와 활성 위험(SPEC-031 R-19, R-21).
+ * state.updated는 개수 요약만 담아서, 새 sequence면 개수를 바로 보이고 자세한 상태는 다시 읽는다.
+ */
+export function LiveRiskPanel({ sessionId, state }: LiveRiskPanelProps) {
+  const queryClient = useQueryClient();
+  const [counts, setCounts] = useState<LiveCounts | null>(null);
+  useNotification(
+    "state.updated",
+    (message) => {
+      const next = applyStateUpdate(counts, state?.sequence ?? 0, message);
+      if (next === counts) {
+        return;
+      }
+      setCounts(next);
+      void queryClient.invalidateQueries({ queryKey: streamQueryKeys.state(sessionId) });
+    },
+    { sourceId: sessionId },
+  );
+  const latest = counts !== null && counts.sequence > (state?.sequence ?? 0) ? counts : null;
   return (
     <Panel title="현재 위험">
+      {latest !== null && (
+        <p role="status" className="text-xs text-warning">
+          {`활성 위험 ${String(latest.activeRisks)}건 · 새 위험 ${String(latest.newRisks)}건 · 해소 ${String(latest.resolvedRisks)}건`}
+        </p>
+      )}
       {state === undefined ? (
         <p className="text-sm text-muted">현재 상태를 불러오는 중입니다.</p>
       ) : (
