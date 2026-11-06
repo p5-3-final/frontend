@@ -21,9 +21,9 @@ describe("SummaryPanel", () => {
     expect(
       within(panel).getByText("A동 크레인 하부에서 안전모 미착용 작업자가 확인되었습니다."),
     ).toBeVisible();
-    expect(within(panel).getByText("이벤트").nextSibling).toHaveTextContent("3");
-    expect(within(panel).getByText("확정 이벤트").nextSibling).toHaveTextContent("2");
-    expect(within(panel).getByText("활성 위험").nextSibling).toHaveTextContent("1");
+    expect(within(panel).getByRole("group", { name: "이벤트" })).toHaveTextContent("3");
+    expect(within(panel).getByRole("group", { name: "확정 이벤트" })).toHaveTextContent("2");
+    expect(within(panel).getByRole("group", { name: "활성 위험" })).toHaveTextContent("1");
   });
 
   it("[SPEC-031 R-2] 요약의 강조 시각을 누르면 플레이어가 그 시각으로 간다", async () => {
@@ -46,7 +46,7 @@ describe("SummaryPanel", () => {
   it("[SPEC-031 R-2] 요약이 없으면 empty와 같게 보고, 개수 키가 없으면 0이다", () => {
     renderPanel({ summary: null, counts: {} });
     expect(screen.getByText("요약할 내용이 없습니다.")).toBeVisible();
-    expect(screen.getByText("활성 위험").nextSibling).toHaveTextContent("0");
+    expect(screen.getByRole("group", { name: "활성 위험" })).toHaveTextContent("0");
   });
 
   it("[SPEC-031 R-2] 판정하지 않은 이벤트 유형과 이유를 보인다", () => {

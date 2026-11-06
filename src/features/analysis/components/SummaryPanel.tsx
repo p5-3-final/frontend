@@ -61,7 +61,12 @@ export function SummaryPanel({ summary, controller }: SummaryPanelProps) {
       )}
       <dl className="grid grid-cols-3 gap-2">
         {COUNT_LABELS.map(([key, label]) => (
-          <div key={key} className="rounded-lg bg-panel-raised px-3 py-2">
+          <div
+            key={key}
+            role="group"
+            aria-label={label}
+            className="rounded-lg bg-panel-raised px-3 py-2"
+          >
             <dt className="text-xs text-muted">{label}</dt>
             <dd className="text-xl font-bold tabular-nums">{summary.counts[key] ?? 0}</dd>
           </div>
