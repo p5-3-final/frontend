@@ -3,6 +3,7 @@ import { Panel } from "../../../shared/ui/Panel";
 import { useSourceEvents } from "../api/useSourceEvents";
 import { parseEventQuery, toEventSearchParams } from "../model/eventFilters";
 import type { EventSummary } from "../model/schemas";
+import { AnalysisError } from "./AnalysisError";
 import { EventFilters } from "./EventFilters";
 import { EventList } from "./EventList";
 
@@ -33,7 +34,14 @@ export function EventsPanel({ sourceId, selectedId, onSelect }: EventsPanelProps
       />
       {events.isPending ? (
         <p className="text-sm text-muted">이벤트를 불러오는 중입니다.</p>
-      ) : events.error !== null ? null : (
+      ) : events.error !== null ? (
+        <AnalysisError
+          error={events.error}
+          onRetry={() => {
+            void events.refetch();
+          }}
+        />
+      ) : (
         <EventList
           events={items}
           selectedId={selectedId}

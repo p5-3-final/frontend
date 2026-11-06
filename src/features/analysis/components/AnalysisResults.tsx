@@ -3,6 +3,7 @@ import { Panel } from "../../../shared/ui/Panel";
 import { ANALYSIS_NOT_ANALYZED_MESSAGE } from "../../../shared/lib/messages";
 import { useSourceSummary } from "../api/useSourceSummary";
 import { useEventSelection } from "../hooks/useEventSelection";
+import { AnalysisError } from "./AnalysisError";
 import { EventDetailPanel } from "./EventDetailPanel";
 import { EventsPanel } from "./EventsPanel";
 import { SummaryPanel } from "./SummaryPanel";
@@ -14,13 +15,20 @@ export interface AnalysisResultsProps {
 
 /** 영상 상세의 분석 결과 묶음(SPEC-031). 요약이 READY일 때만 이벤트·위험·스냅샷을 묻는다(R-1). */
 export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) {
-  const { data: summary, isPending, error } = useSourceSummary(sourceId);
+  const { data: summary, isPending, error, refetch } = useSourceSummary(sourceId);
   const selection = useEventSelection(controller);
   if (isPending) {
     return <p className="text-sm text-muted">분석 결과를 불러오는 중입니다.</p>;
   }
   if (error !== null) {
-    return null;
+    return (
+      <AnalysisError
+        error={error}
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
   }
   if (summary.status === "NOT_ANALYZED") {
     return (

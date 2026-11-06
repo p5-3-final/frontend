@@ -7,7 +7,7 @@ import {
   analysisHandlers,
   notAnalyzedSummaryBody,
 } from "../../../../mocks/analysis";
-import { handlers, MEDIA_API, mediaHandlers, videoBody } from "../../../../mocks/handlers";
+import { handlers, MEDIA_API, mediaHandlers, problem, videoBody } from "../../../../mocks/handlers";
 import { renderRoute } from "../../../../tests/render";
 import { server } from "../../../../tests/server";
 import { startSession } from "../../../shared/api/session";
@@ -74,6 +74,52 @@ describe("AnalysisResults", () => {
     expect(await screen.findByRole("region", { name: "이벤트 상세" })).toBeVisible();
     await screen.findByText("안전관리자 확인 필요");
     expect(video.currentTime).toBe(93);
+    server.events.removeAllListeners();
+  });
+
+  it("[SPEC-031 R-17] 분석 API가 404면 영상을 찾을 수 없다는 안내를 보인다", async () => {
+    videoServer(
+      http.get(`${ANALYSIS_API}/sources/:id/summary`, () =>
+        problem(404, "ANALYSIS_SOURCE_NOT_FOUND"),
+      ),
+    );
+    renderRoute(DETAIL_PATH);
+
+    expect(await screen.findByText("영상을 찾을 수 없습니다.")).toBeVisible();
+    expect(screen.queryByRole("button", { name: "다시 시도" })).not.toBeInTheDocument();
+    server.events.removeAllListeners();
+  });
+
+  it("[SPEC-031 R-17] 5xx·네트워크 오류면 다시 시도 버튼을 보이고 누르면 다시 묻는다", async () => {
+    let failing = true;
+    videoServer(
+      http.get(`${ANALYSIS_API}/sources/:id/summary`, () =>
+        failing ? HttpResponse.error() : HttpResponse.json(notAnalyzedSummaryBody()),
+      ),
+    );
+    const { user } = renderRoute(DETAIL_PATH);
+
+    expect(await screen.findByText("분석 결과를 불러오지 못했습니다.")).toBeVisible();
+    failing = false;
+    await user.click(screen.getByRole("button", { name: "다시 시도" }));
+
+    expect(await screen.findByText("아직 분석 결과가 없습니다.")).toBeVisible();
+    server.events.removeAllListeners();
+  });
+
+  it("[SPEC-031 R-17] 이벤트 API 하나가 실패해도 요약은 보이고 그 패널에만 오류를 보인다", async () => {
+    videoServer(
+      http.get(`${ANALYSIS_API}/sources/:id/events`, () => problem(503, "ANALYSIS_UNAVAILABLE")),
+      ...analysisHandlers(),
+    );
+    renderRoute(DETAIL_PATH);
+
+    const events = await screen.findByRole("region", { name: "이벤트" });
+    expect(
+      await within(events).findByText("분석 결과를 잠시 불러올 수 없습니다. 다시 시도해 주세요."),
+    ).toBeVisible();
+    expect(within(events).getByRole("button", { name: "다시 시도" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "분석 요약" })).toBeVisible();
     server.events.removeAllListeners();
   });
 });

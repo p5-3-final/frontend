@@ -1,14 +1,13 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
-import { ApiError } from "../../../shared/api/problem";
 import { formatMediaTime } from "../../../shared/lib/format";
-import { eventTypeName, messageForCode, SEVERITY_NAMES } from "../../../shared/lib/messages";
-import { Alert } from "../../../shared/ui/Alert";
+import { eventTypeName, SEVERITY_NAMES } from "../../../shared/lib/messages";
 import { Panel } from "../../../shared/ui/Panel";
 import type { PlayerController } from "../../player";
 import { useEvent } from "../api/useEvent";
 import { vlmAnalysisSchema, type EventDetail } from "../model/schemas";
 import { descriptionText, verificationName } from "../model/verification";
+import { AnalysisError } from "./AnalysisError";
 
 export interface EventDetailPanelProps {
   eventId: string;
@@ -20,7 +19,7 @@ export interface EventDetailPanelProps {
 
 /** 이벤트 상세(SPEC-031 R-5). 근거 프레임, 판정 결과, 조치 제안, 판정 방식과 호출 요약을 보인다. */
 export function EventDetailPanel({ eventId, controller, onClose, footer }: EventDetailPanelProps) {
-  const { data: detail, error, isPending } = useEvent(eventId);
+  const { data: detail, error, isPending, refetch } = useEvent(eventId);
   // 목록에서 눌러 연 경우는 이미 옮겼다. 주소로 바로 연 경우만 상세를 받은 뒤 한 번 옮긴다(R-5).
   const seekedRef = useRef<string | null>(null);
   useEffect(() => {
@@ -49,7 +48,12 @@ export function EventDetailPanel({ eventId, controller, onClose, footer }: Event
       {isPending ? (
         <p className="text-sm text-muted">이벤트를 불러오는 중입니다.</p>
       ) : error !== null ? (
-        <Alert>{messageForCode(error instanceof ApiError ? error.code : undefined)}</Alert>
+        <AnalysisError
+          error={error}
+          onRetry={() => {
+            void refetch();
+          }}
+        />
       ) : (
         <EventDetailBody detail={detail} controller={controller}>
           {footer?.(detail)}

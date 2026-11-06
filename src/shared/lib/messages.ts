@@ -63,8 +63,18 @@ export const SESSION_ROLE_NAMES = {
   AFTER: "작업 후 영상",
 } as const;
 
+/** 분석 API가 code 없이 실패했거나(네트워크 오류 포함) 모르는 code일 때(SPEC-031 R-17) */
+export const ANALYSIS_LOAD_FAILED_MESSAGE = "분석 결과를 불러오지 못했습니다.";
+export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
+
 // 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
-const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {};
+const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
+  ANALYSIS_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,
+  ANALYSIS_EVENT_NOT_FOUND: "이벤트를 찾을 수 없습니다.",
+  ANALYSIS_FORBIDDEN: "운영자만 이벤트를 확인·기각할 수 있습니다.",
+  ANALYSIS_UNAVAILABLE: "분석 결과를 잠시 불러올 수 없습니다. 다시 시도해 주세요.",
+  ANALYSIS_INVALID_REQUEST: INVALID_INPUT_MESSAGE,
+};
 
 const MESSAGES: Readonly<Record<string, string>> = {
   ...ANALYSIS_MESSAGES,
