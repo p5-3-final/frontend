@@ -18,6 +18,7 @@ import {
 import { readReviewQuery, reviewQueryString } from "../../model/reviewQuery";
 import type { ReviewItem } from "../../model/schemas";
 import { QualityError } from "../QualityError";
+import { AddToGoldenSet } from "./AddToGoldenSet";
 import { EvidenceFrames } from "./EvidenceFrames";
 import { ReviewLabelForm } from "./ReviewLabelForm";
 
@@ -181,6 +182,7 @@ export function ReviewDetail() {
             error={errorMessage(labelAndNext.error)}
             onSubmit={handleSubmit}
           />
+          {item.status === "LABELED" && <AddToGoldenSet key={item.itemId} item={item} />}
         </div>
       </div>
     </section>

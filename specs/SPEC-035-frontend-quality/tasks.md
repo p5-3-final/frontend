@@ -34,9 +34,9 @@ updated: 2026-11-07
 
 ## Phase 3: US-2 Golden Set 버전 확정 (P1)
 
-- [ ] T010 [R-8] Golden Set 목록(이름·분할·출처·초안 수·최신 버전·기준 실행)과 만들기(이름 패턴·분할·설명), 이름 중복 409 안내 — 테스트 `Q/components/golden/GoldenSetList.test.tsx`, `Q/components/golden/CreateGoldenSetForm.test.tsx`, 구현 `Q/components/golden/{GoldenSetList,CreateGoldenSetForm}.tsx`, `Q/model/goldenSetSchema.ts`, `Q/api/{useGoldenSets,useCreateGoldenSet}.ts`
-- [ ] T011 [R-9] 라벨된 검토 항목에서 출처가 검토인 세트로 "Golden Set에 넣기", 409면 이유(라벨 없음·uncertain·이미 들어 있음·가져온 세트) — 테스트 `Q/components/review/AddToGoldenSet.test.tsx`, 구현 `Q/components/review/AddToGoldenSet.tsx`, `Q/api/useAddGoldenSetEntry.ts`
-- [ ] T012 [R-10] Golden Set 상세: 초안 항목(빼기), 확정 버전 목록, 확인 창 뒤 "버전 확정", 409면 초안 없음·확정 진행 중 — 테스트 `Q/components/golden/GoldenSetDetail.test.tsx`, 구현 `Q/components/golden/GoldenSetDetail.tsx`, `Q/api/{useGoldenSet,useGoldenSetEntries,useGoldenSetVersions,useDeleteGoldenSetEntry,useFreezeGoldenSet}.ts`
+- [x] T010 [R-8] Golden Set 목록(이름·분할·출처·초안 수·최신 버전·기준 실행)과 만들기(이름 패턴·분할·설명), 이름 중복 409 안내 — 테스트 `Q/components/golden/GoldenSetList.test.tsx`, `Q/components/golden/CreateGoldenSetForm.test.tsx`, 구현 `Q/components/golden/{GoldenSetList,CreateGoldenSetForm}.tsx`, `Q/model/goldenSetSchema.ts`, `Q/api/{useGoldenSets,useCreateGoldenSet}.ts`
+- [x] T011 [R-9] 라벨된 검토 항목에서 출처가 검토인 세트로 "Golden Set에 넣기", 409면 이유(라벨 없음·uncertain·이미 들어 있음·가져온 세트) — 테스트 `Q/components/review/AddToGoldenSet.test.tsx`, 구현 `Q/components/review/AddToGoldenSet.tsx`, `Q/api/useAddGoldenSetEntry.ts`
+- [x] T012 [R-10] Golden Set 상세: 초안 항목(빼기), 확정 버전 목록, 확인 창 뒤 "버전 확정", 409면 초안 없음·확정 진행 중 — 테스트 `Q/components/golden/GoldenSetDetail.test.tsx`, 구현 `Q/components/golden/GoldenSetDetail.tsx`, `Q/api/{useGoldenSet,useGoldenSetEntries,useGoldenSetVersions,useDeleteGoldenSetEntry,useFreezeGoldenSet}.ts`
 
 ## Phase 4: US-3 Gate 실패 원인 보기 (P1)
 
