@@ -95,4 +95,34 @@ describe("EventList", () => {
     expect(await eventRows()).toHaveLength(120);
     expect(screen.queryByRole("button", { name: "이벤트 더 보기" })).not.toBeInTheDocument();
   });
+
+  it("[SPEC-031 R-6] 판정 상태 이름을 보이고 설명이 없으면 상태 안내를 설명 자리에 보인다", async () => {
+    renderAnalysisDetail(
+      analysisHandlers({
+        events: [
+          eventSummaryBody({
+            eventId: "0192f300-0000-5000-8000-000000000201",
+            verificationStatus: "unverified",
+            description: null,
+          }),
+          eventSummaryBody({
+            eventId: "0192f300-0000-5000-8000-000000000202",
+            startMs: 200_000,
+            verificationStatus: "unknown",
+            description: null,
+          }),
+        ],
+      }),
+    );
+
+    const [first, second] = await eventRows();
+    expect(within(first ?? document.body).getByText("미확인(모델 없음)")).toBeVisible();
+    expect(
+      within(first ?? document.body).getByText("판정 모델이 설정되지 않아 설명이 없습니다."),
+    ).toBeVisible();
+    expect(within(second ?? document.body).getByText("판단 불가")).toBeVisible();
+    expect(
+      within(second ?? document.body).getByText("판정할 수 없어 설명이 없습니다."),
+    ).toBeVisible();
+  });
 });

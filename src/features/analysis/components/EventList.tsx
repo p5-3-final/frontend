@@ -3,6 +3,7 @@ import { formatMediaTime } from "../../../shared/lib/format";
 import { eventTypeName, SEVERITY_NAMES } from "../../../shared/lib/messages";
 import { Button } from "../../../shared/ui/Button";
 import type { EventSummary } from "../model/schemas";
+import { descriptionText, verificationName } from "../model/verification";
 
 export interface EventListProps {
   events: EventSummary[];
@@ -13,8 +14,8 @@ export interface EventListProps {
   onLoadMore: () => void;
 }
 
-function firstLine(text: string | null): string {
-  return text === null ? "" : (text.split("\n")[0] ?? "");
+function firstLine(text: string): string {
+  return text.split("\n")[0] ?? "";
 }
 
 /** 이벤트 목록(SPEC-031 R-3). 행 전체가 버튼이고 누르면 그 이벤트를 연다(R-5). */
@@ -67,9 +68,12 @@ export function EventList({
                     {event.severity !== null && (
                       <span className="text-xs">{SEVERITY_NAMES[event.severity]}</span>
                     )}
+                    <span className="text-xs text-muted">
+                      {verificationName(event.verificationStatus)}
+                    </span>
                   </span>
                   <span className="truncate text-xs text-muted">
-                    {firstLine(event.description)}
+                    {firstLine(descriptionText(event.verificationStatus, event.description))}
                   </span>
                 </span>
               </button>
