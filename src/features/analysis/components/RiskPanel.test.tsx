@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { analysisHandlers, riskBody } from "../../../../mocks/analysis";
+import { analysisHandlers, riskBody, riskForecastBody } from "../../../../mocks/analysis";
 import { renderAnalysisDetail } from "../../../../tests/analysisDetail";
 
 const ACTIVE = riskBody();
@@ -61,5 +61,26 @@ describe("RiskPanel", () => {
     renderAnalysisDetail(analysisHandlers({ risks: [] }));
     const panel = await riskPanel();
     expect(await within(panel).findByText("위험 상태가 없습니다.")).toBeVisible();
+  });
+
+  it("[SPEC-031 R-9] 예측이 있으면 구간별 노출 확률을 참고용 표시와 함께 보인다", async () => {
+    renderAnalysisDetail(analysisHandlers({ risks: [riskBody({ forecast: riskForecastBody() })] }));
+    const panel = await riskPanel();
+
+    const forecast = await within(panel).findByRole("list", { name: "노출 예측" });
+    expect(within(panel).getByText("참고용")).toBeVisible();
+    expect(within(forecast).getByText("10분 뒤 노출 확률 42%")).toBeVisible();
+    expect(within(forecast).getByText("30분 뒤 노출 확률 71%")).toBeVisible();
+  });
+
+  it.each([
+    ["없으면", null],
+    ["형식이 틀리면", { method: "unknown", horizons: "x" }],
+    ["구간이 비면", { method: "rule", horizons: [], features: {} }],
+  ])("[SPEC-031 R-9] 예측이 %s 그 자리를 비운다", async (_case, forecast) => {
+    renderAnalysisDetail(analysisHandlers({ risks: [riskBody({ forecast })] }));
+    const panel = await riskPanel();
+    await within(panel).findByText("안전모 미착용");
+    expect(within(panel).queryByText("참고용")).not.toBeInTheDocument();
   });
 });

@@ -45,7 +45,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 ## Phase 4: US-2 위험 상태 보기 (P1)
 
 - [x] T017 [R-8] 위험 패널: 활성 먼저·해소 다음, 구역 이름(없으면 "전체")·유형·사유·시작·해소·노출 인원·시간·이어 온 위험, 시작 시각을 누르면 이동 — 테스트 `A/components/RiskPanel.test.tsx`, 구현 `A/components/RiskPanel.tsx`, `A/api/useSourceRisks.ts`
-- [ ] T018 [R-9] 예측이 있으면 구간별 노출 확률을 "참고용"과 함께, 없거나 형식이 틀리면 비움 — 테스트 `RiskPanel.test.tsx`, 구현 `A/components/RiskForecast.tsx`
+- [x] T018 [R-9] 예측이 있으면 구간별 노출 확률을 "참고용"과 함께, 없거나 형식이 틀리면 비움 — 테스트 `RiskPanel.test.tsx`, 구현 `A/components/RiskForecast.tsx`
 - [ ] T019 [R-10] 상태 스냅샷을 시각 순으로 "구역: 이전 → 현재", 관련 이벤트를 누르면 R-5 동작 — 테스트 `A/components/SnapshotList.test.tsx`, 구현 `A/components/SnapshotList.tsx`, `A/api/useSourceSnapshots.ts`
 
 ## Phase 5: US-3 분석 진행 보기 (P1)

@@ -5,6 +5,7 @@ import type { PlayerController } from "../../player";
 import { useSourceRisks } from "../api/useSourceRisks";
 import type { Risk } from "../model/schemas";
 import { AnalysisError } from "./AnalysisError";
+import { RiskForecast } from "./RiskForecast";
 
 export interface RiskPanelProps {
   sourceId: string;
@@ -102,6 +103,7 @@ function RiskRow({ risk, controller }: { risk: Risk; controller: PlayerControlle
           노출 {risk.exposure.exposureCount}명 · {risk.exposure.exposureSeconds}초
         </span>
       </p>
+      <RiskForecast forecast={risk.forecast} />
     </li>
   );
 }
