@@ -6,6 +6,7 @@ import { useEventSelection } from "../hooks/useEventSelection";
 import { AnalysisError } from "./AnalysisError";
 import { EventDetailPanel } from "./EventDetailPanel";
 import { EventsPanel } from "./EventsPanel";
+import { RiskPanel } from "./RiskPanel";
 import { SummaryPanel } from "./SummaryPanel";
 
 export interface AnalysisResultsProps {
@@ -55,7 +56,7 @@ export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) 
           />
         )}
       </div>
-      <Panel title="위험 상태">{null}</Panel>
+      <RiskPanel sourceId={sourceId} controller={controller} />
       <Panel title="상태 스냅샷">{null}</Panel>
     </div>
   );
