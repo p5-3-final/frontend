@@ -5,6 +5,7 @@ import {
   ANALYSIS_API,
   ANALYSIS_SOURCE_ID,
   analysisHandlers,
+  eventSummaryBody,
   notAnalyzedSummaryBody,
   sourceSummaryBody,
 } from "../../../../mocks/analysis";
@@ -150,6 +151,29 @@ describe("AnalysisResults", () => {
     await screen.findByRole("list", { name: "활성 위험" });
     const summaryRequests = requested.filter((path) => path.endsWith("/summary"));
     expect(summaryRequests.length).toBeGreaterThanOrEqual(2);
+    server.events.removeAllListeners();
+  });
+
+  it("[SPEC-031 R-23] 판정하지 않은 이벤트를 따로 읽어 예산·상한 초과 건수를 요약에 보인다", async () => {
+    videoServer(
+      ...analysisHandlers({
+        events: [
+          eventSummaryBody(),
+          eventSummaryBody({
+            eventId: "0192f300-0000-5000-8000-000000000301",
+            verificationStatus: "unverified",
+            unverifiedReason: "budget_exceeded",
+            description: null,
+          }),
+        ],
+      }),
+    );
+    renderRoute(`${DETAIL_PATH}?verification=confirmed`);
+
+    const summary = await screen.findByRole("region", { name: "분석 요약" });
+    expect(
+      await within(summary).findByText("예산·상한 초과로 판정하지 않은 이벤트 1건"),
+    ).toBeVisible();
     server.events.removeAllListeners();
   });
 });

@@ -74,7 +74,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 - [ ] T029 [R-19] `/stream/sessions/:sessionId` 화면: LIVE면 stream 조회(10초 폴링)와 HLS 재생, CLOSED면 analysis API로 전환, `AnalysisResults` 출처 props — 테스트 `useLiveSession.test.tsx`, `StreamSessionPage.test.tsx`, 구현 `src/pages/StreamSessionPage.tsx`, `src/app/routes.tsx`, `A/components/AnalysisResults.tsx`
 - [ ] T030 [R-20] 알림 스키마 `alert.raised`, `alertFeed` 상태 전이, 앱 상단 `AlertBanner`(2초 안 표시, 세션 화면 이동) — 테스트 `alertFeed.test.ts`, `AlertBanner.test.tsx`, 구현 `N/model/schemas.ts`, `S/model/alertFeed.ts`, `S/components/AlertBanner.tsx`, `src/app/AppShell.tsx`
 - [ ] T031 [R-21] 알림 스키마 `state.updated`, `applyStateUpdate`(sequence 순서), `LiveRiskPanel` 구독 — 테스트 `applyStateUpdate.test.ts`, `LiveRiskPanel.test.tsx`, 구현 `S/model/applyStateUpdate.ts`, `S/components/LiveRiskPanel.tsx`
-- [ ] T032 [R-22] [R-23] 요약 패널의 일부 누락·예산 초과 안내, `unverified` 건수 집계 — 테스트 `SummaryPanel.test.tsx`, `eventFilters.test.ts`, 구현 `A/components/SummaryPanel.tsx`, `A/model/eventFilters.ts`, `src/shared/lib/messages.ts`
+- [x] T032 [R-22] [R-23] 요약 패널의 일부 누락·예산 초과 안내, `unverified` 건수 집계 — 테스트 `SummaryPanel.test.tsx`, `eventFilters.test.ts`, 구현 `A/components/SummaryPanel.tsx`, `A/model/eventFilters.ts`, `src/shared/lib/messages.ts`
 - [ ] T033 E2E: 가짜 stream API·SSE로 LIVE 세션 열기 → `state.updated` 반영 → `alert.raised` pending·confirmed 배너 → 세션 종료 뒤 analysis 결과 전환 — 테스트 `tests/e2e/stream-session.spec.ts`, 가짜 API `tests/e2e/fakeStream.ts`
 
 ## 완료 조건 (Definition of Done)

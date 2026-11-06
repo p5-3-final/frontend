@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parseEventQuery, toEventSearchParams } from "./eventFilters";
+import { eventSummaryBody } from "../../../../mocks/analysis";
+import { countBudgetSkipped, parseEventQuery, toEventSearchParams } from "./eventFilters";
+import { eventSummarySchema } from "./schemas";
 
 describe("eventFilters", () => {
   it("[SPEC-031 R-3] URL 쿼리의 거르기 값을 읽고 모르는 값은 버린다", () => {
@@ -18,5 +20,18 @@ describe("eventFilters", () => {
       severity: "high",
     });
     expect(next.toString()).toBe("event=e1&t=10&severity=high");
+  });
+
+  it("[SPEC-031 R-23] 예산·상한 초과로 판정하지 않은 이벤트만 센다", () => {
+    const events = [
+      { verificationStatus: "unverified", unverifiedReason: "budget_exceeded" },
+      { verificationStatus: "unverified", unverifiedReason: "call_cap_reached" },
+      { verificationStatus: "unverified", unverifiedReason: "model_unavailable" },
+      { verificationStatus: "unverified", unverifiedReason: null },
+      { verificationStatus: "confirmed" },
+    ] as const;
+    expect(
+      countBudgetSkipped(events.map((event) => eventSummarySchema.parse(eventSummaryBody(event)))),
+    ).toBe(2);
   });
 });

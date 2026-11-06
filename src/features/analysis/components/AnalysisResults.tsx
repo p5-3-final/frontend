@@ -3,7 +3,9 @@ import type { PlayerController } from "../../player";
 import { ANALYSIS_NOT_ANALYZED_MESSAGE } from "../../../shared/lib/messages";
 import { useSourceSummary } from "../api/useSourceSummary";
 import { useAnalysisLiveRefresh } from "../hooks/useAnalysisLiveRefresh";
-import { useEventSelection } from "../hooks/useEventSelection";
+import { useBudgetSkipped } from "../hooks/useBudgetSkipped";
+import { useEventSelection, type EventSelection } from "../hooks/useEventSelection";
+import type { SourceSummary } from "../model/schemas";
 import { AnalysisError } from "./AnalysisError";
 import { AnalysisProgress } from "./AnalysisProgress";
 import { EventDetailPanel } from "./EventDetailPanel";
@@ -49,10 +51,30 @@ export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) 
     );
   }
   return (
+    <ReadyResults
+      sourceId={sourceId}
+      controller={controller}
+      summary={summary}
+      selection={selection}
+      isOperator={isOperator}
+    />
+  );
+}
+
+interface ReadyResultsProps extends AnalysisResultsProps {
+  summary: SourceSummary;
+  selection: EventSelection;
+  isOperator: boolean;
+}
+
+/** READY인 영상의 결과 패널. 이벤트·위험·스냅샷 요청은 이 컴포넌트가 그려질 때만 나간다(R-1). */
+function ReadyResults({ sourceId, controller, summary, selection, isOperator }: ReadyResultsProps) {
+  const budgetSkipped = useBudgetSkipped(sourceId);
+  return (
     <div className="flex flex-col gap-4">
       {/* 결과가 있는 영상도 재분석 중이면 진행 알림이 온다. 그때만 보인다. */}
       <AnalysisProgress key={sourceId} sourceId={sourceId} awaiting={false} />
-      <SummaryPanel summary={summary} controller={controller} />
+      <SummaryPanel summary={summary} controller={controller} budgetSkipped={budgetSkipped} />
       {/* 1024px 이상은 목록과 상세를 두 칸으로, 그 미만은 쌓는다(plan 화면 배치). */}
       <div className="grid gap-4 lg:grid-cols-2">
         <EventsPanel

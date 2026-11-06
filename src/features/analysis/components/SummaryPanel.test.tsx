@@ -68,4 +68,27 @@ describe("SummaryPanel", () => {
     expect(screen.getByText("작업 후 영상")).toBeVisible();
     expect(screen.getByText("직전 영상의 마지막 상태로 시작함")).toBeVisible();
   });
+
+  it("[SPEC-031 R-22] partial이면 일부 이벤트가 누락되었다고 건수와 함께 보인다", () => {
+    renderPanel({ partial: true, missingCounts: { events: 4 } });
+    expect(screen.getByText("일부 이벤트가 누락되었습니다(4건)")).toBeVisible();
+  });
+
+  it("[SPEC-031 R-22] partial이 아니거나 필드가 없으면 누락 안내를 보이지 않는다", () => {
+    renderPanel({ partial: false, missingCounts: {} });
+    expect(screen.queryByText(/일부 이벤트가 누락/)).not.toBeInTheDocument();
+  });
+
+  it("[SPEC-031 R-23] 예산·상한 초과로 판정하지 않은 이벤트가 있으면 건수와 재분석 안내를 보인다", () => {
+    const controller = createPlayerController();
+    render(
+      <SummaryPanel
+        summary={sourceSummarySchema.parse(sourceSummaryBody())}
+        controller={controller}
+        budgetSkipped={{ count: 3, more: false }}
+      />,
+    );
+    expect(screen.getByText("예산·상한 초과로 판정하지 않은 이벤트 3건")).toBeVisible();
+    expect(screen.getByText("운영자가 재분석하면 다시 판정합니다.")).toBeVisible();
+  });
 });

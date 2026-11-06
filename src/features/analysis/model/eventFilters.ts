@@ -4,6 +4,7 @@ import {
   reviewStateSchema,
   severitySchema,
   verificationStatusSchema,
+  type EventSummary,
   type EventType,
   type ReviewState,
   type Severity,
@@ -129,4 +130,17 @@ export function toMyEventQuery(filters: MyEventFilters): MyEventQuery {
       ? {}
       : { to: new Date(seoulMidnight(filters.toDate).getTime() + DAY_MS).toISOString() }),
   };
+}
+
+// ai-gateway가 예산·호출 상한 때문에 판정하지 않은 이유(SPEC-016 R-11, quality-service 열린 목록)
+const BUDGET_REASONS = new Set(["budget_exceeded", "call_cap_reached"]);
+
+/** 예산·상한 초과로 판정하지 않은 이벤트 수(SPEC-031 R-23) */
+export function countBudgetSkipped(events: readonly EventSummary[]): number {
+  return events.filter(
+    (event) =>
+      event.verificationStatus === "unverified" &&
+      event.unverifiedReason != null &&
+      BUDGET_REASONS.has(event.unverifiedReason),
+  ).length;
 }
