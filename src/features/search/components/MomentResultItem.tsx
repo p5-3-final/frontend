@@ -4,6 +4,7 @@ import { videoDetailPath } from "../../upload";
 import type { SearchJumpState } from "../model/jumpState";
 import { formatMatchedBy, formatRange, formatSimilarity } from "../model/format";
 import type { MomentResult } from "../model/schemas";
+import { GroundingSlot } from "./GroundingSlot";
 
 export interface MomentResultItemProps {
   moment: MomentResult;
@@ -43,6 +44,7 @@ export function MomentResultItem({ moment, videoName }: MomentResultItemProps) {
           <span className="tabular-nums">{formatSimilarity(moment.similarity)}</span>
           <span>{formatMatchedBy(moment.matchedBy)}</span>
         </p>
+        <GroundingSlot moment={moment} />
         <Link
           to={videoDetailPath(moment.sourceId, { seekMs: moment.seekMs })}
           state={jumpState}

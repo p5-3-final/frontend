@@ -33,7 +33,7 @@ updated: 2026-11-06
 
 ## Phase 3: US-2 주석 클립 (P1)
 
-- [ ] T009 [R-5] `grounding.completed` READY면 클립 정보를 불러와 "주석 클립 보기", FAILED면 "주석을 만들지 못함", `NONE`이면 자리 없음. 알림이 응답보다 먼저 와도 반영 — 테스트 `S/components/GroundingSlot.test.tsx`, 구현 `S/components/GroundingSlot.tsx`, `S/hooks/useGroundingLiveStatus.ts`, `S/api/useGroundingClip.ts`
+- [x] T009 [R-5] `grounding.completed` READY면 클립 정보를 불러와 "주석 클립 보기", FAILED면 "주석을 만들지 못함", `NONE`이면 자리 없음. 알림이 응답보다 먼저 와도 반영 — 테스트 `S/components/GroundingSlot.test.tsx`, 구현 `S/components/GroundingSlot.tsx`, `S/hooks/useGroundingLiveStatus.ts`, `S/api/useGroundingClip.ts`
 - [ ] T010 [R-6] "주석 클립 보기"로 클립 재생, 대상어별 색 범례, 현재 위치의 프레임별 객체 수 — 테스트 `S/components/GroundingClipDialog.test.tsx`, 구현 `S/components/GroundingClipDialog.tsx`
 
 ## Phase 4: US-4 영상에 질문 (P1)
