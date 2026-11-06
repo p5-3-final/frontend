@@ -1,3 +1,5 @@
+export { useNotification, type UseNotificationOptions } from "./hooks/useNotification";
+export { useNotificationStatus } from "./hooks/useNotificationStatus";
 export {
   getConnectionStatus,
   startNotifications,
