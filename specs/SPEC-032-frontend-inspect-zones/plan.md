@@ -4,7 +4,7 @@ repo: frontend
 status: Approved
 owner: <이름>
 created: 2026-11-06
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Plan: SPEC-032 플레이어 오버레이·클릭 조회·객체 질문·위험구역 편집 화면 — frontend
@@ -15,7 +15,9 @@ updated: 2026-11-06
   - `notifications/v1/notification-message.schema.json`: `track.analyzed`
   - `events/_track-attribute.schema.json`, `events/_object-answer.schema.json`: 응답 안의 `attributes`·`answer` 형식
 - 관련: SPEC-031(영상 상세 조립, 플레이어 컨트롤러·자체 컨트롤, 알림 연결과 버퍼), SPEC-022·SPEC-024(트랙·속성)
-- 선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T002·T014(플레이어 이동과 자체 컨트롤), T004·T005(알림 연결)
+- 선행: SPEC-031 T001(계약 lock 4.0.0과 생성 코드), T002·T014(플레이어 이동과 자체 컨트롤), T004·T005(알림 연결)
+
+- v5.1(계약 묶음 4.0.0, 2026-11-07): `openapi/stream-service.yaml` 1.0.0의 카메라 구역 API(`getCameraZones`, `putCameraZones`)가 더해졌다. R-15(보호구 상태는 `ppe_missing` 확정 이벤트 우선)·R-16(카메라 구역 편집)을 아래 설계 절대로 더한다. 생성 코드는 SPEC-031 T028이 만든다.
 
 ## 1. 요약
 
@@ -23,7 +25,7 @@ SPEC-031의 영상 상세 플레이어 위에 SVG 층 두 개를 더한다. 하�
 
 ## 2. 담당 요구사항
 
-경로 약어: `A` = `src/features/analysis`, `P` = `src/features/player`, `N` = `src/features/notifications`
+경로 약어: `A` = `src/features/analysis`, `P` = `src/features/player`, `N` = `src/features/notifications`, `S` = `src/features/stream`
 
 | 요구사항 | 담당 모듈 / 컴포넌트 | 검증 테스트 |
 | --- | --- | --- |
@@ -41,6 +43,8 @@ SPEC-031의 영상 상세 플레이어 위에 SVG 층 두 개를 더한다. 하�
 | R-12 | `A/api/usePutSourceZones`, `ZoneEditor` | `ZoneEditor.test.tsx` |
 | R-13 | `A/components/SummaryPanel`(SPEC-031) | `SummaryPanel.test.tsx` |
 | R-14 | `P/model/contentRect`, `P/hooks/useVideoContentRect` | `contentRect.test.ts`, `useVideoContentRect.test.tsx` |
+| R-15 | `A/model/ppeStatus.ts`(확정 `ppe_missing` 이벤트 → 보호구 상태), `A/components/TrackPanel`(`track_attribute` 값은 보조 표시) | `ppeStatus.test.ts`, `TrackPanel.test.tsx` |
+| R-16 | `A/components/ZoneEditor`(저장 함수·배경 프레임을 props로), `S/components/CameraZoneEditor`, `S/api/useCameraZones`·`usePutCameraZones` | `CameraZoneEditor.test.tsx`(저장 뒤 "다음 세션부터 적용됨"), `ZoneEditor.test.tsx`(props 분리 뒤 기존 테스트 유지) |
 | NFR-1 | `OverlayLayer`(그리기 시간 측정 표시) | Playwright `inspect-zones.spec.ts`(박스 50개, `performance.measure`) |
 | NFR-2 | `InspectLayer`, `TrackPanel` | Playwright `inspect-zones.spec.ts`(응답 뒤 100ms) |
 
@@ -49,7 +53,7 @@ SPEC-031의 영상 상세 플레이어 위에 SVG 층 두 개를 더한다. 하�
 | 원칙 | 준수 | 비고 |
 | --- | --- | --- |
 | I 스펙 우선 — spec이 Approved 상태인가 | ☑ | docs #127 |
-| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | analysis 0.4.0은 docs #127로 머지됨. SPEC-031 T001이 3.14.0 생성 코드를 만든다 |
+| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | analysis 0.4.0은 docs #127로 머지됨. SPEC-031 T001이 4.0.0 생성 코드를 만든다 |
 | III 테스트 우선 — 모든 R-*에 테스트가 매핑되고, 태스크가 요구사항 단위 TDD 사이클로 나뉘었는가 | ☑ | 2절, tasks.md |
 | IV 서비스 자율성 — 다른 서비스 DB나 코드에 직접 의존하지 않는가 | ☑ | api-gateway 경유 API와 SSE만 쓴다 |
 | V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성 없음. 박스·다각형은 SVG, 교차 검사는 선분 교차 함수(꼭짓점 32개 이하라 O(n²)로 충분). 선택지는 5절(사용자 확인 필요) |
@@ -188,3 +192,8 @@ sequenceDiagram
 
 - 새 환경변수 없음.
 - analysis-api 공개 API 2부가 배포되기 전에는 오버레이·조회·구역 편집이 오류 안내를 보인다. SPEC-031과 같이 서비스 배포 뒤에 켜는 것이 좋다.
+
+## 9. v5.1 추가 설계(계약 묶음 4.0.0, 2026-11-07)
+
+- R-15: 트랙 패널은 그 트랙의 이벤트(`listSourceEvents`를 `trackId`로 읽음) 중 `confirmed`인 `ppe_missing`이 있으면 그 이벤트의 `analysis`(누락 보호구)를 보호구 상태로 먼저 표시하고, `track_attribute`의 `ppeState`는 "속성 분석" 보조 줄로 내린다. 확정 이벤트가 없으면 지금처럼 속성 값만 표시한다. 우선순위 계산은 순수 함수 `ppeStatus`다.
+- R-16: `ZoneEditor`를 저장 함수(`onSave(zones)`)와 배경 프레임 주소를 props로 받게 나눈다. 업로드 영상은 지금처럼 `putSourceZones`, 카메라는 `putCameraZones`(`PUT /api/v1/stream/cameras/{cameraId}/zones`)를 넘긴다. 카메라 배경은 카메라 상세의 최근 프레임 주소(SPEC-036)이고 없으면 빈 배경에 그린다. 저장 성공 뒤 "다음 세션부터 적용됨"을 표시한다(활성 세션은 stream-service가 `reload_profile`로 받는다). 꼭짓점·이름 규칙(R-11)은 같은 `zoneRules`를 쓴다.

@@ -1,7 +1,7 @@
 ---
 spec: SPEC-031
 repo: frontend
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Tasks: SPEC-031 분석 결과 화면(이벤트 타임라인·위험 상태·요약)과 실시간 알림 — frontend
@@ -19,7 +19,7 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 
 ## Phase 1: 준비
 
-- [ ] T001 계약 lock 3.14.0과 생성 코드 다시 만들기: `scripts/fetch-service-contracts.sh --update 3.14.0`, `gen:api`에 analysis·notification·search·quality 추가, `pnpm gen:api`. 바뀐 `VideoResponse`(`session`, `retentionConsent` 등)에 맞춰 기존 Zod 스키마·MSW 핸들러·E2E 가짜 API를 고치고 기존 테스트 전체 통과(동작 변화 없음) — `service-contracts.lock`, `package.json`, `src/api/generated/*`, `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts`
+- [ ] T001 계약 lock 4.0.0과 생성 코드 다시 만들기: `scripts/fetch-service-contracts.sh --update 4.0.0`, `gen:api`에 analysis·notification·search·quality 추가, `pnpm gen:api`. 바뀐 `VideoResponse`(`session`, `retentionConsent` 등)에 맞춰 기존 Zod 스키마·MSW 핸들러·E2E 가짜 API를 고치고 기존 테스트 전체 통과(동작 변화 없음) — `service-contracts.lock`, `package.json`, `src/api/generated/*`, `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts`
 - [ ] T002 플레이어를 `player` feature로 옮기기(SPEC-006 `OriginalPlayer` → `VideoPlayer`, `usePlayerController`). 동작을 바꾸지 않는 리팩터링이라 SPEC-006 테스트를 옮겨 그대로 통과시키는 것으로 확인 — 테스트 `P/components/VideoPlayer.test.tsx`(기존 `OriginalPlayer.test.tsx`), 구현 `P/components/VideoPlayer.tsx`, `P/hooks/usePlayerController.ts`, `P/index.ts`, `U/components/VideoDetail.tsx`
 - [ ] T003 [P] analysis 응답 Zod 스키마(생성 타입 `satisfies`, `analysis`·`forecast`는 events JSON Schema를 옮긴 2차 스키마), query key, `analysisApi.ts`, `apiRequest`의 `query` 옵션, 계약 예시 픽스처 — 테스트 `A/model/schemas.test.ts`(계약 예시 파싱), `src/shared/api/client.test.ts`(쿼리 문자열), 구현 `A/model/{schemas,queryKeys}.ts`, `A/api/analysisApi.ts`, `src/shared/api/client.ts`, `mocks/analysis.ts`
 
@@ -67,6 +67,15 @@ T001은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 네 spec의 태�
 - [ ] T025 [NFR-3] 근거 프레임·썸네일 서명 주소가 콘솔·브라우저 저장소에 남지 않음 — 테스트 `A/api/analysisSecrets.test.tsx`
 - [ ] T026 개발용 mock 모드(`VITE_API_MOCKING=true`일 때만 MSW 브라우저 워커, 운영 빌드 제외). 5절 사용자 확인 뒤 진행 — `mocks/browser.ts`, `src/app/main.tsx`, `public/mockServiceWorker.js`, `.env.example`
 - [ ] T027 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README(mock 모드, 알림 연결), mock 모드 시연으로 성공 지표 확인
+
+## Phase 8: v5.1 추가(계약 묶음 4.0.0)
+
+- [ ] T028 [R-19] `gen:api`에 `stream-service` 추가, `S/model/schemas.ts`, `S/api/streamApi.ts`와 훅, `mocks/stream.ts` 픽스처 — 테스트 `S/api/streamApi.test.ts`, 구현 `package.json`, `src/api/generated/stream-service.ts`, `S/`
+- [ ] T029 [R-19] `/stream/sessions/:sessionId` 화면: LIVE면 stream 조회(10초 폴링)와 HLS 재생, CLOSED면 analysis API로 전환, `AnalysisResults` 출처 props — 테스트 `useLiveSession.test.tsx`, `StreamSessionPage.test.tsx`, 구현 `src/pages/StreamSessionPage.tsx`, `src/app/routes.tsx`, `A/components/AnalysisResults.tsx`
+- [ ] T030 [R-20] 알림 스키마 `alert.raised`, `alertFeed` 상태 전이, 앱 상단 `AlertBanner`(2초 안 표시, 세션 화면 이동) — 테스트 `alertFeed.test.ts`, `AlertBanner.test.tsx`, 구현 `N/model/schemas.ts`, `S/model/alertFeed.ts`, `S/components/AlertBanner.tsx`, `src/app/AppShell.tsx`
+- [ ] T031 [R-21] 알림 스키마 `state.updated`, `applyStateUpdate`(sequence 순서), `LiveRiskPanel` 구독 — 테스트 `applyStateUpdate.test.ts`, `LiveRiskPanel.test.tsx`, 구현 `S/model/applyStateUpdate.ts`, `S/components/LiveRiskPanel.tsx`
+- [ ] T032 [R-22] [R-23] 요약 패널의 일부 누락·예산 초과 안내, `unverified` 건수 집계 — 테스트 `SummaryPanel.test.tsx`, `eventFilters.test.ts`, 구현 `A/components/SummaryPanel.tsx`, `A/model/eventFilters.ts`, `src/shared/lib/messages.ts`
+- [ ] T033 E2E: 가짜 stream API·SSE로 LIVE 세션 열기 → `state.updated` 반영 → `alert.raised` pending·confirmed 배너 → 세션 종료 뒤 analysis 결과 전환 — 테스트 `tests/e2e/stream-session.spec.ts`, 가짜 API `tests/e2e/fakeStream.ts`
 
 ## 완료 조건 (Definition of Done)
 

@@ -1,7 +1,7 @@
 ---
 spec: SPEC-032
 repo: frontend
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Tasks: SPEC-032 플레이어 오버레이·클릭 조회·객체 질문·위험구역 편집 화면 — frontend
@@ -15,7 +15,7 @@ updated: 2026-11-06
 
 경로 약어: `A` = `src/features/analysis`, `P` = `src/features/player`
 
-선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T002·T014(플레이어 이동·자체 컨트롤), T004·T005(알림 연결과 버퍼), T009(영상 상세 조립)
+선행: SPEC-031 T001(계약 lock 4.0.0과 생성 코드), T002·T014(플레이어 이동·자체 컨트롤), T004·T005(알림 연결과 버퍼), T009(영상 상세 조립)
 
 ## Phase 1: 준비
 
@@ -53,6 +53,11 @@ updated: 2026-11-06
 - [ ] T017 [NFR-1] [NFR-2] E2E: 클릭 조회 → 속성 분석 중 → 알림 → 속성, 질문 → 답, 구역 그리기 → 저장, 박스 50개 그리기 16ms 이하, 클릭 응답 뒤 패널 100ms 이하 — 테스트 `tests/e2e/inspect-zones.spec.ts`, 가짜 API `tests/e2e/fakeAnalysis.ts`
 - [ ] T018 키보드 대안(일시정지 시 트랙 목록 버튼으로 조회)과 구역 편집 키보드 조작 — 테스트 `src/app/Keyboard.test.tsx`
 - [ ] T019 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README, mock 모드 시연으로 성공 지표 확인
+
+## Phase 7: v5.1 추가(계약 묶음 4.0.0)
+
+- [ ] T020 [R-15] `ppeStatus`(확정 `ppe_missing` 우선, 없으면 속성 값)와 트랙 패널 표시 — 테스트 `ppeStatus.test.ts`, `TrackPanel.test.tsx`, 구현 `A/model/ppeStatus.ts`, `A/components/TrackPanel.tsx`
+- [ ] T021 [R-16] `ZoneEditor` props 분리, `CameraZoneEditor`와 카메라 구역 훅, 저장 뒤 안내 — 테스트 `ZoneEditor.test.tsx`, `CameraZoneEditor.test.tsx`, 구현 `A/components/ZoneEditor.tsx`, `S/components/CameraZoneEditor.tsx`, `S/api/useCameraZones.ts`, `S/api/usePutCameraZones.ts`, `mocks/stream.ts`
 
 ## 완료 조건 (Definition of Done)
 

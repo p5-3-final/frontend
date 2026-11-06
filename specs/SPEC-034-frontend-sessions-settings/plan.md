@@ -4,7 +4,7 @@ repo: frontend
 status: Approved
 owner: <이름>
 created: 2026-11-06
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Plan: SPEC-034 작업 세션·분석 이력 화면과 학습용 보존 설정 화면 — frontend
@@ -14,7 +14,9 @@ updated: 2026-11-06
   - `openapi/media-service.yaml`: `createWorkSession`, `listWorkSessions`, `getWorkSession`, `createVideo`(`sessionId`·`role`), `updateVideoRetentionConsent`, `getRetentionSettings`, `updateRetentionSettings`, `listRetainedVideos`, `revokeRetainedVideo`, `revokeAllRetainedVideos`
   - `openapi/analysis-service.yaml` 0.4.0: `getSourceSummary`, `listSourceEvents`, `listSourceRisks`(SPEC-031)
 - 관련: SPEC-005(업로드 대기열), SPEC-006(영상 상세), SPEC-017(작업 세션), SPEC-018(학습용 보존), SPEC-031(분석 요약 API·영상 상세 이동)
-- 선행: SPEC-031 T001(계약 lock 3.14.0과 생성 코드), T003(analysis 스키마·API), T013(`videoDetailPath`의 `?event=`·`?t=`), T022(auth `useMe` 내보내기)
+- 선행: SPEC-031 T001(계약 lock 4.0.0과 생성 코드), T003(analysis 스키마·API), T013(`videoDetailPath`의 `?event=`·`?t=`), T022(auth `useMe` 내보내기)
+
+- v5.1(계약 묶음 4.0.0, 2026-11-07, ADR-0015): `openapi/stream-service.yaml` 1.0.0의 카메라·세션 API(`listCameras`, `createCamera`, `getCamera`, `listCameraSessions`, `startSession`, `getSession`, `stopSession`)가 더해졌다. R-13(카메라 화면)·R-14(24시간 회전 세션 잇기)를 아래 설계 절대로 더한다. 생성 코드는 SPEC-031 T028이 만든다.
 
 ## 1. 요약
 
@@ -22,7 +24,7 @@ updated: 2026-11-06
 
 ## 2. 담당 요구사항
 
-경로 약어: `Se` = `src/features/sessions`, `St` = `src/features/settings`, `U` = `src/features/upload`
+경로 약어: `Se` = `src/features/sessions`, `St` = `src/features/settings`, `U` = `src/features/upload`, `Ca` = `src/features/cameras`
 
 | 요구사항 | 담당 모듈 / 컴포넌트 | 검증 테스트 |
 | --- | --- | --- |
@@ -38,6 +40,8 @@ updated: 2026-11-06
 | R-10 | `St/components/RetainedVideoList`, `St/api/useRetainedVideos`, `St/api/useRevokeRetained` | `RetainedVideoList.test.tsx` |
 | R-11 | `U/components/RetentionConsentToggle`, `U/api/useUpdateRetentionConsent`, `U/components/VideoDetail` | `RetentionConsentToggle.test.tsx` |
 | R-12 | `SessionDetail`, `SessionList`, `src/shared/lib/messages.ts` | `SessionDetail.test.tsx` |
+| R-13 | `Ca/model/schemas.ts`, `Ca/api/`(`useCameras`, `useCreateCamera`, `useCamera`, `useStartSession`, `useStopSession`), `Ca/components/CameraList`·`CameraForm`·`CameraDetail`, `src/pages/CamerasPage.tsx`·`CameraDetailPage.tsx` | `CameraList.test.tsx`, `CameraForm.test.tsx`, `CameraDetail.test.tsx`(start·stop, 409 안내) |
+| R-14 | `Ca/model/sessionChain.ts`(`previousSourceId`로 세션 잇기), `Ca/components/CameraSessionHistory` | `sessionChain.test.ts`, `CameraSessionHistory.test.tsx` |
 | NFR-1 | `src/shared/lib/limitConcurrency`, `useSessionVideoSummaries` | `limitConcurrency.test.ts`, `SessionDetail.test.tsx`(동시 요청 수 ≤ 4) |
 | NFR-2 | `SessionDetail` | `SessionDetail.test.tsx`(요약 전에 영상 칸 표시), Playwright `sessions.spec.ts`(응답 뒤 300ms) |
 
@@ -46,7 +50,7 @@ updated: 2026-11-06
 | 원칙 | 준수 | 비고 |
 | --- | --- | --- |
 | I 스펙 우선 — spec이 Approved 상태인가 | ☑ | docs #129 |
-| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | 계약 변경 없음. media(SPEC-017·018)와 analysis 0.4.0을 SPEC-031 T001의 3.14.0 생성 코드로 쓴다 |
+| II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | 계약 변경 없음. media(SPEC-017·018)와 analysis 0.4.0을 SPEC-031 T001의 4.0.0 생성 코드로 쓴다 |
 | III 테스트 우선 — 모든 R-*에 테스트가 매핑되고, 태스크가 요구사항 단위 TDD 사이클로 나뉘었는가 | ☑ | 2절, tasks.md |
 | IV 서비스 자율성 — 다른 서비스 DB나 코드에 직접 의존하지 않는가 | ☑ | media·analysis 공개 API만 쓴다 |
 | V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성 없음. 동시 요청 제한은 약 20줄 함수(`limitConcurrency`) |
@@ -173,3 +177,11 @@ sequenceDiagram
 
 - 새 환경변수 없음.
 - media-service 세션·보존 API는 이미 있다. analysis-api가 배포되기 전에는 세션 상세의 분석 칸이 오류 안내를 보이고 영상 목록·이동은 그대로 쓸 수 있다.
+
+## 9. v5.1 추가 설계(계약 묶음 4.0.0, 2026-11-07)
+
+- 라우트: "세션" 메뉴 아래 탭 둘, 작업 세션(`/history`)과 카메라(`/history/cameras`, `/history/cameras/:cameraId`). 라우트는 lazy로 둔다.
+- 등록 폼(R-13): 이름, RTSP 비밀값 참조 이름(`rtspSecretRef`, 화면은 주소·자격 증명을 받지 않는다), 프로필. 계약 `CameraCreate`를 Zod로 옮긴다.
+- 세션 start·stop: `startSession`(`POST /api/v1/stream/cameras/{cameraId}/sessions`), `stopSession`. 활성 세션이 있으면 409 `STREAM_SESSION_ACTIVE`를 안내 문구로 보여 준다. 카메라 목록·상세는 15초 폴링으로 상태(`STARTING`·`LIVE`·`STOPPING`·`CLOSED`)를 갱신하고, LIVE 세션 칸은 SPEC-031의 `/stream/sessions/:sessionId`로 이동한다.
+- 세션 이력(R-14): `listCameraSessions`를 시작 시각 내림차순으로 받고 `sessionChain`이 `previousSourceId`로 앞 세션을 이어 "회전" 표식과 함께 한 줄로 묶어 보여 준다. 끊긴 체인(앞 세션이 목록 밖)은 그 세션에서 끝난 것으로 표시한다.
+- 가짜 API: `mocks/stream.ts`, `tests/e2e/fakeStream.ts`(SPEC-031 T033과 공유).
