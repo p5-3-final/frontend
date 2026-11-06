@@ -27,3 +27,13 @@ const DATE_TIME = new Intl.DateTimeFormat("ko-KR", {
 export function formatDateTime(iso: string): string {
   return DATE_TIME.format(new Date(iso));
 }
+
+/** 영상 안 시각(ms)을 "mm:ss"로, 1시간 이상이면 "h:mm:ss"로 보여 준다. 예: 95000 → "01:35" */
+export function formatMediaTime(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  const mmss = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  return hours > 0 ? `${String(hours)}:${mmss}` : mmss;
+}

@@ -14,6 +14,37 @@ export const UPLOAD_STORAGE_MESSAGE = "파일을 저장소에 올리지 못했�
 // ── SPEC-031 분석 결과 ──
 export const ANALYSIS_NOT_ANALYZED_MESSAGE = "아직 분석 결과가 없습니다.";
 
+/** 이벤트 유형(taxonomy/v2 eventType) 한국어 이름. 모르는 값은 원래 값을 보인다({@link eventTypeName}). */
+export const EVENT_TYPE_NAMES: Readonly<Record<string, string>> = {
+  fall: "쓰러짐",
+  fire_or_smoke: "화재·연기",
+  ppe_missing: "보호구 미착용",
+  object_removed: "물건 제거",
+  barrier_not_restored: "방호 미복구",
+  hazard_zone_access: "위험구역 접근",
+  equipment_abandoned: "장비 방치",
+  object_moved: "안전시설 이동",
+  other: "기타",
+};
+
+export function eventTypeName(eventType: string): string {
+  return EVENT_TYPE_NAMES[eventType] ?? eventType;
+}
+
+/** 요약 상태별 안내(SPEC-031 R-2). generated는 요약문을 그대로 보인다. */
+export const SUMMARY_STATUS_MESSAGES = {
+  not_configured: "요약 모델이 설정되지 않아 요약문이 없습니다.",
+  failed: "요약문을 만들지 못했습니다.",
+  empty: "요약할 내용이 없습니다.",
+} as const;
+
+/** 작업 세션 역할(SPEC-017) */
+export const SESSION_ROLE_NAMES = {
+  BEFORE: "작업 전 영상",
+  DURING: "작업 중 영상",
+  AFTER: "작업 후 영상",
+} as const;
+
 // 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
 const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {};
 

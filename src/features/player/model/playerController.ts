@@ -32,7 +32,8 @@ export function createPlayerController(): PlayerController {
 
   const read = (): PlayerSnapshot => {
     if (element === null) {
-      return snapshot;
+      // 플레이어가 아직 없으면 옮길 위치를 현재 위치로 보인다(주소로 바로 연 경우).
+      return { ...snapshot, currentMs: pendingSeekMs ?? snapshot.currentMs };
     }
     const duration = Number.isFinite(element.duration) ? element.duration : 0;
     return {
