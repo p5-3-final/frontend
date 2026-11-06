@@ -29,7 +29,7 @@ updated: 2026-11-06
 - [x] T005 [P] [R-4] `degraded` 이유 네 가지별 안내 — 테스트 `S/model/degraded.test.ts`, `MomentResults.test.tsx`, 구현 `S/model/degraded.ts`, `SearchResultHeader.tsx`
 - [x] T006 [R-7] "내 영상 전체"면 전체 검색, 정밀 검색 꺼짐·막힘, 결과마다 영상 이름 — 테스트 `SearchForm.test.tsx`, `MomentResults.test.tsx`, 구현 `SearchForm.tsx`, `S/api/useVideoNames.ts`
 - [x] T007 [R-12] 결과를 누르면 영상 상세를 `seekMs`로 열고, 돌아오면 다시 요청하지 않고 같은 결과 — 테스트 `src/pages/SearchFlow.test.tsx`, 구현 `MomentResultItem.tsx`, `useMomentSearch.ts`, `src/pages/VideoDetailPage.tsx`
-- [ ] T008 [R-13] 400이면 입력 옆 이유, 404 `SEARCH_NOT_INDEXED`면 준비 안 됨 안내, 5xx·네트워크면 다시 시도 — 테스트 `MomentResults.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `SearchForm.tsx`, `MomentResults.tsx`, `messages.ts`
+- [x] T008 [R-13] 400이면 입력 옆 이유, 404 `SEARCH_NOT_INDEXED`면 준비 안 됨 안내, 5xx·네트워크면 다시 시도 — 테스트 `MomentResults.test.tsx`, `src/shared/lib/messages.test.ts`, 구현 `SearchForm.tsx`, `MomentResults.tsx`, `messages.ts`
 
 ## Phase 3: US-2 주석 클립 (P1)
 

@@ -80,6 +80,8 @@ export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 
 // ── SPEC-033 검색 ──
 export const SEARCH_QUERY_MESSAGE = "검색어를 1~200자로 입력해 주세요.";
+export const SEARCH_IMAGE_MESSAGE = "jpg, png, webp 이미지를 5MB 이하로 올려 주세요.";
+export const SEARCH_FAILED_MESSAGE = "검색하지 못했습니다. 다시 시도해 주세요.";
 export const SEARCH_SOURCE_REQUIRED_MESSAGE = "검색할 영상을 골라 주세요.";
 
 /** 질의 해석 방법(계약 MomentSearchResult.parseMethod) 이름(SPEC-033 R-2) */
@@ -109,6 +111,15 @@ export const VIDEO_NAME_FAILED = "이름을 불러오지 못한 영상";
 /** 찾은 경로(계약 MomentResult.matchedBy) 이름 */
 export const MATCHED_BY_NAMES = { visual: "시각", text: "텍스트", image: "이미지" } as const;
 
+const SEARCH_MESSAGES: Readonly<Record<string, string>> = {
+  SEARCH_QUERY_INVALID: SEARCH_QUERY_MESSAGE,
+  SEARCH_IMAGE_INVALID: SEARCH_IMAGE_MESSAGE,
+  SEARCH_NOT_INDEXED: "아직 검색할 수 있게 준비되지 않았습니다. 분석이 끝난 뒤 다시 시도해 주세요.",
+  SEARCH_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,
+  SEARCH_MOMENT_NOT_FOUND: "검색 결과를 찾을 수 없습니다.",
+  SEARCH_GROUNDING_NOT_FOUND: "주석 클립을 찾을 수 없습니다.",
+};
+
 // 기능마다 오류 code 문구를 따로 두고 아래 MESSAGES에서 합친다. 뒤 spec은 자기 묶음을 더한다.
 const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
   ANALYSIS_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,
@@ -120,6 +131,7 @@ const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
 
 const MESSAGES: Readonly<Record<string, string>> = {
   ...ANALYSIS_MESSAGES,
+  ...SEARCH_MESSAGES,
   AUTH_EMAIL_DUPLICATED: "이미 가입된 이메일입니다.",
   AUTH_INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",
   AUTH_ACCOUNT_LOCKED: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.",

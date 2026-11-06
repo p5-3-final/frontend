@@ -25,6 +25,20 @@ describe("messageForCode", () => {
   });
 
   it.each([
+    ["SEARCH_QUERY_INVALID", "검색어를 1~200자로 입력해 주세요."],
+    ["SEARCH_IMAGE_INVALID", "jpg, png, webp 이미지를 5MB 이하로 올려 주세요."],
+    [
+      "SEARCH_NOT_INDEXED",
+      "아직 검색할 수 있게 준비되지 않았습니다. 분석이 끝난 뒤 다시 시도해 주세요.",
+    ],
+    ["SEARCH_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
+    ["SEARCH_MOMENT_NOT_FOUND", "검색 결과를 찾을 수 없습니다."],
+    ["SEARCH_GROUNDING_NOT_FOUND", "주석 클립을 찾을 수 없습니다."],
+  ])("[SPEC-033 R-13] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
+  it.each([
     ["ANALYSIS_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
     ["ANALYSIS_EVENT_NOT_FOUND", "이벤트를 찾을 수 없습니다."],
     ["ANALYSIS_FORBIDDEN", "운영자만 이벤트를 확인·기각할 수 있습니다."],

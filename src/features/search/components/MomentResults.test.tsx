@@ -1,8 +1,13 @@
-import { screen, within } from "@testing-library/react";
-import { http } from "msw";
+import { screen, waitFor, within } from "@testing-library/react";
+import { http, HttpResponse } from "msw";
 import { MEDIA_API, problem } from "../../../../mocks/handlers";
 import { describe, expect, it } from "vitest";
-import { momentBody, momentSearchBody, SEARCH_SOURCE_ID } from "../../../../mocks/search";
+import {
+  momentBody,
+  momentSearchBody,
+  SEARCH_API,
+  SEARCH_SOURCE_ID,
+} from "../../../../mocks/search";
 import { renderSearch, searchPath } from "../../../../tests/searchScreen";
 
 const SOURCE_PATH = searchPath({
@@ -137,6 +142,52 @@ describe("MomentResults", () => {
     });
 
     expect(await screen.findByText("이름을 불러오지 못한 영상")).toBeVisible();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-13] 400이면 질의 입력 옆에 이유를 보인다", async () => {
+    renderSearch(SOURCE_PATH, {
+      extra: [
+        http.get(`${SEARCH_API}/sources/:id/moments`, () => problem(400, "SEARCH_QUERY_INVALID")),
+      ],
+    }).stopRecording();
+
+    const input = await screen.findByRole("searchbox", { name: "검색어" });
+    await waitFor(() => {
+      expect(input).toHaveAccessibleDescription("검색어를 1~200자로 입력해 주세요.");
+    });
+    expect(screen.queryByRole("button", { name: "다시 시도" })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    [
+      "SEARCH_NOT_INDEXED",
+      "아직 검색할 수 있게 준비되지 않았습니다. 분석이 끝난 뒤 다시 시도해 주세요.",
+    ],
+    ["SEARCH_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
+  ])("[SPEC-033 R-13] 404 %s면 그 안내를 보인다", async (code, message) => {
+    renderSearch(SOURCE_PATH, {
+      extra: [http.get(`${SEARCH_API}/sources/:id/moments`, () => problem(404, code))],
+    }).stopRecording();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
+  });
+
+  it("[SPEC-033 R-13] 5xx·네트워크 오류면 다시 시도 버튼을 보이고 누르면 다시 묻는다", async () => {
+    let calls = 0;
+    const { user, stopRecording } = renderSearch(SOURCE_PATH, {
+      extra: [
+        http.get(`${SEARCH_API}/sources/:id/moments`, () => {
+          calls++;
+          return calls === 1 ? HttpResponse.error() : HttpResponse.json(momentSearchBody());
+        }),
+      ],
+    });
+
+    await user.click(await screen.findByRole("button", { name: "다시 시도" }));
+
+    expect(await screen.findByRole("list", { name: "검색 결과" })).toBeVisible();
+    expect(calls).toBe(2);
     stopRecording();
   });
 });
