@@ -1,5 +1,4 @@
 import type { PlayerController } from "../../player";
-import { Panel } from "../../../shared/ui/Panel";
 import { ANALYSIS_NOT_ANALYZED_MESSAGE } from "../../../shared/lib/messages";
 import { useSourceSummary } from "../api/useSourceSummary";
 import { useEventSelection } from "../hooks/useEventSelection";
@@ -7,6 +6,7 @@ import { AnalysisError } from "./AnalysisError";
 import { EventDetailPanel } from "./EventDetailPanel";
 import { EventsPanel } from "./EventsPanel";
 import { RiskPanel } from "./RiskPanel";
+import { SnapshotList } from "./SnapshotList";
 import { SummaryPanel } from "./SummaryPanel";
 
 export interface AnalysisResultsProps {
@@ -57,7 +57,7 @@ export function AnalysisResults({ sourceId, controller }: AnalysisResultsProps) 
         )}
       </div>
       <RiskPanel sourceId={sourceId} controller={controller} />
-      <Panel title="상태 스냅샷">{null}</Panel>
+      <SnapshotList sourceId={sourceId} onOpenEvent={selection.open} />
     </div>
   );
 }
