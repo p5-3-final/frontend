@@ -104,6 +104,19 @@ export function stateUpdatedBody(sourceId: string, sequence: number): Notificati
   };
 }
 
+/** 트랙 속성·질문 결과 알림(SPEC-032 R-5, R-8) */
+export function trackAnalyzedBody(
+  sourceId: string,
+  data: { requestId: string; trackId: string; reason: string; outcome?: string },
+): NotificationBody {
+  return {
+    type: "track.analyzed",
+    sourceId,
+    occurredAt: "2026-11-06T11:00:05Z",
+    data: { outcome: "READY", ...data },
+  };
+}
+
 export function pingBody(): NotificationBody {
   return { type: "ping", sourceId: null, occurredAt: "2026-11-06T10:00:15Z", data: {} };
 }

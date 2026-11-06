@@ -9,17 +9,20 @@ import {
 } from "../../../shared/lib/messages";
 import { Panel } from "../../../shared/ui/Panel";
 import { useTrack } from "../api/useTrack";
+import { useTrackLiveRefresh } from "../hooks/useTrackLiveRefresh";
 import type { Track, TrackAttribute } from "../model/inspectSchemas";
 
 export interface TrackPanelProps {
+  sourceId: string;
   track: Track;
   controller: PlayerController;
   onClose: () => void;
 }
 
 /** 클릭 조회로 찾은 트랙 패널(SPEC-032 R-4). 클래스·등장 구간·속성 상태를 보인다. */
-export function TrackPanel({ track: initial, controller, onClose }: TrackPanelProps) {
+export function TrackPanel({ sourceId, track: initial, controller, onClose }: TrackPanelProps) {
   const { data: track } = useTrack(initial.trackId, initial);
+  useTrackLiveRefresh(sourceId, initial.trackId);
   return (
     <Panel
       title="트랙 정보"

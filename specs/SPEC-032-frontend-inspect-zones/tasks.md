@@ -26,8 +26,8 @@ updated: 2026-11-07
 - [x] T002 [R-14] 레터박스를 뺀 표시 영역 계산과 좌표 변환, 창 크기가 바뀌면 다시 계산 — 테스트 `P/model/contentRect.test.ts`, `P/hooks/useVideoContentRect.test.tsx`, 구현 `P/model/contentRect.ts`, `P/hooks/useVideoContentRect.ts`, `P/components/VideoPlayer.tsx`(층 자리)
 - [x] T003 [R-3] 일시정지한 영상을 누르면 정규화 좌표와 현재 시각으로 클릭 조회, 재생 중·표시 영역 밖은 요청 없음 — 테스트 `P/components/InspectLayer.test.tsx`, 구현 `P/components/InspectLayer.tsx`, `A/api/useInspectPoint.ts`, `P/index.ts`
 - [x] T004 [R-4] 조회 결과 박스 강조와 트랙 패널(클래스·등장 구간), 속성 상태 `READY`·`REQUESTED`·`FAILED` 표시 — 테스트 `A/components/TrackPanel.test.tsx`, 구현 `A/components/TrackPanel.tsx`, `src/shared/lib/messages.ts`, `src/pages/VideoDetailPage.tsx`
-- [ ] T005 [R-6] `hit: false`면 "이 위치에서 찾은 객체가 없음"과 패널 닫기 — 테스트 `A/components/InspectResults.test.tsx`, 구현 `A/components/InspectResults.tsx`
-- [ ] T006 [R-5] 열린 패널의 trackId로 `track.analyzed`(click·event)가 오면 트랙을 다시 불러와 속성 갱신. 알림이 응답보다 먼저 와도 반영 — 테스트 `TrackPanel.test.tsx`, 구현 `A/hooks/useTrackLiveRefresh.ts`, `A/api/useTrack.ts`
+- [x] T005 [R-6] `hit: false`면 "이 위치에서 찾은 객체가 없음"과 패널 닫기 — 테스트 `A/components/InspectResults.test.tsx`, 구현 `A/components/InspectResults.tsx`
+- [x] T006 [R-5] 열린 패널의 trackId로 `track.analyzed`(click·event)가 오면 트랙을 다시 불러와 속성 갱신. 알림이 응답보다 먼저 와도 반영 — 테스트 `TrackPanel.test.tsx`, 구현 `A/hooks/useTrackLiveRefresh.ts`, `A/api/useTrack.ts`
 
 ## Phase 3: US-3 위험구역 정의 (P1)
 

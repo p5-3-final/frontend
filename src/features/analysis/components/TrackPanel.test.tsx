@@ -1,9 +1,16 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { analysisHandlers } from "../../../../mocks/analysis";
-import { inspectResultBody, trackBody } from "../../../../mocks/inspect";
+import { http, HttpResponse } from "msw";
+import { ANALYSIS_API, ANALYSIS_SOURCE_ID, analysisHandlers } from "../../../../mocks/analysis";
+import {
+  INSPECT_REQUEST_ID,
+  INSPECT_TRACK_ID,
+  inspectResultBody,
+  trackBody,
+} from "../../../../mocks/inspect";
+import { trackAnalyzedBody } from "../../../../mocks/notifications";
 import { recordRequests, renderAnalysisDetail } from "../../../../tests/analysisDetail";
-import { clickFrame, readyPlayer } from "../../../../tests/inspect";
+import { clickFrame, readyPlayer, renderWithNotifications } from "../../../../tests/inspect";
 
 describe("TrackPanel", () => {
   it('[SPEC-032 R-4] 속성 분석이 요청된 트랙이면 클래스·등장 구간과 "속성 분석 중"을 보이고 박스를 강조한다', async () => {
@@ -76,5 +83,91 @@ describe("TrackPanel", () => {
     await user.click(within(panel).getByRole("button", { name: /00:40 ~ 02:05/ }));
 
     expect(video.currentTime).toBe(40);
+  });
+});
+
+describe("TrackPanel 실시간 갱신", () => {
+  it("[SPEC-032 R-5] 열린 트랙의 track.analyzed(click)가 오면 트랙을 다시 불러와 속성을 보인다", async () => {
+    const { user, connection } = await renderWithNotifications(analysisHandlers());
+    await readyPlayer();
+    await clickFrame(user);
+    const panel = await screen.findByRole("region", { name: "트랙 정보" });
+    expect(within(panel).getByText("속성 분석 중")).toBeVisible();
+
+    connection.send(
+      trackAnalyzedBody(ANALYSIS_SOURCE_ID, {
+        requestId: INSPECT_REQUEST_ID,
+        trackId: INSPECT_TRACK_ID,
+        reason: "click",
+      }),
+    );
+
+    expect(await within(panel).findByRole("group", { name: "안전모" })).toHaveTextContent("미착용");
+  });
+
+  it("[SPEC-032 R-5] 다른 트랙이나 질문 알림이면 트랙을 다시 부르지 않는다", async () => {
+    const recorder = recordRequests();
+    const { user, connection } = await renderWithNotifications(analysisHandlers());
+    await readyPlayer();
+    await clickFrame(user);
+    await screen.findByRole("region", { name: "트랙 정보" });
+
+    connection.send(
+      trackAnalyzedBody(ANALYSIS_SOURCE_ID, {
+        requestId: INSPECT_REQUEST_ID,
+        trackId: "0192f200-0000-5000-8000-000000000999",
+        reason: "click",
+      }),
+    );
+    connection.send(
+      trackAnalyzedBody(ANALYSIS_SOURCE_ID, {
+        requestId: INSPECT_REQUEST_ID,
+        trackId: INSPECT_TRACK_ID,
+        reason: "question",
+      }),
+    );
+    // 마지막 알림까지 처리했는지 확인할 기준으로, 같은 트랙의 event 알림을 하나 더 보낸다.
+    connection.send(
+      trackAnalyzedBody(ANALYSIS_SOURCE_ID, {
+        requestId: INSPECT_REQUEST_ID,
+        trackId: INSPECT_TRACK_ID,
+        reason: "event",
+      }),
+    );
+
+    await screen.findByRole("group", { name: "안전모" });
+    recorder.stop();
+    expect(recorder.requests.filter((url) => url.pathname.includes("/tracks/"))).toHaveLength(1);
+  });
+
+  it("[SPEC-032 R-5] 알림이 클릭 조회 응답보다 먼저 와도 속성을 반영한다", async () => {
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const { user, connection } = await renderWithNotifications([
+      http.get(`${ANALYSIS_API}/sources/:sourceId/inspect`, async () => {
+        await held;
+        return HttpResponse.json(inspectResultBody());
+      }),
+      ...analysisHandlers(),
+    ]);
+    await readyPlayer();
+    await clickFrame(user);
+
+    connection.send(
+      trackAnalyzedBody(ANALYSIS_SOURCE_ID, {
+        requestId: INSPECT_REQUEST_ID,
+        trackId: INSPECT_TRACK_ID,
+        reason: "click",
+      }),
+    );
+    // 알림을 받은 뒤에 응답을 보낸다.
+    await screen.findByText("누른 위치의 객체를 찾는 중입니다.");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    release();
+
+    const panel = await screen.findByRole("region", { name: "트랙 정보" });
+    expect(await within(panel).findByRole("group", { name: "안전모" })).toHaveTextContent("미착용");
   });
 });
