@@ -14,6 +14,11 @@ const STREAM_PATH = "/api/v1/notify/stream";
 // SPEC-032·033: HTTP 응답보다 알림이 먼저 오는 경우(클릭 조회 응답 전에 track.analyzed)를 놓치지 않게 최근 메시지를 둔다.
 const BUFFER_LIMIT = 100;
 const BUFFER_TTL_MS = 60_000;
+// SPEC-031 R-13: 1초부터 두 배씩, 최대 30초
+const RECONNECT_BASE_MS = 1000;
+const RECONNECT_MAX_MS = 30_000;
+// 서버가 15초마다 ping을 보낸다(notification-service.yaml). 세 번 연속 못 받으면 끊긴 것으로 본다.
+const IDLE_TIMEOUT_MS = 45_000;
 
 type Listener = (message: NotificationMessage) => void;
 
@@ -21,6 +26,9 @@ let started = false;
 let status: ConnectionStatus = "idle";
 let lastEventId: string | undefined;
 let abort: AbortController | null = null;
+let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+let idleTimer: ReturnType<typeof setTimeout> | undefined;
+let attempt = 0;
 const listeners = new Set<Listener>();
 let buffer: { receivedAt: number; message: NotificationMessage }[] = [];
 const statusListeners = new Set<() => void>();
@@ -58,17 +66,39 @@ function handleSse(message: SseMessage) {
   }
 }
 
+function watchIdle(reader: ReadableStreamDefaultReader<Uint8Array>) {
+  clearTimeout(idleTimer);
+  // 본문 읽기를 끝내면 아래 read()가 done을 돌려주고 끊김과 같게 다시 연결한다.
+  idleTimer = setTimeout(() => {
+    reader.cancel().catch(() => undefined);
+  }, IDLE_TIMEOUT_MS);
+}
+
 async function readStream(body: ReadableStream<Uint8Array>) {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   const parser = createSseParser(handleSse);
+  watchIdle(reader);
   for (;;) {
     const { done, value } = await reader.read();
     if (done) {
       return;
     }
+    // 무엇이든 받았으면 연결이 살아 있다. 다음 끊김의 대기는 다시 1초부터다.
+    attempt = 0;
+    watchIdle(reader);
     parser.push(decoder.decode(value, { stream: true }));
   }
+}
+
+function scheduleReconnect() {
+  const delay = Math.min(RECONNECT_BASE_MS * 2 ** attempt, RECONNECT_MAX_MS);
+  attempt++;
+  setStatus("reconnecting");
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = undefined;
+    void connect();
+  }, delay);
 }
 
 async function connect() {
@@ -88,16 +118,24 @@ async function connect() {
       await readStream(response.body);
     }
   } catch {
-    // 끊김은 아래에서 상태로만 처리한다.
+    // 티켓 발급 실패, 네트워크 오류, 무응답으로 끊은 경우 모두 아래에서 다시 연결한다.
   }
-  if (abort === controller) {
-    abort = null;
+  clearTimeout(idleTimer);
+  // 로그아웃으로 닫았으면 abort가 이미 바뀌었다. 그때는 다시 연결하지 않는다(R-14).
+  if (abort !== controller) {
+    return;
+  }
+  abort = null;
+  // 티켓 재발급까지 실패해 세션이 끝났으면 다시 연결하지 않는다.
+  if (getSessionStatus() !== "authenticated") {
     setStatus("idle");
+    return;
   }
+  scheduleReconnect();
 }
 
 function handleSessionChange() {
-  if (getSessionStatus() === "authenticated" && abort === null) {
+  if (getSessionStatus() === "authenticated" && abort === null && reconnectTimer === undefined) {
     void connect();
   }
 }
@@ -149,8 +187,13 @@ export function subscribeConnectionStatus(listener: () => void): () => void {
 
 /** 테스트에서 연결을 끊고 모듈 상태를 처음으로 되돌린다. */
 export function resetNotificationsForTest(): void {
-  abort?.abort();
+  const current = abort;
   abort = null;
+  current?.abort();
+  clearTimeout(reconnectTimer);
+  clearTimeout(idleTimer);
+  reconnectTimer = undefined;
+  attempt = 0;
   started = false;
   status = "idle";
   lastEventId = undefined;

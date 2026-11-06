@@ -122,7 +122,11 @@ export function sseServer(): SseServer {
           }
         },
       });
-      return new HttpResponse(stream, { headers: { "Content-Type": "text/event-stream" } });
+      // 실제 SSE처럼 chunked로 보낸다. 길이 없는 본문(연결 종료로 끝을 알림)이면 클라이언트가 중간에 끊을 때
+      // undici가 끊김을 정상 종료로 읽어 단언 오류를 낸다(@mswjs/interceptors 0.45).
+      return new HttpResponse(stream, {
+        headers: { "Content-Type": "text/event-stream", "Transfer-Encoding": "chunked" },
+      });
     }),
   ];
   return {
