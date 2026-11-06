@@ -7,7 +7,6 @@ import { startSession } from "../shared/api/session";
 
 describe("ComingSoonPage", () => {
   it.each([
-    ["/events", "이벤트"],
     ["/search", "검색"],
     ["/history", "분석 이력"],
     ["/settings", "설정"],

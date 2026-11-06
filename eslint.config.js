@@ -10,7 +10,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
-  // lint.md 설정 단위 예외: 생성 코드는 검사하지 않는다.
+  // lint.md 설정 단위 예외: 생성 코드(OpenAPI 타입, MSW 워커)는 검사하지 않는다.
   {
     ignores: [
       "dist",
@@ -19,6 +19,7 @@ export default defineConfig(
       "test-results",
       ".service-contracts",
       "src/api/generated",
+      "mocks/public/mockServiceWorker.js",
     ],
   },
   js.configs.recommended,

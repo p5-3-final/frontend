@@ -24,6 +24,15 @@ describe("messageForCode", () => {
     expect(messageForCode(code)).toBe(message);
   });
 
+  it.each([
+    ["ANALYSIS_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
+    ["ANALYSIS_EVENT_NOT_FOUND", "이벤트를 찾을 수 없습니다."],
+    ["ANALYSIS_FORBIDDEN", "운영자만 이벤트를 확인·기각할 수 있습니다."],
+    ["ANALYSIS_UNAVAILABLE", "분석 결과를 잠시 불러올 수 없습니다. 다시 시도해 주세요."],
+  ])("[SPEC-031 R-17] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
   it("[SPEC-006 R-9] MEDIA_NOT_PLAYABLE에는 재생할 수 없는 이유를 쓴다", () => {
     expect(messageForCode("MEDIA_NOT_PLAYABLE")).toBe(
       "업로드가 끝나지 않았거나 만료된 영상이라 재생할 수 없습니다.",

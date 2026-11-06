@@ -55,7 +55,9 @@ describe("OriginalPlayer", () => {
     const player = await screen.findByLabelText("parking.mp4 재생");
     expect(player.tagName).toBe("VIDEO");
     expect(player).toHaveAttribute("src", playback.url);
-    expect(player).toHaveAttribute("controls");
+    // SPEC-031 R-4: 기본 컨트롤 대신 자체 컨트롤로 재생한다.
+    expect(player).not.toHaveAttribute("controls");
+    expect(screen.getByRole("button", { name: "재생" })).toBeVisible();
     expect(screen.getByRole("link", { name: "원본 내려받기" })).toHaveAttribute(
       "href",
       playback.downloadUrl,

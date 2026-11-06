@@ -10,7 +10,7 @@ updated: 2026-11-07
 # Plan: SPEC-031 분석 결과 화면(이벤트 타임라인·위험 상태·요약)과 실시간 알림 — frontend
 
 - spec: docs 레포 `docs/specs/SPEC-031-frontend-analysis-results/spec.md`
-- 계약: docs 레포 `service-contracts/` 묶음 3.14.0
+- 계약: docs 레포 `service-contracts/` 묶음 4.1.0(`service-contracts.lock`)
   - `openapi/analysis-service.yaml` 0.4.0: `listSourceEvents`, `listMyEvents`, `getEvent`, `reviewEvent`, `listSourceRisks`, `listSourceSnapshots`, `getSourceSummary`
   - `openapi/notification-service.yaml` 0.1.0: `subscribeNotifications`
   - `notifications/v1/notification-message.schema.json`: SSE 메시지 `data`
@@ -18,13 +18,13 @@ updated: 2026-11-07
   - `events/_vlm-analysis.schema.json`, `events/_risk-forecast.schema.json`: 응답 안의 `analysis`·`forecast` 형식
 - 관련: SPEC-002(레이아웃, API 클라이언트, 세션), SPEC-005·SPEC-006(영상 목록·상세·원본 플레이어), SPEC-032~SPEC-035(이 plan의 T001·알림 연결·플레이어 컨트롤을 그대로 쓴다)
 
-- v5.1(계약 묶음 4.0.0, 2026-11-07, ADR-0015): `openapi/stream-service.yaml` 1.0.0(세션 조회 `getSession`, `state`·`events`·`alerts`), 알림 메시지 종류 `alert.raised`·`state.updated`(생산자 notification-service 확인 필요), analysis 요약의 `partial`·`missingCounts`·`revision`과 이벤트의 `unverifiedReason`(생산자 analysis-api 확인 필요)이 더해졌다. R-19(실시간 세션 화면)·R-20(긴급 알림)·R-21(`state.updated` 순서 적용)·R-22(일부 누락 표시)·R-23(예산·상한 초과 표시)를 아래 설계 절대로 더한다. T001의 lock은 4.0.0이고 `gen:api`에 `stream-service`를 더한다.
+- v5.1(계약 묶음 4.0.0, 2026-11-07, ADR-0015): `openapi/stream-service.yaml` 1.0.0(세션 조회 `getSession`, `state`·`events`·`alerts`), 알림 메시지 종류 `alert.raised`·`state.updated`(생산자 notification-service 확인 필요), analysis 요약의 `partial`·`missingCounts`·`revision`과 이벤트의 `unverifiedReason`(생산자 analysis-api 확인 필요)이 더해졌다. R-19(실시간 세션 화면)·R-20(긴급 알림)·R-21(`state.updated` 순서 적용)·R-22(일부 누락 표시)·R-23(예산·상한 초과 표시)를 아래 설계 절대로 더한다. T001의 lock은 4.1.0(경계 박스 범위·stitched 쌍·예측 빈 구간 수정 포함)이고 `gen:api`에 `stream-service`까지 한 번에 더한다.
 
 ## 1. 요약
 
 영상 상세 화면(`/analysis/videos/:videoId`)의 플레이어 아래에 분석 결과(요약, 이벤트 목록·상세, 위험, 스냅샷, 진행률)를 붙이고, "이벤트" 메뉴(`/events`)에 내 영상 전체 이벤트 목록을 만든다. 플레이어는 `upload`에서 `player` feature로 옮기고, 이벤트 위치를 진행 막대에 그리려고 브라우저 기본 컨트롤 대신 자체 컨트롤을 둔다. 실시간 알림은 로그인한 동안 탭마다 연결 하나를 모듈 저장소에 열어 두고 화면은 구독만 한다. 브라우저 `EventSource`는 새 연결에 `Last-Event-ID` 헤더를 넣을 수 없어 `fetch` 스트림과 직접 만든 작은 SSE 해석기를 기본안으로 둔다(사용자 확인 필요, 5절). analysis·notification은 다른 담당자 서비스라 아직 구현이 없으므로, 테스트와 화면 개발은 계약 예시로 응답하는 MSW로 한다.
 
-이 plan의 T001(계약 lock 4.0.0과 생성 코드 다시 만들기)은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 나머지 네 plan은 SPEC-031 T001 완료에 의존한다.
+이 plan의 T001(계약 lock 4.1.0과 생성 코드 다시 만들기)은 SPEC-032~SPEC-035 구현의 첫 단계이기도 하다. 나머지 네 plan은 SPEC-031 T001 완료에 의존한다.
 
 ## 2. 담당 요구사항
 
@@ -79,24 +79,29 @@ updated: 2026-11-07
 
 | 경로 | 변경 |
 | --- | --- |
-| `service-contracts.lock` | 2.0.1 → 4.0.0(`scripts/fetch-service-contracts.sh --update 4.0.0`) |
-| `package.json` `gen:api` | `analysis-service`, `notification-service`, `search-service`, `quality-service`도 생성. SPEC-032~SPEC-035가 같은 생성 코드를 쓰므로 여기서 한 번에 넣는다 |
-| `src/api/generated/` | 다시 생성. `auth-service.ts`·`media-service.ts`도 4.0.0으로 바뀐다 |
+| `service-contracts.lock` | 2.0.1 → 4.1.0(`scripts/fetch-service-contracts.sh --update 4.1.0`) |
+| `package.json` `gen:api` | `analysis-service`, `notification-service`, `search-service`, `quality-service`, `stream-service`도 생성. SPEC-032~SPEC-035가 같은 생성 코드를 쓰므로 여기서 한 번에 넣는다 |
+| `src/api/generated/` | 다시 생성. `auth-service.ts`·`media-service.ts`도 4.1.0으로 바뀐다 |
 | `U/model/schemas.ts`, `mocks/handlers.ts`, `tests/e2e/fakeMedia.ts` | 4.0.0 `VideoResponse`의 새 필수 필드(`session`, `retentionConsent`)와 선택 필드(`durationSec`, `estimatedProcessingSec`, `rejectReason`)를 맞춘다. 하위호환 분기를 남기지 않는다 |
 | `src/shared/api/client.ts` | `RequestOptions.query`(쿼리 문자열 만들기, `undefined` 값은 뺀다) |
 | `src/shared/lib/messages.ts` | `ANALYSIS_*` 오류 문구, 판정 상태·severity·이벤트 유형 한국어 이름 |
-| `src/features/player/` (새로 채움) | `components/VideoPlayer.tsx`(SPEC-006 `OriginalPlayer`를 옮김), `components/PlayerControls.tsx`, `hooks/usePlayerController.ts`, `model/types.ts`(`TimelineMarker`), `index.ts` |
-| `U/components/VideoDetail.tsx` | `OriginalPlayer` 대신 `player`의 `VideoPlayer`를 쓰고, 페이지가 넘긴 `controller`·`markers`·`children`(분석 결과 자리)을 받는다 |
-| `U/model/paths.ts` | `videoDetailPath(videoId, { eventId?, seekMs? })` → `?event=`·`?t=` |
+| `src/features/player/` (새로 채움) | `components/VideoPlayer.tsx`(주소·만료·컨트롤러·`overlay`·`markers`를 받는 범용 플레이어), `components/PlayerControls.tsx`, `model/playerController.ts`, `model/markers.ts`(가까운 표시 묶기), `hooks/usePlayerController.ts`, `model/types.ts`(`TimelineMarker`), `index.ts` |
+| `U/components/OriginalPlayer.tsx` | 원본 재생 주소 조회(media `getPlayback`)는 upload에 남기고 `player`의 `VideoPlayer`를 그린다. player가 upload를 import하면 upload→player→upload 순환이 생기기 때문이다 |
+| `U/components/VideoDetail.tsx` | 페이지가 넘긴 `controller`·`markers`·`onMarkerSelect`·`children`(분석 결과 자리)을 `OriginalPlayer`에 넘긴다 |
+| `U/model/paths.ts` | `videoDetailPath(videoId, { eventId? })` → `?event=`. 위치는 이벤트의 `seekMs`로 정해져 `?t=`는 두지 않는다 |
 | `src/features/analysis/` (새로 채움) | `model/`(`schemas.ts`, `queryKeys.ts`, `verification.ts`, `severity.ts`, `timelineMarkers.ts`, `eventFilters.ts`), `api/`(`analysisApi.ts`와 query·mutation 훅), `components/`(`AnalysisResults`, `SummaryPanel`, `EventFilters`, `EventList`, `EventDetailPanel`, `EventReviewForm`, `RiskPanel`, `RiskForecast`, `SnapshotList`, `AnalysisProgress`, `AllEventsList`, `SeverityBadge`), `hooks/useAnalysisLiveRefresh.ts`, `index.ts` |
 | `src/features/notifications/` (새로 채움) | `model/parseSse.ts`, `model/notificationStream.ts`, `model/schemas.ts`, `api/sseTicket.ts`, `hooks/useNotification.ts`, `hooks/useNotificationStatus.ts`, `index.ts` |
 | `src/features/auth/` | `hooks/useHasRole.ts`, `index.ts`에서 `useMe`·`useHasRole` 내보내기 |
 | `src/app/AppProviders.tsx` | 세션 구독으로 알림 연결 시작·종료(`startNotifications`) |
-| `src/pages/VideoDetailPage.tsx` | `usePlayerController`를 만들고 `VideoDetail`(upload)과 `AnalysisResults`(analysis)에 함께 넘긴다. `?event=`·`?t=`를 Zod로 읽는다 |
-| `src/pages/EventsPage.tsx`, `src/app/routes.tsx` | `/events` 라우트(lazy). ComingSoon 목록에서 뺀다 |
+| `src/pages/VideoDetailPage.tsx` | `usePlayerController`를 만들고 `VideoDetail`(upload)과 `AnalysisResults`(analysis)에 함께 넘긴다. `?event=`는 `useEventSelection`이 읽는다 |
+| `src/pages/EventsPage.tsx`, `src/pages/StreamSessionPage.tsx` | `/events`, `/stream/sessions/:sessionId` 화면 |
+| `src/app/featureRoutes/{analysis,stream}Routes.tsx`, `src/app/routes.tsx` | feature별 라우트 배열을 `FEATURE_ROUTES`로 합친다(lazy). 뒤 spec은 파일 하나와 `routes.tsx` 한 줄만 더한다. 라우트가 없는 메뉴 경로만 ComingSoon을 보인다 |
+| `src/features/stream/` (새로 채움) | `api/streamApi.ts`, `hooks/useLiveSession.ts`·`useSessionPlayback.ts`, `model/`(`alertFeed.ts`, `applyStateUpdate.ts`), `components/`(`LiveSessionView`, `LiveRiskPanel`, `LiveTimeline`, `SessionAlertList`, `AlertBanner`) |
 | `mocks/analysis.ts`, `mocks/notifications.ts` | 계약 예시를 생성 타입으로 옮긴 픽스처와 MSW 핸들러. SSE는 `ReadableStream` 응답으로 메시지를 밀어 넣는 도우미 |
-| `tests/e2e/fakeAnalysis.ts`, `tests/e2e/fakeNotifications.ts` | E2E 가짜 analysis API·SSE(`page.route`) |
-| `mocks/browser.ts`, `src/app/main.tsx`, `public/mockServiceWorker.js`, `.env.example` | 개발용 mock 모드 `VITE_API_MOCKING=true`(사용자 확인 필요, 5절) |
+| `mocks/stream.ts`, `tests/server.ts` | stream 픽스처·핸들러. 기본 핸들러는 조용한 SSE와 NOT_ANALYZED 요약이다 |
+| `tests/analysisDetail.ts`, `tests/contracts.ts` | 영상 상세+분석 결과 렌더 도우미, 계약 예시 읽기 |
+| `tests/e2e/fakeAnalysis.ts`, `tests/e2e/fakeNotifications.ts`, `tests/e2e/fakeStream.ts`, `tests/e2e/fixtures/tiny-600s.webm` | E2E 가짜 analysis·stream API·SSE(`page.route`). 가짜 저장소는 Range 요청에 206으로 답한다(범위 응답이 없으면 Chromium이 재생 위치를 옮기지 못한다) |
+| `mocks/browser.ts`, `src/app/main.tsx`, `mocks/public/mockServiceWorker.js`, `vite.config.ts`, `src/vite-env.d.ts` | 개발용 mock 모드 `VITE_API_MOCKING=true`(D-25). 워커 파일은 mock 모드일 때만 `publicDir`로 제공해 배포 빌드에 들어가지 않는다. 생성 파일이라 ESLint·Prettier에서 제외하고 `.claude/rules/lint.md` 설정 단위 예외에 적는다 |
 
 ### 데이터 모델
 
@@ -205,7 +210,7 @@ sequenceDiagram
 
 ### 개발용 mock 모드
 
-- spec 성공 지표("계약 예시로 응답하는 mock 서버")를 `pnpm dev`에서 보려면 analysis·notification이 없어도 화면이 응답을 받아야 한다. 기존 의존성 MSW의 브라우저 워커를 `VITE_API_MOCKING=true`일 때만 `main.tsx`에서 켠다. 핸들러는 단위 테스트와 같은 `mocks/analysis.ts`·`mocks/notifications.ts`를 쓰고, auth·media는 실제 서비스로 보낸다(`onUnhandledRequest: "bypass"`).
+- spec 성공 지표("계약 예시로 응답하는 mock 서버")를 `pnpm dev`에서 보려면 analysis·notification이 없어도 화면이 응답을 받아야 한다. 기존 의존성 MSW의 브라우저 워커를 `VITE_API_MOCKING=true`일 때만 `main.tsx`에서 켠다. 핸들러는 단위 테스트와 같은 `mocks/analysis.ts`·`mocks/notifications.ts`를 쓰고, auth·media는 실제 서비스로 보낸다(MSW 3 `onUnhandledFrame: "bypass"`).
 - 운영 빌드에는 포함되지 않게 동적 import로 나눈다.
 
 ## 5. 대안과 선택 이유
@@ -231,7 +236,7 @@ sequenceDiagram
   - 플레이어 이동은 `<video>`의 `currentTime` 값으로 확인한다(jsdom은 대입을 그대로 둔다).
   - OPERATOR·USER는 `handlers.me({ roles })`로 바꾼다.
 - 키보드: `src/app/Keyboard.test.tsx`에 Tab·Enter만으로 이벤트 선택 → 상세 → 위험 시작 시각 이동 시나리오.
-- E2E(Playwright, desktop·360px): `fakeAnalysis.ts`·`fakeNotifications.ts`로 US-1(요약·목록·표시·이동), US-2(위험), US-3(진행 → 완료 → 다시 불러오기). SSE는 `page.route`가 본문 전체를 한 번에 주고 닫으므로, 재연결 뒤 다음 메시지를 주는 방식으로 진행·완료를 차례로 보낸다. NFR-1은 이벤트 500개 응답을 준 뒤 마지막 표시가 보일 때까지 시간을 잰다.
+- E2E(Playwright, desktop·360px): `fakeAnalysis.ts`·`fakeNotifications.ts`로 US-1(요약·목록·표시·이동), US-2(위험), US-3(진행 → 완료 → 다시 불러오기). SSE는 `page.route`가 본문 전체를 한 번에 주고 닫으므로, 재연결 뒤 다음 메시지를 주는 방식으로 진행·완료를 차례로 보낸다. NFR-1은 이벤트 500개 응답을 준 뒤 마지막 표시가 보일 때까지 시간을 잰다. 실시간 세션은 `fakeStream.ts`로 `state.updated` 반영, `alert.raised` pending·confirmed 배너, 세션 종료 뒤 분석 결과 전환을 확인한다(T033).
 - 시연: `VITE_API_MOCKING=true pnpm dev`로 성공 지표 확인. 실제 analysis·notification은 담당자 구현 뒤 다시 확인한다.
 
 ## 7. 리스크와 롤백
@@ -246,7 +251,7 @@ sequenceDiagram
 
 ## 8. 배포 고려사항
 
-- 새 환경변수 `VITE_API_MOCKING`(개발 전용, 기본 꺼짐)을 레포 `.env.example`에 추가한다. 운영 gitops 설정에는 넣지 않는다.
+- 새 환경변수 `VITE_API_MOCKING`(개발 전용, 기본 꺼짐)은 `src/vite-env.d.ts`와 README에 적었다. 레포 `.env.example`은 작업 도구가 읽기를 막아 이 PR에서 고치지 못했다(후속). 운영 gitops 설정에는 넣지 않는다.
 - nginx에 CSP가 없어 SSE 주소를 따로 허용할 필요가 없다. 나중에 CSP를 넣으면 `connect-src`에 api-gateway를, `img-src`에 저장소(서명 주소)를 넣는다.
 - analysis-api·notification-service가 배포되기 전에는 운영에서 분석 결과 패널이 오류 안내를 보인다. 두 서비스 배포 뒤 frontend를 배포하거나, 그 전 배포에서도 영상 정보·재생은 그대로 쓸 수 있다.
 
@@ -256,7 +261,8 @@ sequenceDiagram
 
 - 실시간 세션은 업로드 영상과 다른 라우트 `/stream/sessions/:sessionId`로 연다(카메라 화면 SPEC-034에서 이동). `sessionId`는 `sourceId`와 같다(계약 설명). media 영상 상세는 바꾸지 않는다.
 - `useLiveSession`은 `getSession`으로 상태를 읽고, `LIVE`·`STARTING`·`STOPPING`이면 `state`·`events`·`alerts`를 10초마다 다시 읽는다(알림 연결이 끊겼을 때의 대비). `CLOSED`·`FAILED`가 되면 stream 조회를 멈추고 analysis API(SPEC-031 R-1~R-9의 훅)로 바꾼다. 재생은 `playback`의 HLS 주소를 `VideoPlayer`에 넘긴다.
-- `AnalysisResults`는 데이터 출처(analysis 훅 또는 live 훅)를 props로 받도록 바꾼다. 화면 구성은 같다.
+- 세션이 열려 있으면 `StreamSessionPage`가 `LiveSessionView`(stream 조회)를, 닫히면 `AnalysisResults`(analysis 조회)를 그린다. 두 응답 형식(`LiveEvent`·`SessionState`와 `EventSummary`·`Risk`)이 달라 `AnalysisResults`에 출처 props를 두면 모든 패널이 두 형식을 분기해야 하기 때문이다.
+- Chromium은 HLS를 바로 재생하지 못한다. HLS 라이브러리(hls.js 등)는 새 의존성이라 별도 결정 뒤 더한다.
 
 ### 긴급 알림(R-20)
 
@@ -266,9 +272,9 @@ sequenceDiagram
 
 ### `state.updated` 적용(R-21)
 
-- `applyStateUpdate(state, message)`는 `message.sequence > state.lastSequence`일 때만 스냅샷·위험 전이·노출 증분을 반영하고, 작거나 같으면 버린다. 열려 있는 세션 화면의 `LiveRiskPanel`이 구독한다. 폴링 결과와 알림이 겹쳐도 sequence 비교로 한 번만 반영된다.
+- `state.updated` 메시지는 개수 요약(`activeRisks`·`newRisks`·`resolvedRisks`)만 담는다. `applyStateUpdate(counts, sequence, message)`는 받은 sequence가 화면의 sequence(조회 결과와 이전 알림 중 큰 값)보다 클 때만 개수를 바로 보이고, `getSessionState`를 다시 읽어 구역·위험 목록을 갱신한다. 작거나 같으면 버린다.
 
 ### 일부 누락·예산 초과 표시(R-22·R-23)
 
-- 요약 응답(`getSourceSummary`)의 `partial`·`missingCounts`가 있으면 요약 패널에 "일부 이벤트가 누락되었습니다(N건)"를 표시한다. 필드가 없으면 표시하지 않는다(생산자 확인 필요).
-- 이벤트 목록의 `unverifiedReason`이 `budget_exceeded`·`call_cap_reached`인 건수를 세어 "예산·상한 초과로 판정하지 않은 이벤트 N건"과 운영자용 재분석 안내를 표시한다. 건수는 첫 페이지가 아니라 `listSourceEvents`를 `verificationStatus=unverified`로 따로 읽어 센다.
+- 요약 응답(`getSourceSummary`)의 `partial`이 참이면 요약 패널에 "일부 이벤트가 누락되었습니다(N건)"를 표시한다. N은 `missingCounts.events`가 있으면 그 값, 없으면 모든 키의 합이다. analysis 계약 4.1.0 `SourceSummary`에는 두 필드가 없어 선택 필드로 받는다(계약 변경 필요).
+- 이벤트 목록의 `unverifiedReason`이 `budget_exceeded`·`call_cap_reached`인 건수를 세어 "예산·상한 초과로 판정하지 않은 이벤트 N건"과 운영자용 재분석 안내를 표시한다. 건수는 화면 목록이 아니라 `listSourceEvents`를 `verificationStatus=unverified`로 따로 읽어 센다. 첫 쪽(100건)까지만 세고 더 있으면 "N건 이상"으로 보인다. 정확한 건수는 요약 응답에 개수 필드가 생겨야 한다(계약 변경 필요). `unverifiedReason`도 4.1.0 `EventSummary`에 없어 선택 필드로 받는다.

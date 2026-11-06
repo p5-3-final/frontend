@@ -1,8 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
+import type { PlayerController, TimelineMarker } from "../../player";
 import { ApiError } from "../../../shared/api/problem";
 import { formatBytes, formatDateTime } from "../../../shared/lib/format";
 import { messageForCode } from "../../../shared/lib/messages";
@@ -18,13 +19,20 @@ import { OriginalPlayer } from "./OriginalPlayer";
 
 export interface VideoDetailProps {
   videoId: string;
+  /** 페이지가 만든 플레이어 조작 창구. 분석 결과 패널과 같은 플레이어를 움직인다. */
+  controller?: PlayerController;
+  /** 플레이어 아래, 영상 정보 위에 그릴 내용(SPEC-031 분석 결과). 영상을 읽은 뒤에만 그린다. */
+  children?: ReactNode;
+  /** 진행 막대 위 이벤트 표시(SPEC-031 R-4) */
+  markers?: readonly TimelineMarker[];
+  onMarkerSelect?: (id: string) => void;
 }
 
 // URL의 영상 ID는 사용자가 바꿀 수 있는 입력이라 UUID 형식만 서버에 묻는다(SPEC-006 R-12).
 const videoIdSchema = z.guid();
 
 /** 영상 상세 화면(SPEC-006). 위에 목록으로 돌아가는 링크를 두고 아래에 영상 정보를 보여 준다. */
-export function VideoDetail({ videoId }: VideoDetailProps) {
+export function VideoDetail({ videoId, ...rest }: VideoDetailProps) {
   return (
     <div className="flex flex-col gap-4">
       <Link
@@ -35,7 +43,7 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
         목록으로 돌아가기
       </Link>
       {videoIdSchema.safeParse(videoId).success ? (
-        <VideoDetailBody videoId={videoId} />
+        <VideoDetailBody videoId={videoId} {...rest} />
       ) : (
         <Alert>{messageForCode("MEDIA_VIDEO_NOT_FOUND")}</Alert>
       )}
@@ -43,7 +51,13 @@ export function VideoDetail({ videoId }: VideoDetailProps) {
   );
 }
 
-function VideoDetailBody({ videoId }: VideoDetailProps) {
+function VideoDetailBody({
+  videoId,
+  controller,
+  children,
+  markers,
+  onMarkerSelect,
+}: VideoDetailProps) {
   const { data: video, error, isPending } = useVideo(videoId);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -85,12 +99,18 @@ function VideoDetailBody({ videoId }: VideoDetailProps) {
         </Button>
       </div>
       {isPlayable(video.status) ? (
-        <OriginalPlayer video={video} />
+        <OriginalPlayer
+          video={video}
+          controller={controller}
+          markers={markers}
+          onMarkerSelect={onMarkerSelect}
+        />
       ) : (
         <p className="rounded-xl border border-line bg-panel p-4 text-sm text-muted">
           {NOT_PLAYABLE_REASONS[video.status]}
         </p>
       )}
+      {children}
       <VideoFacts video={video} />
       {deleting && (
         <DeleteVideoDialog

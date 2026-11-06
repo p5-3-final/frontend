@@ -32,5 +32,6 @@ ESLint 구성과 그 규칙이 강제하는 이 레포의 규칙은 다음과 �
 
 ## 설정 단위 예외 (이 목록만 허용)
 - `src/api/generated/`: ESLint와 Prettier 대상에서 제외한다(생성 코드).
+- `mocks/public/mockServiceWorker.js`: ESLint와 Prettier 대상에서 제외한다(`msw init`이 만드는 생성 코드, 개발용 mock 모드 SPEC-031).
 - `*.md`: Prettier 대상에서 제외한다. 문서는 docs 레포와 같이 markdownlint 기준을 따르고, 표 칸 맞춤으로 diff가 커지지 않게 한다.
 - `src/app/ErrorBoundary.tsx`: `no-console`에서 `console.error`만 허용한다(오류 보고).

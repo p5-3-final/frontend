@@ -22,7 +22,9 @@ export interface paths {
          * @description 영상을 "업로드 중"(`UPLOADING`) 상태로 만들고 업로드 방법을 돌려준다.
          *     100MB(104,857,600바이트) 이하는 단일 업로드(`SINGLE`), 넘으면 멀티파트 업로드(`MULTIPART`)다.
          *     업로드 주소는 1시간 동안 유효하다. 24시간 안에 완료하지 않으면 영상은 만료된다.
-         *     (SPEC-003 R-1~R-6, NFR-6)
+         *     `sessionId`·`role`을 함께 보내면 영상을 요청자의 작업 세션에 넣는다. 세션과 역할은 이 요청에서만 정하고 나중에 바꾸지 않는다.
+         *     `retentionConsent`를 보내지 않으면 계정 기본값(`GET /api/v1/media/retention-settings`)을 따른다.
+         *     (SPEC-003 R-1~R-6, NFR-6, SPEC-017 R-6~R-10, SPEC-018 R-3·R-4)
          */
         post: operations["createVideo"];
         delete?: never;
@@ -111,10 +113,199 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/media/videos/{videoId}/retention-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
+                videoId: components["parameters"]["VideoId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 영상 보존 동의 바꾸기
+         * @description "삭제"가 아닌 영상의 학습용 보존 동의를 바꾼다. 이벤트는 발행하지 않는다. 영상을 지울 때의 값이 적용된다.
+         *     소유자만 바꿀 수 있다(ADMIN 포함 다른 사용자는 404). (SPEC-018 R-6·R-7)
+         */
+        put: operations["updateVideoRetentionConsent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내 작업 세션 목록
+         * @description 요청자가 소유한 세션을 만든 시각 최신순으로 돌려준다. (SPEC-017 R-3)
+         */
+        get: operations["listWorkSessions"];
+        put?: never;
+        /**
+         * 작업 세션 만들기
+         * @description 요청자를 소유자로 하는 작업 세션을 만든다. 현장·구역은 표시용 문자열이다. (SPEC-017 R-1·R-2)
+         */
+        post: operations["createWorkSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 작업 세션 ID */
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * 작업 세션 상세
+         * @description 세션 정보와 세션에 속한 "삭제"가 아닌 영상을 돌려준다. 영상은 역할 순서(`BEFORE` → `DURING` → `AFTER`)로,
+         *     같은 역할 안에서는 업로드 완료 시각 순으로, 업로드를 완료하지 않은 영상은 그 역할의 끝에 만든 시각 순으로 놓는다.
+         *     소유자와 ADMIN만 볼 수 있다. 없는 세션과 볼 권한이 없는 세션은 구분하지 않고 404다. (SPEC-017 R-4·R-5·R-7)
+         */
+        get: operations["getWorkSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/retention-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 보존 설정 조회
+         * @description 요청자 계정의 학습용 보존 기본 동의 값. 바꾼 적이 없으면 `false`다. (SPEC-018 R-1)
+         */
+        get: operations["getRetentionSettings"];
+        /**
+         * 보존 기본값 바꾸기
+         * @description 이후에 만드는 영상의 기본 동의 값을 바꾼다. 이미 있는 영상의 동의는 바꾸지 않는다. (SPEC-018 R-2)
+         */
+        put: operations["updateRetentionSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/retained-videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 보존 중인 삭제 영상 목록
+         * @description 보존에 동의한 채 지운 영상 중 철회하지 않았고 보존 만료 시각이 지나지 않은 것을 삭제 시각 최신순으로 돌려준다.
+         *     파일 이름은 남기지 않으므로 영상 ID와 시각만 있다(ADR-0011). (SPEC-018 R-13)
+         */
+        get: operations["listRetainedVideos"];
+        put?: never;
+        post?: never;
+        /**
+         * 보존 동의 전체 철회
+         * @description 요청자의 보존 중인 삭제 영상마다 `video.retention.revoked`를 하나씩 발행하고 목록을 비운다. 목록이 비어 있어도 204다. (SPEC-018 R-16)
+         */
+        delete: operations["revokeAllRetainedVideos"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/retained-videos/{videoId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
+                videoId: components["parameters"]["VideoId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 보존 동의 철회
+         * @description 지운 영상의 보존 동의를 철회한다. `video.retention.revoked`를 발행하고 목록에서 뺀다.
+         *     소유자만 요청할 수 있다. (SPEC-018 R-14·R-15)
+         */
+        delete: operations["revokeRetainedVideo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/internal/v1/media/dataset-videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 외부 데이터셋 영상 등록 (내부 전용)
+         * @description quality-service가 가져오기 버킷의 영상을 media 저장소로 복사해 등록한다. 업로드 완료와 같이 `UPLOADED`로 만들고 같은 트랜잭션에서 `video.uploaded`를 Outbox에 넣어 일반 분석 흐름을 탄다.
+         *     영상 ID는 (importId, externalId)로 결정적이다. 같은 값으로 다시 부르면 처음 만든 영상을 200으로 돌려준다.
+         *     데이터셋 영상은 보존 등급 `dataset`이라 삭제 전파와 보존 기간 정리에서 빠진다(ADR-0011, overview 보존 표 외부 데이터셋 행). (SPEC-030 R-4~R-6)
+         */
+        post: operations["registerDatasetVideo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        RegisterDatasetVideoRequest: {
+            /** Format: uuid */
+            importId: string;
+            externalId: string;
+            /**
+             * Format: uuid
+             * @description 가져오기를 요청한 운영자. 영상 소유자가 된다
+             */
+            ownerId: string;
+            /** @description 가져오기 버킷의 원본 경로. `..`를 쓸 수 없다 */
+            importKey: string;
+            /** @enum {string} */
+            contentType: "video/mp4" | "video/quicktime" | "video/x-matroska" | "video/webm" | "video/x-msvideo";
+        };
+        DatasetVideo: {
+            /** Format: uuid */
+            videoId: string;
+            /** @description 영상 상태(VideoResponse.status와 같은 값) */
+            status: string;
+            sizeBytes: number;
+        };
         /**
          * @description 영상 MIME 형식. 파일 이름의 확장자와 짝이 맞아야 한다:
          *     `video/mp4`(.mp4), `video/quicktime`(.mov), `video/x-matroska`(.mkv), `video/x-msvideo`(.avi). (SPEC-003 R-5)
@@ -137,6 +328,15 @@ export interface components {
              */
             sizeBytes: number;
             contentType: components["schemas"]["VideoContentType"];
+            /**
+             * Format: uuid
+             * @description 넣을 작업 세션. 요청자가 소유한 세션이어야 하고 `role`과 함께 보낸다. (SPEC-017 R-6·R-8·R-9)
+             */
+            sessionId?: string;
+            /** @description 세션 안 역할. `sessionId`와 함께 보낸다. 하나만 보내면 400 `MEDIA_INVALID_REQUEST`다. (SPEC-017 R-8) */
+            role?: components["schemas"]["SessionRole"];
+            /** @description 학습용 보존 동의. 보내지 않으면 계정 기본값을 따른다. (SPEC-018 R-3·R-4) */
+            retentionConsent?: boolean;
         };
         CreateVideoResponse: {
             video: components["schemas"]["VideoResponse"];
@@ -213,6 +413,14 @@ export interface components {
              * @example 613
              */
             estimatedProcessingSec?: number | null;
+            /** @description 속한 작업 세션과 역할. 세션이 없으면 null (SPEC-017 R-13) */
+            session: {
+                /** Format: uuid */
+                sessionId: string;
+                role: components["schemas"]["SessionRole"];
+            } | null;
+            /** @description 학습용 보존 동의. 영상을 지울 때의 값으로 보존 여부를 정한다. (SPEC-018 R-5) */
+            retentionConsent: boolean;
             /**
              * @description 정규화에서 거절한 사유. `REJECTED`가 아니면 null (SPEC-007 R-7~R-12, R-21).
              *     `UNREADABLE`(파일을 열 수 없음), `NO_VIDEO_STREAM`(영상 스트림 없음), `MISSING_METADATA`(길이·프레임률을 읽을 수 없음),
@@ -242,6 +450,69 @@ export interface components {
              * @description 두 주소의 만료 시각 (발급 시점 + 1시간)
              */
             expiresAt: string;
+        };
+        /**
+         * @description 세션 안 역할. `BEFORE`(작업 전), `DURING`(작업 중), `AFTER`(작업 후). 이 순서가 세션 안 영상 순서다. (SPEC-017 R-7)
+         * @enum {string}
+         */
+        SessionRole: "BEFORE" | "DURING" | "AFTER";
+        CreateWorkSessionRequest: {
+            name: string;
+            /** @description 현장 이름(표시용) */
+            site?: string | null;
+            /** @description 구역 이름(표시용). 분석의 구역 정의와 잇지 않는다. */
+            area?: string | null;
+        };
+        WorkSession: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerId: string;
+            name: string;
+            site: string | null;
+            area: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        WorkSessionDetail: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerId: string;
+            name: string;
+            site: string | null;
+            area: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description 세션에 속한 "삭제"가 아닌 영상. 순서는 `getWorkSession` 설명을 따른다. */
+            videos: components["schemas"]["VideoResponse"][];
+        };
+        WorkSessionPage: {
+            items: components["schemas"]["WorkSession"][];
+            page: components["schemas"]["PageMeta"];
+        };
+        RetentionSettings: {
+            /** @description 새 영상의 학습용 보존 기본 동의 값 */
+            defaultConsent: boolean;
+        };
+        RetentionConsentRequest: {
+            consent: boolean;
+        };
+        /** @description 보존 중인 삭제 영상의 최소 기록. 파일 이름은 남기지 않는다(ADR-0011). */
+        RetainedVideo: {
+            /** Format: uuid */
+            videoId: string;
+            /** Format: date-time */
+            deletedAt: string;
+            /**
+             * Format: date-time
+             * @description 보존 만료 시각(삭제 시각에서 1년 뒤). 지나면 기록과 각 서비스의 보존 데이터가 지워진다.
+             */
+            retainUntil: string;
+        };
+        RetainedVideoPage: {
+            items: components["schemas"]["RetainedVideo"][];
+            page: components["schemas"]["PageMeta"];
         };
         PageMeta: {
             page: number;
@@ -302,6 +573,24 @@ export interface components {
                 "application/problem+json": components["schemas"]["ProblemDetail"];
             };
         };
+        /** @description 없는 세션이거나 요청자가 볼(넣을) 권한이 없는 세션 (`MEDIA_SESSION_NOT_FOUND`) */
+        SessionNotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "type": "about:blank",
+                 *       "title": "Not Found",
+                 *       "status": 404,
+                 *       "detail": "작업 세션을 찾을 수 없습니다.",
+                 *       "code": "MEDIA_SESSION_NOT_FOUND"
+                 *     }
+                 */
+                "application/problem+json": components["schemas"]["ProblemDetail"];
+            };
+        };
         /** @description 없는 영상, 삭제된 영상, 볼 권한이 없는 영상 (`MEDIA_VIDEO_NOT_FOUND`) */
         VideoNotFound: {
             headers: {
@@ -345,6 +634,10 @@ export interface components {
     parameters: {
         /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
         VideoId: string;
+        /** @description 0부터 시작하는 페이지 번호 */
+        Page: number;
+        /** @description 페이지 크기 */
+        Size: number;
         /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
         XUserId: string;
         /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
@@ -392,7 +685,9 @@ export interface operations {
                      *           "contentType": "video/mp4",
                      *           "status": "UPLOADED",
                      *           "createdAt": "2026-11-02T09:30:00Z",
-                     *           "uploadedAt": "2026-11-02T09:31:12Z"
+                     *           "uploadedAt": "2026-11-02T09:31:12Z",
+                     *           "session": null,
+                     *           "retentionConsent": false
                      *         }
                      *       ],
                      *       "page": {
@@ -448,6 +743,25 @@ export interface operations {
             };
             400: components["responses"]["BadRequest"];
             401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["SessionNotFound"];
+            /** @description 세션에 "삭제"가 아닌 영상이 이미 100개 있음 (`MEDIA_SESSION_FULL`) (SPEC-017 R-10) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "about:blank",
+                     *       "title": "Conflict",
+                     *       "status": 409,
+                     *       "detail": "세션에는 영상을 100개까지 넣을 수 있습니다.",
+                     *       "code": "MEDIA_SESSION_FULL"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
         };
     };
     getVideo: {
@@ -482,7 +796,9 @@ export interface operations {
                      *       "contentType": "video/mp4",
                      *       "status": "UPLOADED",
                      *       "createdAt": "2026-11-02T09:30:00Z",
-                     *       "uploadedAt": "2026-11-02T09:31:12Z"
+                     *       "uploadedAt": "2026-11-02T09:31:12Z",
+                     *       "session": null,
+                     *       "retentionConsent": false
                      *     }
                      */
                     "application/json": components["schemas"]["VideoResponse"];
@@ -570,7 +886,9 @@ export interface operations {
                      *       "contentType": "video/mp4",
                      *       "status": "UPLOADED",
                      *       "createdAt": "2026-11-02T09:30:00Z",
-                     *       "uploadedAt": "2026-11-02T09:31:12Z"
+                     *       "uploadedAt": "2026-11-02T09:31:12Z",
+                     *       "session": null,
+                     *       "retentionConsent": false
                      *     }
                      */
                     "application/json": components["schemas"]["VideoResponse"];
@@ -641,6 +959,537 @@ export interface operations {
                      *       "status": 409,
                      *       "detail": "업로드가 끝난 영상만 재생할 수 있습니다.",
                      *       "code": "MEDIA_NOT_PLAYABLE"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    updateVideoRetentionConsent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path: {
+                /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
+                videoId: components["parameters"]["VideoId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "consent": true
+                 *     }
+                 */
+                "application/json": components["schemas"]["RetentionConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description 바뀐 영상 정보 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+                     *       "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                     *       "fileName": "parking-lot-0930.mp4",
+                     *       "sizeBytes": 52428800,
+                     *       "contentType": "video/mp4",
+                     *       "status": "READY",
+                     *       "createdAt": "2026-11-02T09:30:00Z",
+                     *       "uploadedAt": "2026-11-02T09:31:12Z",
+                     *       "session": null,
+                     *       "retentionConsent": true
+                     *     }
+                     */
+                    "application/json": components["schemas"]["VideoResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["VideoNotFound"];
+        };
+    };
+    listWorkSessions: {
+        parameters: {
+            query?: {
+                /** @description 0부터 시작하는 페이지 번호 */
+                page?: components["parameters"]["Page"];
+                /** @description 페이지 크기 */
+                size?: components["parameters"]["Size"];
+            };
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 세션 목록 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "id": "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+                     *           "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                     *           "name": "3번 라인 방호벽 교체",
+                     *           "site": "평택 공장",
+                     *           "area": null,
+                     *           "createdAt": "2026-11-06T09:00:00Z"
+                     *         }
+                     *       ],
+                     *       "page": {
+                     *         "page": 0,
+                     *         "size": 20,
+                     *         "totalElements": 1,
+                     *         "totalPages": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["WorkSessionPage"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    createWorkSession: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "3번 라인 방호벽 교체",
+                 *       "site": "평택 공장",
+                 *       "area": "3번 라인 프레스 앞"
+                 *     }
+                 */
+                "application/json": components["schemas"]["CreateWorkSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description 만든 세션 */
+            201: {
+                headers: {
+                    /** @description 만든 세션의 상세 경로 */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+                     *       "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                     *       "name": "3번 라인 방호벽 교체",
+                     *       "site": "평택 공장",
+                     *       "area": "3번 라인 프레스 앞",
+                     *       "createdAt": "2026-11-06T09:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["WorkSession"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    getWorkSession: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path: {
+                /** @description 작업 세션 ID */
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 세션과 속한 영상 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+                     *       "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                     *       "name": "3번 라인 방호벽 교체",
+                     *       "site": "평택 공장",
+                     *       "area": "3번 라인 프레스 앞",
+                     *       "createdAt": "2026-11-06T09:00:00Z",
+                     *       "videos": [
+                     *         {
+                     *           "id": "0192f0e1-0000-7000-8000-000000000001",
+                     *           "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                     *           "fileName": "before.mp4",
+                     *           "sizeBytes": 52428800,
+                     *           "contentType": "video/mp4",
+                     *           "status": "READY",
+                     *           "createdAt": "2026-11-06T09:20:00Z",
+                     *           "uploadedAt": "2026-11-06T09:21:00Z",
+                     *           "session": {
+                     *             "sessionId": "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+                     *             "role": "BEFORE"
+                     *           },
+                     *           "retentionConsent": false
+                     *         },
+                     *         {
+                     *           "id": "0192f0e1-0000-7000-8000-000000000002",
+                     *           "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                     *           "fileName": "after.mp4",
+                     *           "sizeBytes": 41943040,
+                     *           "contentType": "video/mp4",
+                     *           "status": "UPLOADED",
+                     *           "createdAt": "2026-11-06T09:10:00Z",
+                     *           "uploadedAt": "2026-11-06T09:11:00Z",
+                     *           "session": {
+                     *             "sessionId": "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+                     *             "role": "AFTER"
+                     *           },
+                     *           "retentionConsent": false
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["WorkSessionDetail"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["SessionNotFound"];
+        };
+    };
+    getRetentionSettings: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 보존 설정 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "defaultConsent": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RetentionSettings"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    updateRetentionSettings: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "defaultConsent": true
+                 *     }
+                 */
+                "application/json": components["schemas"]["RetentionSettings"];
+            };
+        };
+        responses: {
+            /** @description 저장한 보존 설정 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "defaultConsent": true
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RetentionSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    listRetainedVideos: {
+        parameters: {
+            query?: {
+                /** @description 0부터 시작하는 페이지 번호 */
+                page?: components["parameters"]["Page"];
+                /** @description 페이지 크기 */
+                size?: components["parameters"]["Size"];
+            };
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 보존 중인 삭제 영상 목록 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "videoId": "0192f0d2-1a2b-7c3d-8e4f-5a6b7c8d9e0f",
+                     *           "deletedAt": "2026-11-06T12:00:00Z",
+                     *           "retainUntil": "2027-11-06T12:00:00Z"
+                     *         }
+                     *       ],
+                     *       "page": {
+                     *         "page": 0,
+                     *         "size": 20,
+                     *         "totalElements": 1,
+                     *         "totalPages": 1
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RetainedVideoPage"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    revokeAllRetainedVideos: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 모두 철회함 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    revokeRetainedVideo: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description api-gateway가 검증한 접근 토큰의 `sub`. 클라이언트가 보낸 같은 이름의 헤더는 게이트웨이가 지운다. (SPEC-001 R-12, R-17) */
+                "X-User-Id": components["parameters"]["XUserId"];
+                /** @description api-gateway가 검증한 접근 토큰의 `roles`를 쉼표로 이은 값. 예 `USER,OPERATOR` */
+                "X-User-Roles": components["parameters"]["XUserRoles"];
+            };
+            path: {
+                /** @description 영상 ID (이벤트의 `sourceId`와 같다) */
+                videoId: components["parameters"]["VideoId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 철회함 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            /** @description 보존 중이 아니거나(동의하지 않음, 이미 철회, 만료) 소유자가 아님 (`MEDIA_RETAINED_VIDEO_NOT_FOUND`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "about:blank",
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "detail": "보존 중인 영상을 찾을 수 없습니다.",
+                     *       "code": "MEDIA_RETAINED_VIDEO_NOT_FOUND"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    registerDatasetVideo: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description 호출하는 서비스 이름. 허용 목록(설정, 기본 quality-service)에 있어야 한다
+                 * @example quality-service
+                 */
+                "X-Caller": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "importId": "0192fd00-0000-7000-8000-000000000001",
+                 *       "externalId": "clip-0001",
+                 *       "ownerId": "0192f0c4-6d1e-7a3b-9c2d-1e2f3a4b5c6d",
+                 *       "importKey": "imports/physicalai-2026-11/videos/clip-0001.mp4",
+                 *       "contentType": "video/mp4"
+                 *     }
+                 */
+                "application/json": components["schemas"]["RegisterDatasetVideoRequest"];
+            };
+        };
+        responses: {
+            /** @description 이미 등록한 영상 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "videoId": "0192fd20-0000-5000-8000-000000000001",
+                     *       "status": "READY",
+                     *       "sizeBytes": 31457280
+                     *     }
+                     */
+                    "application/json": components["schemas"]["DatasetVideo"];
+                };
+            };
+            /** @description 등록함 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "videoId": "0192fd20-0000-5000-8000-000000000001",
+                     *       "status": "UPLOADED",
+                     *       "sizeBytes": 31457280
+                     *     }
+                     */
+                    "application/json": components["schemas"]["DatasetVideo"];
+                };
+            };
+            /** @description 요청 형식·영상 형식·크기 제한 위반 (`MEDIA_INVALID_REQUEST`, `MEDIA_UNSUPPORTED_TYPE`, `MEDIA_FILE_TOO_LARGE`) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "about:blank",
+                     *       "title": "Bad Request",
+                     *       "status": 400,
+                     *       "code": "MEDIA_UNSUPPORTED_TYPE"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description 허용 호출자가 아님 (`MEDIA_CALLER_NOT_ALLOWED`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "about:blank",
+                     *       "title": "Forbidden",
+                     *       "status": 403,
+                     *       "code": "MEDIA_CALLER_NOT_ALLOWED"
+                     *     }
+                     */
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description 가져오기 버킷에 그 파일이 없음 (`MEDIA_IMPORT_OBJECT_NOT_FOUND`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "about:blank",
+                     *       "title": "Not Found",
+                     *       "status": 404,
+                     *       "code": "MEDIA_IMPORT_OBJECT_NOT_FOUND"
                      *     }
                      */
                     "application/problem+json": components["schemas"]["ProblemDetail"];

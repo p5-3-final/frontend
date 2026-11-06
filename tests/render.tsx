@@ -9,7 +9,11 @@ import { routes } from "../src/app/routes";
 
 /** 앱의 실제 라우트로 path 화면을 그린다. 화면 이동까지 포함한 흐름을 검증할 때 쓴다. */
 export function renderRoute(path: string, state?: unknown) {
-  const router = createMemoryRouter(routes, { initialEntries: [{ pathname: path, state }] });
+  // path에 쿼리(?event=…)를 붙여 열 수 있게 경로와 쿼리를 나눠 넘긴다.
+  const url = new URL(path, "http://localhost");
+  const router = createMemoryRouter(routes, {
+    initialEntries: [{ pathname: url.pathname, search: url.search, state }],
+  });
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
