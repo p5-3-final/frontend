@@ -50,11 +50,15 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 | 경로 | 화면 |
 | --- | --- |
 | `/login`, `/signup` | 로그인, 회원가입 |
-| `/analysis` | 영상 분석(로그인 후 첫 화면): 영상 업로드와 내 영상 목록·삭제 |
-| `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제, 분석 결과(요약·이벤트·위험·스냅샷). `?event=<id>`로 이벤트 상세를 연다 |
+| `/analysis` | 영상 분석(로그인 후 첫 화면): 영상 업로드(작업 세션·역할 고르기)와 내 영상 목록·삭제. `?sessionId=<id>`로 그 세션을 고른 채 연다 |
+| `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제, 학습용 보존 동의(소유자), 분석 결과(요약·이벤트·위험·스냅샷). `?event=<id>`로 이벤트 상세를, `?t=<ms>`로 그 시각을 연다 |
 | `/events` | 내 영상 전체 이벤트(종류·심각도·판정·검토·기간 거르기) |
-| `/stream/sessions/:sessionId` | 실시간 세션: 열려 있으면 현재 위험·긴급 알림·타임라인, 닫히면 분석 결과 |
-| `/search`, `/history`, `/settings` | 준비 중 |
+| `/stream/sessions/:sessionId` | 실시간 세션: 열려 있으면 현재 위험·긴급 알림·타임라인(라이브 HLS는 hls.js로 재생), 닫히면 분석 결과 |
+| `/history` | 분석 이력: 작업 세션 목록·만들기 |
+| `/history/sessions/:sessionId` | 작업 세션 상세: 역할(작업 전·중·후)별 영상과 분석 요약, 세션 흐름 요약 |
+| `/history/cameras`, `/history/cameras/:cameraId` | 카메라 목록·등록, 수집 시작·중지, 24시간 회전으로 이어진 세션 이력 |
+| `/settings` | 설정: 학습용 보존 기본값, 보존 중인 삭제 영상 철회 |
+| `/search` | 준비 중 |
 
 ## 영상 업로드
 

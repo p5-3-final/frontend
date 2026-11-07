@@ -20,7 +20,7 @@ updated: 2026-11-07
 
 ## 1. 요약
 
-새 feature 두 개를 만든다. `sessions`는 "분석 이력"(`/history`) 세션 목록·만들기·상세·흐름 요약을, `settings`는 "설정"(`/settings`) 보존 기본값과 보존 중인 삭제 영상을 맡는다. 세션 상세는 media 응답을 먼저 그리고, 영상별 분석 요약·이벤트·위험은 동시 4개까지만 요청해 도착하는 대로 채운다. 업로드 화면의 세션·역할 고르기는 `sessions`가 고르기 컴포넌트를 주고 페이지가 `upload`의 업로드 버튼에 "업로드 대상"으로 넘긴다. 그래서 `upload`가 `sessions`를 import하지 않는다(feature 간 순환 없음). 영상별 보존 동의는 `upload`의 영상 상세에 둔다. 새 의존성은 없다.
+새 feature 두 개를 만든다. `sessions`는 "분석 이력"(`/history`) 세션 목록·만들기·상세·흐름 요약을, `settings`는 "설정"(`/settings`) 보존 기본값과 보존 중인 삭제 영상을 맡는다. 세션 상세는 media 응답을 먼저 그리고, 영상별 분석 요약·이벤트·위험은 동시 4개까지만 요청해 도착하는 대로 채운다. 업로드 화면의 세션·역할 고르기는 `sessions`가 고르기 컴포넌트를 주고 페이지가 `upload`의 업로드 버튼에 "업로드 대상"으로 넘긴다. 그래서 `upload`가 `sessions`를 import하지 않는다(feature 간 순환 없음). 영상별 보존 동의는 `upload`의 영상 상세에 둔다. 새 의존성은 `hls.js` 하나다(SPEC-031 R-19 후속, 사용자 결정·추천안, 10절).
 
 ## 2. 담당 요구사항
 
@@ -53,7 +53,7 @@ updated: 2026-11-07
 | II 계약 우선 — 계약 변경이 먼저 머지됐는가 | ☑ | 계약 변경 없음. media(SPEC-017·018)와 analysis 0.4.0을 SPEC-031 T001의 4.0.0 생성 코드로 쓴다 |
 | III 테스트 우선 — 모든 R-*에 테스트가 매핑되고, 태스크가 요구사항 단위 TDD 사이클로 나뉘었는가 | ☑ | 2절, tasks.md |
 | IV 서비스 자율성 — 다른 서비스 DB나 코드에 직접 의존하지 않는가 | ☑ | media·analysis 공개 API만 쓴다 |
-| V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성 없음. 동시 요청 제한은 약 20줄 함수(`limitConcurrency`) |
+| V 단순성 — 새 의존성이나 추상화가 정당한가 | ☑ | 새 의존성은 `hls.js`(사용자 결정, 10절). 동시 요청 제한은 약 30줄 함수(`limitConcurrency`) |
 | VI 관측 가능성 — 로그, 추적, health를 갖췄는가 | ☑ | `console`을 쓰지 않는다 |
 | VII 보안 — 입력 검증, 인가, 비밀값 처리를 했는가 | ☑ | 세션 이름 1~100자·현장·구역 100자 이하를 Zod로, URL `sessionId`·쪽 번호를 Zod로 검증. 보존 동의 토글은 소유자에게만 보이고 서버도 소유자만 허용한다 |
 | VIII 문서·주석 — spec·계약·plan과 구현이 일치하고, 주석이 왜를 설명하는가 | ☑ | |
@@ -118,6 +118,8 @@ sequenceDiagram
   - 항목: 영상마다 `listSourceRisks`에서 `carriedOver: true`인 위험("이전 영상에서 이어짐" 표시, 시작 시각 `firstSeenMs`)과, `listSourceEvents(verificationStatus=confirmed)` 결과 중 유형 `barrier_not_restored`(방호 미복구)·`object_removed`(물건 제거)·`object_moved`(물건 이동)인 이벤트(`startMs`).
   - 정렬: 영상의 세션 안 순서(역할 순, 같은 역할은 받은 순서), 그다음 영상 안 시각.
   - 누르면 이벤트는 `videoDetailPath(sourceId, { eventId })`, 위험은 `videoDetailPath(sourceId, { seekMs: firstSeenMs })`.
+  - `seekMs`는 영상 상세 주소의 `?t=<ms>`가 된다. 영상 상세 페이지가 `player`의 `useSeekParam`으로 화면을 열 때 한 번 플레이어를 그 시각으로 옮긴다(SPEC-031 T013에는 `?t=`가 없어 이 spec에서 더했다).
+  - 이벤트·위험은 요약이 `READY`인 영상만 묻는다. 분석 전 영상은 흐름 요약에 들어갈 결과가 없고, 요청 수(NFR-1)를 줄인다.
   - 이벤트가 100개를 넘는 영상은 다음 쪽도 같은 대기열로 받는다.
 - 미완료 안내(R-5): 영상 중 media 상태가 `READY`가 아니거나 요약이 `NOT_ANALYZED`인 영상이 있으면 흐름 요약 위에 "분석이 끝나지 않은 영상이 있어 비교가 완전하지 않습니다."를 보인다.
 - "이 세션에 영상 올리기"(R-8): `/analysis?sessionId={id}`로 이동한다. 업로드 화면은 이 값을 Zod(uuid)로 읽어 `SessionRolePicker`의 처음 값으로 쓴다.
@@ -125,7 +127,7 @@ sequenceDiagram
 ### 업로드 화면의 세션·역할 (R-6, R-7)
 
 - `SessionRolePicker`(sessions): 세션 `<select>`(없음 · 내 세션(최근 100개) · 새 세션), 새 세션이면 이름 입력, 역할 라디오(작업 전·중·후). 세션을 고르면 역할이 필수다. 입력 오류는 고르기 옆에 보인다.
-- 페이지가 `picker`의 `resolveTarget`을 `UploadButton`·`UploadDropzone`에 넘긴다. 파일을 고르면 업로드 컴포넌트가 `resolveTarget()`을 먼저 부른다.
+- 고르기 상태는 `sessions`의 `useSessionRolePicker()` 훅에 있고(주소의 `?sessionId=`를 처음 값으로 읽는다), 페이지가 그 상태를 `SessionRolePicker`에, `resolveTarget`을 `UploadButton`·`UploadDropzone`에 넘긴다. 파일을 고르면 업로드 컴포넌트가 `upload`의 `enqueueFiles`로 `resolveTarget()`을 먼저 부른다.
   - 없음: `undefined` → 지금처럼 올린다.
   - 내 세션: `{ sessionId, role }`.
   - 새 세션(R-7): `createWorkSession({ name })`을 먼저 보내고, 만든 ID로 `{ sessionId, role }`. 같은 고르기에서 여러 파일을 고르거나 두 번째로 고를 때는 만든 세션을 재사용하게 고르기 값을 그 세션으로 바꾼다.
@@ -182,6 +184,16 @@ sequenceDiagram
 
 - 라우트: "세션" 메뉴 아래 탭 둘, 작업 세션(`/history`)과 카메라(`/history/cameras`, `/history/cameras/:cameraId`). 라우트는 lazy로 둔다.
 - 등록 폼(R-13): 이름, RTSP 비밀값 참조 이름(`rtspSecretRef`, 화면은 주소·자격 증명을 받지 않는다), 프로필. 계약 `CameraCreate`를 Zod로 옮긴다.
-- 세션 start·stop: `startSession`(`POST /api/v1/stream/cameras/{cameraId}/sessions`), `stopSession`. 활성 세션이 있으면 409 `STREAM_SESSION_ACTIVE`를 안내 문구로 보여 준다. 카메라 목록·상세는 15초 폴링으로 상태(`STARTING`·`LIVE`·`STOPPING`·`CLOSED`)를 갱신하고, LIVE 세션 칸은 SPEC-031의 `/stream/sessions/:sessionId`로 이동한다.
+- 세션 start·stop: `startSession`(`POST /api/v1/stream/cameras/{cameraId}/sessions`), `stopSession`(`DELETE /api/v1/stream/sessions/{sessionId}`). 409는 계약의 `STREAM_SESSION_ALREADY_ACTIVE`(start)·`STREAM_SESSION_NOT_LIVE`(stop)를 안내 문구로 보여 준다. 카메라 목록·상세는 15초 폴링으로 상태(`STARTING`·`LIVE`·`STOPPING`·`CLOSED`)를 갱신하고, LIVE 세션 칸은 SPEC-031의 `/stream/sessions/:sessionId`로 이동한다.
 - 세션 이력(R-14): `listCameraSessions`를 시작 시각 내림차순으로 받고 `sessionChain`이 `previousSourceId`로 앞 세션을 이어 "회전" 표식과 함께 한 줄로 묶어 보여 준다. 끊긴 체인(앞 세션이 목록 밖)은 그 세션에서 끝난 것으로 표시한다.
-- 가짜 API: `mocks/stream.ts`, `tests/e2e/fakeStream.ts`(SPEC-031 T033과 공유).
+- 가짜 API: `mocks/stream.ts`(`cameraHandlers`), E2E는 `tests/e2e/fakeCameras.ts`(세션 라이브 조회는 SPEC-031의 `fakeStream.ts`).
+- 탭은 `src/pages/HistoryTabs.tsx`(페이지 조립)다. `sessions`와 `cameras`가 서로 import하지 않게 페이지가 두 feature의 경로를 잇는다.
+- 켜고 끄기(R-9, R-11)는 공용 `src/shared/ui/Switch.tsx`(`role="switch"`)를 쓴다.
+
+## 10. 라이브 HLS 재생(SPEC-031 R-19 후속)
+
+- SPEC-031 작업자 보고: 라이브 HLS가 Chromium 기본 `<video>`로 재생되지 않는다. 사용자 결정(추천안)으로 `hls.js`(Apache-2.0)를 더했다.
+- `P/model/hlsSource.ts`의 `attachSource(video, src)`: HLS 주소(`.m3u8`)이고 MediaSource가 있으면 hls.js를 동적 import해 붙이고, 해제하면 `destroy`한다. HLS가 아니거나 MediaSource가 없으면(구형 iOS Safari) `src`를 그대로 쓴다. hls.js의 복구할 수 없는 오류는 `<video>` error와 같은 처리(만료면 새 주소, 아니면 재생 불가 안내)로 보낸다.
+- 기본 재생 여부(`canPlayType`)로 고르지 않는다. Playwright Chromium 156이 HLS에 "maybe"로 답해 그 기준으로는 Chromium에서 hls.js가 붙지 않는다. 그래서 Safari 데스크톱도 MediaSource로 hls.js를 쓴다.
+- 일반 영상은 지금처럼 `src` 속성으로 재생한다. hls.js는 별도 청크(gzip 약 180KB)라 첫 화면·일반 재생 번들에 들어가지 않는다.
+- 테스트: `hlsSource.test.ts`(HLS 판별, 지원 시 attach, 해제 시 destroy, 미지원 fallback, 읽는 중 해제), E2E `cameras.spec.ts`(Chromium에서 재생 목록을 hls.js가 xhr·fetch로 받음).
