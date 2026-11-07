@@ -12,7 +12,7 @@ export interface LiveSessionViewProps {
 
 /**
  * 열려 있는 실시간 세션 화면(SPEC-031 R-19). 재생은 라이브 HLS 주소를 쓴다.
- * Chromium처럼 HLS를 기본 재생하지 못하는 브라우저는 플레이어가 hls.js를 붙여 재생한다(Safari는 기본 재생).
+ * 플레이어가 MediaSource가 있는 브라우저에서는 hls.js를 붙여 재생하고, 없으면 기본 재생을 쓴다.
  */
 export function LiveSessionView({ sessionId, live }: LiveSessionViewProps) {
   const playback = useSessionPlayback(sessionId, live.isLive);

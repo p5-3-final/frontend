@@ -8,8 +8,10 @@ export interface HlsEngine {
   };
 }
 
-// Safari·iOS는 HLS를 기본 재생한다. 이 형식을 재생할 수 있다고 답하면 라이브러리를 쓰지 않는다.
-const HLS_MIME = "application/vnd.apple.mpegurl";
+/** hls.js가 쓰는 MediaSource(또는 iOS의 ManagedMediaSource)가 있는지 */
+function browserHasMediaSource(): boolean {
+  return "MediaSource" in window || "ManagedMediaSource" in window;
+}
 
 /** 서명 쿼리를 뺀 경로가 `.m3u8`로 끝나면 HLS 재생 목록이다. */
 export function isHlsUrl(url: string): boolean {
@@ -51,20 +53,28 @@ export interface AttachSourceOptions {
   /** 화면에서 빠지면 중단한다. 라이브러리를 읽는 중에 중단하면 붙이지 않는다. */
   signal?: AbortSignal;
   loadEngine?: () => Promise<HlsEngine>;
+  hasMediaSource?: () => boolean;
 }
 
 /**
  * `<video>`에 재생 주소를 붙이고 떼는 함수를 돌려준다(SPEC-031 R-19).
- * HLS가 아니거나 브라우저가 HLS를 기본 재생하면 `src`를 그대로 쓴다. Chromium처럼 기본 재생하지 못하면 hls.js(MSE)를 쓴다.
- * hls.js도 지원하지 않으면 `src`를 그대로 두어 `<video>`의 error로 재생 불가 안내가 보이게 한다.
+ * HLS가 아니면 `src`를 그대로 쓴다. HLS는 MediaSource가 있으면 hls.js로 재생한다.
+ * `canPlayType`을 먼저 보지 않는 이유: Chromium 156도 HLS를 "maybe"로 답하지만 라이브 HLS는 기본 재생되지 않는다(SPEC-031 R-19 보고).
+ * MediaSource가 없는 브라우저(구형 iOS Safari)는 기본 재생을 쓴다. hls.js도 지원하지 않으면 `src`를 그대로 두어
+ * `<video>`의 error로 재생 불가 안내가 보이게 한다.
  */
 export async function attachSource(
   video: HTMLMediaElement,
   src: string,
-  { onFatalError, signal, loadEngine = loadHlsJs }: AttachSourceOptions,
+  {
+    onFatalError,
+    signal,
+    loadEngine = loadHlsJs,
+    hasMediaSource = browserHasMediaSource,
+  }: AttachSourceOptions,
 ): Promise<() => void> {
   const noop = () => undefined;
-  if (!isHlsUrl(src) || video.canPlayType(HLS_MIME) !== "") {
+  if (!isHlsUrl(src) || !hasMediaSource()) {
     video.src = src;
     return noop;
   }

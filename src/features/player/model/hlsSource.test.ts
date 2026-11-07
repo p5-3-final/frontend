@@ -25,10 +25,10 @@ function fakeEngine(supported = true) {
   };
 }
 
-function videoElement(nativeHls = false) {
+// Chromium 156도 HLS를 "maybe"로 답하지만 라이브 재생은 되지 않아, 기본 재생 응답과 관계없이 판단해야 한다.
+function videoElement() {
   const video = document.createElement("video");
-  video.canPlayType = (type: string) =>
-    nativeHls && type === "application/vnd.apple.mpegurl" ? "maybe" : "";
+  video.canPlayType = (type: string) => (type === "application/vnd.apple.mpegurl" ? "maybe" : "");
   return video;
 }
 
@@ -51,23 +51,28 @@ describe("attachSource", () => {
     expect(loadEngine).not.toHaveBeenCalled();
   });
 
-  it("[SPEC-031 R-19] 브라우저가 HLS를 바로 재생하면(Safari) 기본 재생을 쓴다", async () => {
+  it("[SPEC-031 R-19] MediaSource가 없으면(구형 iOS Safari) 라이브러리를 읽지 않고 기본 재생을 쓴다", async () => {
     const loadEngine = vi.fn();
-    const video = videoElement(true);
+    const video = videoElement();
 
-    await attachSource(video, HLS, { onFatalError: vi.fn(), loadEngine });
+    await attachSource(video, HLS, {
+      onFatalError: vi.fn(),
+      loadEngine,
+      hasMediaSource: () => false,
+    });
 
     expect(video.getAttribute("src")).toBe(HLS);
     expect(loadEngine).not.toHaveBeenCalled();
   });
 
-  it("[SPEC-031 R-19] 기본 재생이 안 되고 hls.js를 지원하면 붙이고, 해제하면 destroy한다", async () => {
+  it("[SPEC-031 R-19] 기본 재생 응답이 maybe여도 hls.js를 지원하면 붙이고, 해제하면 destroy한다", async () => {
     const fake = fakeEngine();
     const video = videoElement();
 
     const detach = await attachSource(video, HLS, {
       onFatalError: vi.fn(),
       loadEngine: () => Promise.resolve(fake.engine),
+      hasMediaSource: () => true,
     });
 
     expect(fake.load).toHaveBeenCalledWith(HLS, video);
@@ -83,6 +88,7 @@ describe("attachSource", () => {
     await attachSource(video, HLS, {
       onFatalError: vi.fn(),
       loadEngine: () => Promise.resolve(fake.engine),
+      hasMediaSource: () => true,
     });
 
     expect(fake.load).not.toHaveBeenCalled();
@@ -96,6 +102,7 @@ describe("attachSource", () => {
     await attachSource(videoElement(), HLS, {
       onFatalError,
       loadEngine: () => Promise.resolve(fake.engine),
+      hasMediaSource: () => true,
     });
     fake.raiseFatal();
 
@@ -108,6 +115,7 @@ describe("attachSource", () => {
     const pending = attachSource(videoElement(), HLS, {
       onFatalError: vi.fn(),
       loadEngine: () => Promise.resolve(fake.engine),
+      hasMediaSource: () => true,
       signal: signal.signal,
     });
     signal.abort();
