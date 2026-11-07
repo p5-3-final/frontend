@@ -94,9 +94,19 @@ const SESSION_MESSAGES: Readonly<Record<string, string>> = {
   MEDIA_RETAINED_VIDEO_NOT_FOUND: "이미 철회했거나 보존 기간이 끝난 영상입니다.",
 };
 
+// ── SPEC-034 카메라·수집 세션(stream-service) ──
+const CAMERA_MESSAGES: Readonly<Record<string, string>> = {
+  STREAM_NOT_FOUND: "카메라나 세션을 찾을 수 없습니다.",
+  STREAM_SESSION_ALREADY_ACTIVE:
+    "이 카메라에 진행 중인 세션이 있습니다. 중지한 뒤 다시 시작해 주세요.",
+  STREAM_SESSION_NOT_LIVE: "이미 중지 중이거나 끝난 세션입니다.",
+  STREAM_INVALID_REQUEST: INVALID_INPUT_MESSAGE,
+};
+
 const MESSAGES: Readonly<Record<string, string>> = {
   ...ANALYSIS_MESSAGES,
   ...SESSION_MESSAGES,
+  ...CAMERA_MESSAGES,
   AUTH_EMAIL_DUPLICATED: "이미 가입된 이메일입니다.",
   AUTH_INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",
   AUTH_ACCOUNT_LOCKED: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.",

@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { CreateSessionForm, SessionList } from "../features/sessions";
 import { Button } from "../shared/ui/Button";
+import { HistoryTabs } from "./HistoryTabs";
 
 /** 분석 이력: 작업 세션 목록(SPEC-034 R-1, R-2) */
 export function HistoryPage() {
@@ -18,6 +19,7 @@ export function HistoryPage() {
           세션 만들기
         </Button>
       </div>
+      <HistoryTabs />
       {creating && (
         <CreateSessionForm
           onCancel={() => {
