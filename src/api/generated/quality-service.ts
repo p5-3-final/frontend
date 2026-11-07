@@ -472,7 +472,9 @@ export interface components {
             /** Format: uuid */
             jobId: string;
             eventType: components["schemas"]["eventType"];
+            /** Format: int64 */
             startMs: number;
+            /** Format: int64 */
             endMs: number;
             judgmentMethod: string;
             /** @description 열린 목록(ADR-0014). review_required: event.analyzed의 reviewRequired, sample: 표본 추출, budget_exceeded·call_cap_reached·model_unavailable: event.analyzed.unverifiedReason(v5.1, SPEC-029 R-27), alert_dismissed: alert.raised dismissed(SPEC-029 R-28) */
@@ -482,8 +484,8 @@ export interface components {
             evidenceFrameKeys: string[];
             /** @description evidenceFrameKeys와 같은 순서의 서명 주소(1시간). 화면 표시용이고 로그·저장소에 남기지 않는다 (SPEC-035 R-4) */
             evidenceFrameUrls: string[];
-            /** @description 판정 결과 VLMAnalysis. 형식은 `events/_vlm-analysis.schema.json`이다 */
-            analysis: Record<string, never>;
+            /** @description 판정 결과 VLMAnalysis. 형식은 `events/_vlm-analysis.schema.json`이다. 판정 결과가 없는 항목(사유 `alert_dismissed`의 미판정 알림 등)은 null이다 */
+            analysis: Record<string, never> | null;
             /** @enum {string} */
             status: "UNASSIGNED" | "ASSIGNED" | "LABELED";
             /** Format: uuid */
@@ -607,7 +609,8 @@ export interface components {
                 name: string;
                 eventType: string | null;
                 baseline: number;
-                value: number;
+                /** @description 이번 실행의 값. 기준 실행에만 있는 지표(이번 실행에서 빠짐)면 null이다 (SPEC-029 R-18) */
+                value: number | null;
             }[];
         };
         StageStat: {
@@ -638,7 +641,7 @@ export interface components {
                 pendingCount: number;
                 confirmedCount: number;
                 dismissedCount: number;
-                /** @description alert.candidate occurredAt부터 pending alert.raised occurredAt까지 */
+                /** @description event-analyzer 단계 `analyzer.alert` 측정(긴급 후보를 받은 시각부터 pending alert.raised 발행까지)의 백분위. Kafka 대기 시간은 들어가지 않는다 */
                 firstAlertP50Ms: number | null;
                 firstAlertP95Ms: number | null;
                 /** @description pending부터 confirmed·dismissed까지 */

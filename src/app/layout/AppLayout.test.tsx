@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { handlers } from "../../../mocks/handlers";
+import { handlers, TEST_USER } from "../../../mocks/handlers";
 import { renderRoute } from "../../../tests/render";
 import { server } from "../../../tests/server";
 import { startSession } from "../../shared/api/session";
@@ -38,5 +38,27 @@ describe("AppLayout", () => {
 
     expect(await screen.findByRole("heading", { name: "로그인" })).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "주 메뉴" })).not.toBeInTheDocument();
+  });
+
+  it("[SPEC-035 R-1] OPERATOR에게는 사이드바에 품질 메뉴를 보여 준다", async () => {
+    server.use(handlers.me({ ...TEST_USER, roles: ["USER", "OPERATOR"] }));
+    startSession("access-1");
+    renderRoute("/analysis");
+
+    const nav = await screen.findByRole("navigation", { name: "주 메뉴" });
+    expect(await within(nav).findByRole("link", { name: "품질" })).toHaveAttribute(
+      "href",
+      "/quality",
+    );
+  });
+
+  it("[SPEC-035 R-1] USER에게는 품질 메뉴를 숨긴다", async () => {
+    server.use(handlers.me());
+    startSession("access-1");
+    renderRoute("/analysis");
+
+    const nav = await screen.findByRole("navigation", { name: "주 메뉴" });
+    await screen.findByRole("button", { name: /테스터/ });
+    expect(within(nav).queryByRole("link", { name: "품질" })).not.toBeInTheDocument();
   });
 });

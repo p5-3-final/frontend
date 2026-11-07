@@ -47,6 +47,16 @@ describe("messageForCode", () => {
     expect(messageForCode(code)).toBe(message);
   });
 
+  it.each([
+    ["QUALITY_FORBIDDEN", "이 화면을 볼 권한이 없습니다."],
+    ["QUALITY_REVIEW_ALREADY_ASSIGNED", "이미 다른 사람이 맡았습니다."],
+    ["QUALITY_REVIEW_ALREADY_LABELED", "이미 라벨된 항목입니다."],
+    ["QUALITY_GOLDEN_EMPTY", "초안 항목이 없어 확정할 수 없습니다."],
+    ["QUALITY_IMPORT_IN_PROGRESS", "같은 매니페스트를 가져오는 중입니다."],
+  ])("[SPEC-035 R-20] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
   it("[SPEC-006 R-9] MEDIA_NOT_PLAYABLE에는 재생할 수 없는 이유를 쓴다", () => {
     expect(messageForCode("MEDIA_NOT_PLAYABLE")).toBe(
       "업로드가 끝나지 않았거나 만료된 영상이라 재생할 수 없습니다.",

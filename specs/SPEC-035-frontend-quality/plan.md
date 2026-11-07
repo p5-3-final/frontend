@@ -17,6 +17,7 @@ updated: 2026-11-07
 - 이 spec의 backend 몫(`ReviewItem.evidenceFrameUrls` 채우기)은 backend 레포 plan이 맡는다. 이 plan은 frontend 몫(R-1~R-20, NFR-1, NFR-2)만 다룬다.
 - 선행: SPEC-031 T001(계약 lock 4.0.0과 생성 코드), T022(auth `useHasRole`·`useMe` 내보내기)
 
+- 계약 묶음 5.0.0(ADR-0018, 2026-11-07): quality-service 3.0.0에서 `ReviewItem.analysis`(판정 결과 없음)와 `GateResult.failures[].value`(이번 실행에서 빠진 지표)가 null을 허용한다. 화면은 각각 "판정 없음", "이번 실행에 없음"으로 보인다. 이 PR이 lock을 5.0.0으로 올리고 생성 코드를 다시 만든다(analysis `EventSummary.unverifiedReason`이 계약 열거값이 되어 SPEC-031 스키마도 맞춘다).
 - v5.1(계약 묶음 4.0.0, 2026-11-07): `openapi/quality-service.yaml` 2.0.0은 검토 사유를 열린 목록(`x-extensible-enum`)으로 바꾸고 `budget_exceeded`·`call_cap_reached`·`model_unavailable`·`alert_dismissed`를 더했으며 목록 필터 `reason`과 알림 지표 리포트 `getAlertReport`를 더했다. R-21(사유 필터·안내)·R-22(긴급 알림 지표)를 아래 설계 절대로 더한다. 생성 코드는 SPEC-031 T028이 만든다.
 
 ## 1. 요약
@@ -48,9 +49,9 @@ updated: 2026-11-07
 | R-17 | `Q/model/polling`, `Q/api/useDatasetImports`·`useFeatureExport` | `polling.test.ts`, `DatasetImports.test.tsx` |
 | R-18 | `Q/components/datasets/DatasetImportDetail` | `DatasetImportDetail.test.tsx` |
 | R-19 | `Q/components/datasets/FeatureExportPanel`, `Q/model/exportSchema` | `FeatureExportPanel.test.tsx` |
-| R-20 | `Q/components/QualityError`, `src/shared/lib/messages.ts` | `QualityError.test.tsx`, `messages.test.ts` |
+| R-20 | `Q/components/QualityError`, `src/shared/lib/messages.ts`(`QUALITY_MESSAGES`) | `QualityError.test.tsx`, `messages.test.ts`, `ReviewDetail.test.tsx` |
 | R-21 | `Q/model/reviewReason.ts`(열린 목록·한국어 이름·안내 문구), `Q/components/review/ReviewFilters`(사유 필터), `ReviewDetail`(예산·상한 안내) | `reviewReason.test.ts`, `ReviewFilters.test.tsx`, `ReviewDetail.test.tsx` |
-| R-22 | `Q/api/useAlertReport`(`getAlertReport`), `Q/components/stages/AlertReportPanel` | `AlertReportPanel.test.tsx` |
+| R-22 | `Q/api/stages.ts` `useAlertReport`(`getAlertReport`), `Q/components/stages/AlertReportPanel` | `AlertReportPanel.test.tsx` |
 | NFR-1 | `useLabelAndNext`(저장 직후 다음 항목 맡기), `ReviewDetail` | Playwright `quality.spec.ts`(저장 응답 뒤 300ms) |
 | NFR-2 | `src/app/routes.tsx`(품질 라우트 lazy 하나) | Playwright `quality.spec.ts`(USER 첫 화면이 품질 묶음을 받지 않음) |
 
@@ -78,10 +79,11 @@ updated: 2026-11-07
 | `src/app/layout/Sidebar.tsx`, `MobileNav.tsx` | `useHasRole`로 `requiredRole`이 맞지 않는 메뉴를 뺀다 |
 | `src/app/routes.tsx` | `/quality/*` 하나를 `lazy`로 `pages/QualityPage`를 불러오고, 하위 라우트는 그 묶음 안에 둔다 |
 | `src/pages/QualityPage.tsx` | `RequireOperator` + 탭 내비게이션(`NavLink` 다섯 개) + `<Outlet>` |
-| `Q/model/` | `schemas.ts`(생성 타입 `satisfies`, `analysis`는 SPEC-031 2차 스키마), `queryKeys.ts`, `labelSchema.ts`, `goldenSetSchema.ts`, `importSchema.ts`, `exportSchema.ts`, `trendQuery.ts`(90일 검사), `gate.ts`(실패 지표 차이·정렬), `chartScale.ts`, `polling.ts`(진행 중 상태 판단) |
-| `Q/api/` | `qualityApi.ts`와 훅(`useReviewItems`, `useReviewItem`, `useAssignReviewItem`, `useReleaseReviewItem`, `useLabelAndNext`, `useGoldenSets`, `useGoldenSet`, `useGoldenSetEntries`, `useGoldenSetVersions`, `useCreateGoldenSet`, `useAddGoldenSetEntry`, `useDeleteGoldenSetEntry`, `useFreezeGoldenSet`, `useSetBaseline`, `useEvaluationRuns`, `useEvaluationRun`, `useSourceStageReport`, `useStageTrend`, `useDatasetImports`, `useDatasetImport`, `useCreateDatasetImport`, `useCreateFeatureExport`, `useFeatureExport`) |
-| `Q/components/` | `RequireOperator`, `QualityError`, `review/*`, `golden/*`, `runs/*`, `stages/*`, `datasets/*` |
-| `src/shared/lib/messages.ts` | `QUALITY_*` 오류 문구, verdict·사유·상태 이름 |
+| `Q/model/` | `schemas.ts`(생성 타입 `satisfies`, `analysis`는 SPEC-031 2차 스키마), `queryKeys.ts`, `reviewQuery.ts`(URL 거르기), `reviewReason.ts`, `names.ts`(verdict·상태·분할 이름), `labelSchema.ts`, `goldenSetSchema.ts`, `importSchema.ts`, `exportSchema.ts`, `trendQuery.ts`(90일 검사·조회 폼), `stages.ts`(stageId·버전 키 목록), `gate.ts`(실패 지표 차이·정렬), `chartScale.ts`, `polling.ts`(진행 중 상태 판단), `format.ts`(ms·비율) |
+| `Q/api/` | `qualityApi.ts`와 화면 묶음별 훅 파일: `review.ts`(`useReviewItems`, `useReviewItem`, `useAssignReviewItem`, `useReleaseReviewItem`, `useLabelAndNext`), `goldenSets.ts`(`useGoldenSets`, `useGoldenSet`, `useGoldenSetEntries`, `useGoldenSetVersions`, `useCreateGoldenSet`, `useAddGoldenSetEntry`, `useDeleteGoldenSetEntry`, `useFreezeGoldenSet`, `useSetBaseline`), `runs.ts`, `stages.ts`(`useAlertReport` 포함), `datasets.ts`. 훅 하나에 파일 하나를 두면 파일 23개가 대부분 10줄 안팎이라 묶음별로 모았다 |
+| `Q/components/` | `RequireOperator`, `QualityTabs`, `QualityError`, `review/*`, `golden/*`, `runs/*`, `stages/*`(`StagesView`가 세 패널을 묶음), `datasets/*`(`DatasetsView`) |
+| `Q/ui/` | 품질 화면 안에서만 쓰는 `SelectField`, `DataTable`, `TextLink` |
+| `src/shared/lib/messages.ts` | `QUALITY_MESSAGES`(오류 code 문구)와 권한 없음·불러오기 실패 문구. 이름(verdict·사유·상태)은 이 기능에서만 써서 `Q/model/names.ts`·`reviewReason.ts`에 둔다 |
 | `mocks/quality.ts`, `tests/e2e/fakeQuality.ts` | 계약 예시 픽스처와 핸들러 |
 
 ### 데이터 모델
@@ -116,13 +118,13 @@ updated: 2026-11-07
 sequenceDiagram
   participant F as frontend
   participant Q as quality-service
-  F->>Q: PUT /review-items/{id}/assignment (맡기)
+  F->>Q: POST /review-items/{id}/assignment (맡기)
   alt 200
     F->>Q: GET /review-items/{id}
     Note over F: 상세·라벨 입력 활성
     F->>Q: PUT /review-items/{id}/label (저장)
     F->>Q: GET /review-items?status=UNASSIGNED&(같은 거르기)&size=5
-    F->>Q: PUT /review-items/{next}/assignment
+    F->>Q: POST /review-items/{next}/assignment
   else 409
     F->>Q: GET /review-items (목록 다시)
   end
@@ -141,7 +143,7 @@ sequenceDiagram
 ### Golden Set (R-8~R-10)
 
 - 목록(R-8): 이름, 분할(dev·eval), 출처(검토·가져오기), 초안 수, 최신 버전(없으면 "-"), 기준 실행(있으면 실행 상세 링크). "만들기" 폼: 이름(`^[a-z0-9][a-z0-9-]{0,62}$`, 위반 이유 표시), 분할, 설명 500자. 409 `QUALITY_GOLDEN_SET_DUPLICATED`면 이름 옆에 안내.
-- 초안에 넣기(R-9): 라벨된(`LABELED`) 검토 상세에 "Golden Set에 넣기" → 출처가 `review`인 세트만 고르기 목록에 보인다 → `addGoldenSetEntry({ reviewItemId })`. 409 코드별 이유: `QUALITY_REVIEW_NOT_LABELED` 라벨 없음, `QUALITY_GOLDEN_ENTRY_DUPLICATED` 이미 들어 있음, `QUALITY_GOLDEN_ORIGIN_MISMATCH` 가져온 데이터셋 세트. 계약은 uncertain 라벨도 `QUALITY_REVIEW_NOT_LABELED`로 돌려주므로, 화면에 있는 라벨의 verdict가 `uncertain`이면 그 코드를 "불확실 라벨은 넣을 수 없습니다"로 보인다.
+- 초안에 넣기(R-9): 라벨된(`LABELED`) 검토 상세에 "Golden Set에 넣기" → 출처가 `review`인 세트만 고르기 목록에 보인다 → `addGoldenSetEntry({ reviewItemId })`. 409 코드별 이유: `QUALITY_REVIEW_NOT_LABELED` 라벨 없음, `QUALITY_GOLDEN_ENTRY_DUPLICATED` 이미 들어 있음, `QUALITY_GOLDEN_ORIGIN_MISMATCH` 가져온 데이터셋 세트. 계약은 uncertain 라벨도 `QUALITY_REVIEW_NOT_LABELED`로 돌려주고 응답 본문 `errors`는 요청 본문 검증 오류에만 있어 둘을 구분할 수 없다(C-29). 그래서 같은 문구 "라벨이 없거나 불확실 라벨이라 넣을 수 없습니다."를 보인다.
 - 상세(R-10): 초안 항목 목록(`listGoldenSetEntries`, 행마다 "빼기" → `deleteGoldenSetEntry`), 확정 버전 목록(`listGoldenSetVersions`: 버전, 항목 수, 매니페스트 경로 `manifestKey`, 확정 시각, 확정한 사람), "버전 확정" → `ConfirmDialog` → `createGoldenSetVersion`. 성공하면 새 버전·매니페스트 경로를 보이고 세트·초안·버전 query를 무효화한다. 409 `QUALITY_GOLDEN_EMPTY` 초안 없음, `QUALITY_GOLDEN_FREEZE_IN_PROGRESS` 확정 진행 중.
 
 ### 평가 실행 (R-11~R-13)
@@ -179,6 +181,7 @@ sequenceDiagram
 
 - 단위: `labelSchema`(이벤트 유무별 필수, 끝 > 시작, 메모 500자), `gate`(차이·정렬, 기준 없음), `chartScale`(눈금, 날짜 하나), `trendQuery`(90일 경계), `exportSchema`(둘 중 하나), `polling`(진행 중 상태), 응답 스키마(계약 예시 파싱).
 - 컴포넌트·흐름: Testing Library + MSW, `[SPEC-035 R-n] ...`. 역할은 `handlers.me({ roles: ["OPERATOR"] })`·`["USER"]`. 폴링은 가짜 타이머로 5초 진행 뒤 요청 수를 센다. 이미지 만료는 `fireEvent.error(img)`.
+- 키보드: `Q/QualityKeyboard.test.tsx`(공유 파일 `src/app/Keyboard.test.tsx`와 충돌하지 않게 기능 폴더에 둔다).
 - E2E(Playwright): 검토 큐 맡기 → 라벨 → 저장 후 다음(NFR-1, 저장 응답 뒤 300ms), Golden Set 넣기 → 버전 확정, 평가 실행 Gate 실패 표시(US-1~US-3, P1), 추이 그래프 표시. NFR-2는 USER로 로그인한 첫 화면에서 받은 JS 파일 이름에 품질 묶음(`QualityPage`)이 없는지 `page.on("request")`로 확인한다.
 - 시연: 로컬 compose의 quality-service(또는 mock 모드)로 성공 지표 확인.
 
@@ -186,7 +189,7 @@ sequenceDiagram
 
 - 리스크
   - 근거 프레임 서명 주소(`evidenceFrameUrls`)는 backend 구현에 달렸다. backend가 아직 빈 배열을 주면 "근거 프레임 없음"으로 보인다.
-  - uncertain 라벨과 라벨 없음이 같은 409 코드(`QUALITY_REVIEW_NOT_LABELED`)라 서버 응답만으로는 구분할 수 없다. 화면의 라벨 값으로 구분한다.
+  - uncertain 라벨과 라벨 없음이 같은 409 코드(`QUALITY_REVIEW_NOT_LABELED`)라 서버 응답만으로는 구분할 수 없다. 같은 문구를 보인다(C-29).
   - 특징 내보내기는 목록 API가 없어 화면을 떠나면 진행 상태를 다시 볼 수 없다.
 - 롤백 방법: 메뉴 항목과 `/quality` 라우트를 빼면 된다.
 

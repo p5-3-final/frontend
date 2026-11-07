@@ -6,7 +6,7 @@ import type { components, operations } from "../src/api/generated/analysis-servi
 import { problem } from "./handlers";
 
 type Schemas = components["schemas"];
-export type EventSummaryBody = Schemas["EventSummary"] & { unverifiedReason?: string | null };
+export type EventSummaryBody = Schemas["EventSummary"];
 export type EventPageBody =
   operations["listSourceEvents"]["responses"]["200"]["content"]["application/json"];
 export type EventDetailBody = Omit<Schemas["EventDetail"], "analysis" | "event"> & {

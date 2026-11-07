@@ -4,3 +4,4 @@ export { useEventSelection, type EventSelection } from "./hooks/useEventSelectio
 export { useTimelineMarkers } from "./hooks/useTimelineMarkers";
 export { SeverityBadge } from "./components/SeverityBadge";
 export { VideoQuestionPanel } from "./components/VideoQuestionPanel";
+export { EVENT_TYPES, vlmAnalysisSchema, type VlmAnalysis } from "./model/schemas";

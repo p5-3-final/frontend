@@ -55,6 +55,11 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 | `/events` | 내 영상 전체 이벤트(종류·심각도·판정·검토·기간 거르기) |
 | `/stream/sessions/:sessionId` | 실시간 세션: 열려 있으면 현재 위험·긴급 알림·타임라인, 닫히면 분석 결과 |
 | `/search` | 검색: 문장·이미지로 장면 찾기(이 영상·내 영상 전체, 정밀 검색), 주석 클립, 맞음·틀림. 조건은 `?q=&scope=&sourceId=&precise=1`, 이미지 검색은 `?image=last` |
+| `/quality/review`, `/quality/review/:itemId` | 품질(OPERATOR만): 검토 큐와 검토 상세(맡기·라벨·저장 후 다음·Golden Set에 넣기) |
+| `/quality/golden-sets`, `/quality/golden-sets/:setId` | Golden Set 목록·만들기, 상세(초안·확정 버전·버전 확정) |
+| `/quality/runs`, `/quality/runs/:runId` | 평가 실행 목록, 상세(Gate 실패 지표·기준 실행 지정) |
+| `/quality/stages` | 처리 단계: 영상별 단계 분해, 단계 추이 그래프, 긴급 알림 지표 |
+| `/quality/datasets`, `/quality/datasets/imports/:importId` | 데이터셋 가져오기·진행 상태, 가져오기 상세, 특징 내보내기 |
 | `/history`, `/settings` | 준비 중 |
 
 ## 영상 업로드
@@ -89,9 +94,15 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 - 상위 3개 결과의 주석 클립은 알림 `grounding.completed`로 상태를 바꾼다. 프레임 시각(`frames[].ptsMs`)은 원본 영상 기준으로 해석한다.
 - 이미지 검색은 jpg·png·webp 5MB 이하만 올린다. jsdom에서는 파일 업로드 본문을 보낼 수 없어 단위 테스트는 API 함수 경계에서 확인하고, multipart 전송은 E2E로 확인한다.
 
+## 품질 화면
+
+- quality-service(`/api/v1/quality/...`)를 쓴다. 메뉴와 화면은 OPERATOR에게만 보이고, 권한은 서버가 다시 검사한다(403이면 권한 없음 안내).
+- 품질 화면은 lazy 묶음 하나(`pages/QualityPage`)라 USER의 첫 화면 코드에 들어가지 않는다.
+- 진행 중인 가져오기·내보내기는 5초마다 다시 읽는다. 계약에 내보내기 목록 API가 없어 이 화면에서 시작한 내보내기만 보이고 화면을 떠나면 목록이 사라진다.
+
 ## mock 모드
 
-아직 없는 서비스(analysis·notification·stream·search)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
+아직 없는 서비스(analysis·notification·stream·search·quality)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
 
 ```bash
 VITE_API_MOCKING=true pnpm dev
