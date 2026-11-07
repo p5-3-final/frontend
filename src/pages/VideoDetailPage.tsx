@@ -1,5 +1,10 @@
 import { useParams } from "react-router";
-import { AnalysisResults, useEventSelection, useTimelineMarkers } from "../features/analysis";
+import {
+  AnalysisResults,
+  useEventSelection,
+  useTimelineMarkers,
+  VideoQuestionPanel,
+} from "../features/analysis";
 import { usePlayerController, useSeekParam } from "../features/player";
 import { VideoDetail } from "../features/upload";
 
@@ -22,6 +27,7 @@ export function VideoDetailPage() {
       onMarkerSelect={selection.open}
     >
       <AnalysisResults sourceId={videoId} controller={controller} />
+      <VideoQuestionPanel sourceId={videoId} controller={controller} />
     </VideoDetail>
   );
 }

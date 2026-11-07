@@ -105,6 +105,11 @@ export const DEGRADED_MESSAGES = {
   ai_unavailable: "AI 기능을 쓸 수 없어 텍스트 검색 결과만 보여 줍니다.",
 } as const;
 
+export const QUESTION_MESSAGE = "질문을 1~200자로 입력해 주세요.";
+export const ANSWER_MISSING_MESSAGE = "답을 만들지 못했고 근거만 보여 줍니다.";
+/** 영상 질문 답의 판정 상태(계약 AnswerResult.status) 이름(SPEC-033 R-9) */
+export const ANSWER_STATUS_NAMES = { confirmed: "확인됨", unverified: "미확인" } as const;
+
 export const VIDEO_NAME_LOADING = "영상 이름 불러오는 중";
 export const VIDEO_NAME_FAILED = "이름을 불러오지 못한 영상";
 

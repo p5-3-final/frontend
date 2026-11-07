@@ -38,8 +38,8 @@ updated: 2026-11-06
 
 ## Phase 4: US-4 영상에 질문 (P1)
 
-- [ ] T011 [R-9] 영상 상세 "영상에 질문": 답·판정 상태·근거 구간·관련 이벤트·한계, 근거·이벤트를 누르면 `seekMs`로 이동 — 테스트 `A/components/VideoQuestionPanel.test.tsx`, 구현 `A/components/VideoQuestionPanel.tsx`, `S/api/useAnswerQuestion.ts`, `S/index.ts`, `src/pages/VideoDetailPage.tsx`
-- [ ] T012 [R-10] `answer`가 null이면 "답을 만들지 못했고 근거만 보여 줌"과 근거 — 테스트 `VideoQuestionPanel.test.tsx`, 구현 `VideoQuestionPanel.tsx`
+- [x] T011 [R-9] 영상 상세 "영상에 질문": 답·판정 상태·근거 구간·관련 이벤트·한계, 근거·이벤트를 누르면 `seekMs`로 이동 — 테스트 `A/components/VideoQuestionPanel.test.tsx`, 구현 `A/components/VideoQuestionPanel.tsx`, `S/api/useAnswerQuestion.ts`, `S/index.ts`, `src/pages/VideoDetailPage.tsx`
+- [x] T012 [R-10] `answer`가 null이면 "답을 만들지 못했고 근거만 보여 줌"과 근거 — 테스트 `VideoQuestionPanel.test.tsx`, 구현 `VideoQuestionPanel.tsx`
 
 ## Phase 5: US-3 이미지로 찾기 (P2)
 
