@@ -1,4 +1,5 @@
-import { useSearchParams } from "react-router";
+import { useState } from "react";
+import { NavigationType, useLocation, useNavigationType, useSearchParams } from "react-router";
 import { SEARCH_IMAGE_MISSING_MESSAGE } from "../../../shared/lib/messages";
 import { useImageSearch } from "../api/useImageSearch";
 import { useLastImageSearch } from "../api/useLastImageSearch";
@@ -23,12 +24,19 @@ export function SearchScreen() {
   const textError = textSearch.error === null ? undefined : toSearchErrorView(textSearch.error);
   const imageError = imageSearch.error === null ? undefined : toSearchErrorView(imageSearch.error);
   const imageActive = imageSearch.isPending || imageSearch.isError;
+  // 뒤로·앞으로 가기(POP)로 URL 조건이 바뀌면 폼을 그 조건으로 다시 채운다.
+  // 직접 검색해 URL을 바꾼 경우에는 다시 그리지 않아 입력 칸의 포커스가 유지된다(키보드 사용).
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const [formKey, setFormKey] = useState(location.key);
+  if (navigationType === NavigationType.Pop && location.key !== formKey) {
+    setFormKey(location.key);
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <SearchForm
-        // URL 조건이 바뀌면(뒤로 가기) 폼 값도 그 조건으로 다시 채운다.
-        key={params.toString()}
+        key={formKey}
         defaultValues={initialFormValues(criteria, params)}
         queryError={textError?.kind === "input" ? textError.message : undefined}
         imageError={imageError?.kind === "input" ? imageError.message : undefined}
