@@ -39,13 +39,13 @@ updated: 2026-11-07
 
 ## Phase 4: US-3 학습용 보존 설정 (P2)
 
-- [ ] T012 [R-9] 설정 화면 보존 기본값 켜고 끄기, 저장 뒤 "이후에 올리는 영상에 적용됨", 실패하면 되돌림 — 테스트 `St/components/RetentionDefaultToggle.test.tsx`, 구현 `St/components/RetentionDefaultToggle.tsx`, `St/api/{useRetentionSettings,useUpdateRetentionSettings}.ts`, `St/index.ts`
-- [ ] T013 [R-10] 보존 중인 삭제 영상 목록(영상 ID·삭제 시각·`retainUntil`, 쪽 나눔), 확인 창 뒤 하나 철회·전체 철회 — 테스트 `St/components/RetainedVideoList.test.tsx`, 구현 `St/components/RetainedVideoList.tsx`, `St/api/{useRetainedVideos,useRevokeRetained}.ts`
-- [ ] T014 [R-11] 영상 상세 보존 동의 켜고 끄기(소유자에게만), 저장 뒤 "영상을 지울 때의 값이 적용됨" — 테스트 `U/components/RetentionConsentToggle.test.tsx`, 구현 `U/components/RetentionConsentToggle.tsx`, `U/api/useUpdateRetentionConsent.ts`, `U/components/VideoDetail.tsx`
+- [x] T012 [R-9] 설정 화면 보존 기본값 켜고 끄기, 저장 뒤 "이후에 올리는 영상에 적용됨", 실패하면 되돌림 — 테스트 `St/components/RetentionDefaultToggle.test.tsx`, 구현 `St/components/RetentionDefaultToggle.tsx`, `St/api/{useRetentionSettings,useUpdateRetentionSettings}.ts`, `St/index.ts`
+- [x] T013 [R-10] 보존 중인 삭제 영상 목록(영상 ID·삭제 시각·`retainUntil`, 쪽 나눔), 확인 창 뒤 하나 철회·전체 철회 — 테스트 `St/components/RetainedVideoList.test.tsx`, 구현 `St/components/RetainedVideoList.tsx`, `St/api/{useRetainedVideos,useRevokeRetained}.ts`
+- [x] T014 [R-11] 영상 상세 보존 동의 켜고 끄기(소유자에게만), 저장 뒤 "영상을 지울 때의 값이 적용됨" — 테스트 `U/components/RetentionConsentToggle.test.tsx`, 구현 `U/components/RetentionConsentToggle.tsx`, `U/api/useUpdateRetentionConsent.ts`, `U/components/VideoDetail.tsx`
 
 ## Phase 5: 마무리
 
-- [ ] T015 [NFR-2] 요약 응답이 늦어도 역할 칸·영상 이름을 먼저 그리고 요약은 도착하는 대로 채움 — 테스트 `SessionDetail.test.tsx`(느린 요약), 구현 `SessionDetail.tsx`
+- [x] T015 [NFR-2] 요약 응답이 늦어도 역할 칸·영상 이름을 먼저 그리고 요약은 도착하는 대로 채움 — 테스트 `SessionDetail.test.tsx`(느린 요약), 구현 `SessionDetail.tsx`
 - [ ] T016 E2E: 세션 만들기 → 작업 전·후 영상 올리기 → 세션 상세 역할별 표시 → 흐름 요약 이동, 세션 상세 응답 뒤 300ms, 보존 설정 바꾸기, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/sessions.spec.ts`, 가짜 API `tests/e2e/fakeMedia.ts`, `tests/e2e/fakeAnalysis.ts`
 - [ ] T017 키보드만으로 세션 고르기·역할 고르기·철회 확인 — 테스트 `src/app/Keyboard.test.tsx`
 - [ ] T018 계약과 구현 일치 확인(생성 타입 diff 없음), README, 로컬 compose(media·auth 실제, analysis mock) 시연으로 성공 지표 확인

@@ -137,3 +137,25 @@ describe("SessionDetail 오류", () => {
     expect(await screen.findByRole("button", { name: "다시 시도" })).toBeVisible();
   });
 });
+
+describe("SessionDetail 그리기 순서", () => {
+  it("[SPEC-034 NFR-2] 요약 응답이 늦어도 역할 칸과 영상 이름을 먼저 그리고, 요약은 도착하면 채운다", async () => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    renderSessionDetail([
+      http.get(`${ANALYSIS_API}/sources/:sourceId/summary`, async ({ params }) => {
+        await gate;
+        return HttpResponse.json(sourceSummaryBody({ sourceId: String(params.sourceId) }));
+      }),
+    ]);
+
+    const before = await screen.findByRole("listitem", { name: "before.mp4" });
+    expect(screen.getByRole("region", { name: "작업 후 영상" })).toBeVisible();
+    expect(within(before).getByText("분석 정보 불러오는 중")).toBeVisible();
+    release();
+
+    expect(await within(before).findByText("확정 이벤트 2건")).toBeVisible();
+  });
+});
