@@ -15,6 +15,8 @@ export interface SummaryPanelProps {
   controller: PlayerController;
   /** 예산·상한 초과로 판정하지 않은 이벤트 수(R-23). `more`면 첫 쪽만 센 하한이다. */
   budgetSkipped?: { count: number; more: boolean };
+  /** 구역을 바꾼 뒤 아직 재분석하지 않았다(SPEC-032 R-13, 구역 조회 reanalysisNeeded). */
+  zonesChanged?: boolean;
 }
 
 /** 누락 건수. 이벤트 키가 있으면 그 값을, 없으면 모든 키의 합을 쓴다(source.completed missingCounts). */
@@ -29,7 +31,12 @@ const COUNT_LABELS = [
 ] as const;
 
 /** 분석 요약 패널(SPEC-031 R-2). 요약문, 개수, 판정하지 않은 유형, 작업 세션을 보인다. */
-export function SummaryPanel({ summary, controller, budgetSkipped }: SummaryPanelProps) {
+export function SummaryPanel({
+  summary,
+  controller,
+  budgetSkipped,
+  zonesChanged = false,
+}: SummaryPanelProps) {
   const text = summary.summary;
   const unsupported = Object.entries(summary.unsupportedEvents);
   const unsupportedId = useId();
@@ -37,6 +44,14 @@ export function SummaryPanel({ summary, controller, budgetSkipped }: SummaryPane
     <Panel title="분석 요약">
       {summary.partial === true && (
         <Alert>{`일부 이벤트가 누락되었습니다(${String(missingCount(summary.missingCounts ?? {}))}건)`}</Alert>
+      )}
+      {zonesChanged && (
+        <p
+          role="status"
+          className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning"
+        >
+          구역이 바뀌어 재분석이 필요합니다.
+        </p>
       )}
       {budgetSkipped !== undefined && budgetSkipped.count > 0 && (
         <div className="flex flex-col gap-0.5 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">

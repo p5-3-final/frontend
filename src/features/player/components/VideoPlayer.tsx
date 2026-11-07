@@ -1,7 +1,10 @@
-import { useRef, useState, type ReactNode, type SyntheticEvent } from "react";
+import { useCallback, useRef, useState, type ReactNode, type SyntheticEvent } from "react";
 import { UNSUPPORTED_PLAYBACK_MESSAGE } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
 import { usePlayerController } from "../hooks/usePlayerController";
+import { PlayerLayerContext, type PlayerLayer } from "../hooks/usePlayerLayer";
+import { useVideoContentRect } from "../hooks/useVideoContentRect";
+import { clampUnit, toFramePoint, type ContentRect } from "../model/contentRect";
 import type { PlayerController } from "../model/playerController";
 import type { TimelineMarker } from "../model/types";
 import { PlayerControls } from "./PlayerControls";
@@ -20,7 +23,10 @@ export interface VideoPlayerProps {
   onExpired?: () => void;
   /** 페이지가 만든 조작 창구. 주지 않으면 플레이어가 자기 것을 만든다. */
   controller?: PlayerController;
-  /** 영상 위에 겹쳐 그릴 층(SPEC-032 오버레이·클릭 조회) */
+  /**
+   * 영상 위에 겹쳐 그릴 층(SPEC-032 오버레이·클릭 조회·구역 편집). 레터박스를 뺀 표시 영역에 놓이고(R-14),
+   * 층 안에서는 `usePlayerLayer`로 좌표를 바꾼다. 층은 기본으로 클릭을 받지 않으므로 받을 요소만 `pointer-events-auto`를 단다.
+   */
   overlay?: ReactNode;
   /** 진행 막대 위 표시(SPEC-031 R-4) */
   markers?: readonly TimelineMarker[];
@@ -48,6 +54,8 @@ export function VideoPlayer({
   // 새 주소로 바꾼 뒤 되돌릴 재생 위치. 화면에 그리는 값이 아니라 ref에 둔다.
   const resumeRef = useRef<{ time: number; playing: boolean } | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
+  const contentRect = useVideoContentRect(videoElement);
   const [refreshed, setRefreshed] = useState(false);
   const [unsupported, setUnsupported] = useState(false);
 
@@ -80,9 +88,14 @@ export function VideoPlayer({
     }
   };
 
-  const attachVideo = (element: HTMLVideoElement | null) => {
-    player.attach(element);
-  };
+  // ref 함수가 렌더마다 바뀌면 React가 null→요소를 다시 넘겨 상태가 바뀌고 다시 렌더하므로 함수를 고정한다.
+  const attachVideo = useCallback(
+    (element: HTMLVideoElement | null) => {
+      player.attach(element);
+      setVideoElement(element);
+    },
+    [player],
+  );
 
   const download =
     downloadUrl === undefined ? null : (
@@ -116,7 +129,22 @@ export function VideoPlayer({
           onLoadedMetadata={handleLoadedMetadata}
           className="max-h-[70vh] w-full rounded-xl bg-black"
         />
-        {overlay}
+        {overlay !== undefined && videoElement !== null && contentRect !== null && (
+          <PlayerLayerContext value={createLayer(videoElement, contentRect)}>
+            <div
+              className="pointer-events-none absolute overflow-hidden"
+              // 표시 영역은 런타임에 계산한 값이라 style로 둔다(AGENTS.md 스타일 예외).
+              style={{
+                left: videoElement.offsetLeft + contentRect.left,
+                top: videoElement.offsetTop + contentRect.top,
+                width: contentRect.width,
+                height: contentRect.height,
+              }}
+            >
+              {overlay}
+            </div>
+          </PlayerLayerContext>
+        )}
         <PlayerControls
           controller={player}
           markers={markers}
@@ -130,4 +158,25 @@ export function VideoPlayer({
       {download}
     </div>
   );
+}
+
+function createLayer(video: HTMLVideoElement, rect: ContentRect): PlayerLayer {
+  const offset = (clientX: number, clientY: number) => {
+    const box = video.getBoundingClientRect();
+    return { x: clientX - box.left, y: clientY - box.top };
+  };
+  return {
+    rect,
+    toFramePoint: (clientX, clientY) => {
+      const point = offset(clientX, clientY);
+      return toFramePoint(rect, point.x, point.y);
+    },
+    toClampedFramePoint: (clientX, clientY) => {
+      const point = offset(clientX, clientY);
+      return {
+        x: clampUnit((point.x - rect.left) / rect.width),
+        y: clampUnit((point.y - rect.top) / rect.height),
+      };
+    },
+  };
 }

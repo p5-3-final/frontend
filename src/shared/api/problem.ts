@@ -12,6 +12,8 @@ export class ApiError extends Error {
     readonly code: string | undefined,
     readonly fieldErrors: FieldError[] = [],
     readonly traceId?: string,
+    /** ProblemDetail `detail`. 서버가 위반 이유를 사람이 읽을 문장으로 줄 때 쓴다(SPEC-032 R-12). */
+    readonly detail?: string,
   ) {
     super(`API request failed with status ${String(status)}`);
     this.name = "ApiError";
@@ -22,6 +24,7 @@ export class ApiError extends Error {
 const problemSchema = z.object({
   code: z.string(),
   traceId: z.string().optional(),
+  detail: z.string().optional(),
   errors: z.array(z.object({ field: z.string(), message: z.string() })).optional(),
 });
 
@@ -37,5 +40,6 @@ export async function toApiError(response: Response): Promise<ApiError> {
     problem.data.code,
     problem.data.errors ?? [],
     problem.data.traceId,
+    problem.data.detail,
   );
 }

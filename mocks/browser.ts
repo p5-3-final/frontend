@@ -9,12 +9,16 @@ import {
   notAnalyzedSummaryBody,
   sourceSummaryBody,
 } from "./analysis";
+import { INSPECT_REQUEST_ID, INSPECT_TRACK_ID } from "./inspect";
 import {
   jobStatusBody,
   NOTIFY_STREAM_API,
   SSE_TICKET_API,
   sourceCompletedBody,
+  trackAnalyzedBody,
+  type NotificationBody,
 } from "./notifications";
+import { cameraZoneHandlers } from "./cameraZones";
 import { groundingCompletedBody, momentSearchBody, SEARCH_API, searchHandlers } from "./search";
 import { qualityHandlers } from "./quality";
 import { streamHandlers } from "./stream";
@@ -25,12 +29,42 @@ const analyzed = new Set<string>();
 // SPEC-033 시연: 영상 안 검색 결과 중 주석을 요청한 것은 다음 알림 주기에 READY로 끝난다.
 let pendingGroundings = new Map<string, string>();
 let started = new Set<string>();
+// SPEC-032 시연: 클릭 조회·질문을 받으면 다음 알림 주기에 track.analyzed를 보낸다.
+let pendingTrackEvents: NotificationBody[] = [];
+let lastInspectedSource = "";
+let questionCount = 0;
 
 function sse(type: string, id: number, body: unknown): string {
   return `id: ${String(id)}\nevent: ${type}\ndata: ${JSON.stringify(body)}\n\n`;
 }
 
 const demoHandlers = [
+  // 응답은 뒤의 기본 핸들러가 준다. 여기서는 알림만 예약한다(아무것도 돌려주지 않으면 다음 핸들러로 넘어간다).
+  http.get(`${ANALYSIS_API}/sources/:sourceId/inspect`, ({ params }) => {
+    lastInspectedSource = String(params.sourceId);
+    pendingTrackEvents = [
+      ...pendingTrackEvents,
+      trackAnalyzedBody(String(params.sourceId), {
+        requestId: INSPECT_REQUEST_ID,
+        trackId: INSPECT_TRACK_ID,
+        reason: "click",
+      }),
+    ];
+  }),
+  // 질문마다 다른 requestId를 준다. 결과 조회는 기본 핸들러가 받은 requestId를 그대로 돌려준다.
+  http.post(`${ANALYSIS_API}/tracks/:trackId/ask`, () => {
+    questionCount++;
+    const requestId = `0192f210-0000-7000-8000-${String(questionCount).padStart(12, "0")}`;
+    pendingTrackEvents = [
+      ...pendingTrackEvents,
+      trackAnalyzedBody(lastInspectedSource, {
+        requestId,
+        trackId: INSPECT_TRACK_ID,
+        reason: "question",
+      }),
+    ];
+    return HttpResponse.json({ requestId, status: "REQUESTED" }, { status: 202 });
+  }),
   http.get(`${SEARCH_API}/sources/:sourceId/moments`, ({ params, request }) => {
     const sourceId = String(params.sourceId);
     const body = momentSearchBody({ query: new URL(request.url).searchParams.get("q") ?? "" });
@@ -62,6 +96,11 @@ const demoHandlers = [
         controller.enqueue(encoder.encode(": connected\n\n"));
         const progress = new Map<string, number>();
         timer = setInterval(() => {
+          for (const message of pendingTrackEvents) {
+            id++;
+            controller.enqueue(encoder.encode(sse(message.type, id, message)));
+          }
+          pendingTrackEvents = [];
           for (const [groundingId, sourceId] of pendingGroundings) {
             id++;
             controller.enqueue(
@@ -121,6 +160,7 @@ export const worker = setupWorker(
   ...demoHandlers,
   ...analysisHandlers(),
   ...streamHandlers(),
+  ...cameraZoneHandlers(),
   ...searchHandlers(),
   ...qualityHandlers({ advanceOnRead: true }),
 );
