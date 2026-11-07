@@ -4,6 +4,8 @@ import { videoDetailPath } from "../../upload";
 import type { SearchJumpState } from "../model/jumpState";
 import { formatMatchedBy, formatRange, formatSimilarity } from "../model/format";
 import type { MomentResult } from "../model/schemas";
+import { useMomentFeedback } from "../api/useMomentFeedback";
+import { FeedbackButtons } from "./FeedbackButtons";
 import { GroundingSlot } from "./GroundingSlot";
 
 export interface MomentResultItemProps {
@@ -17,6 +19,7 @@ export function MomentResultItem({ moment, videoName }: MomentResultItemProps) {
   const range = formatRange(moment.startMs, moment.endMs);
   // 영상 상세가 재생 시간을 이 결과로 기록한다(SPEC-033 R-11).
   const jumpState: SearchJumpState = { searchMomentId: moment.momentId };
+  const feedback = useMomentFeedback();
   return (
     <li className="flex gap-3 rounded-lg border border-line bg-panel-raised p-3">
       {moment.thumbnailUrl === null ? (
@@ -48,11 +51,15 @@ export function MomentResultItem({ moment, videoName }: MomentResultItemProps) {
         <Link
           to={videoDetailPath(moment.sourceId, { seekMs: moment.seekMs })}
           state={jumpState}
+          onClick={() => {
+            feedback.send(moment.momentId, "jumped");
+          }}
           aria-label={`${range} 장면 보기`}
           className="inline-flex items-center gap-1 self-start font-semibold text-accent hover:text-accent-strong focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
         >
           <Play aria-hidden="true" className="size-4" />이 장면 보기
         </Link>
+        <FeedbackButtons momentId={moment.momentId} />
       </div>
     </li>
   );

@@ -1,6 +1,13 @@
 import { http, HttpResponse } from "msw";
+import { z } from "zod";
 import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../mocks/handlers";
-import { SEARCH_SOURCE_ID, searchHandlers, type SearchFixture } from "../mocks/search";
+import {
+  SEARCH_API,
+  SEARCH_SOURCE_ID,
+  searchHandlers,
+  type FeedbackRequestBody,
+  type SearchFixture,
+} from "../mocks/search";
 import { startSession } from "../src/shared/api/session";
 import { recordRequests } from "./analysisDetail";
 import { renderRoute } from "./render";
@@ -61,3 +68,22 @@ export function searchRequests(requests: readonly URL[]) {
     .filter((url) => url.pathname.startsWith("/api/v1/search"))
     .map((url) => `${url.pathname}${url.search}`);
 }
+
+/** search-service로 보낸 기록(sendMomentFeedback)을 모은다. 핸들러는 renderSearch의 extra로 넘긴다. */
+export function feedbackRecorder() {
+  const sent: { momentId: string; kind: string; playedMs: number | null | undefined }[] = [];
+  const handler = http.post(
+    `${SEARCH_API}/moments/:momentId/feedback`,
+    async ({ request, params }) => {
+      const body = feedbackSchema.parse(await request.json());
+      sent.push({ momentId: String(params.momentId), kind: body.kind, playedMs: body.playedMs });
+      return new HttpResponse(null, { status: 204 });
+    },
+  );
+  return { sent, handler };
+}
+
+const feedbackSchema = z.object({
+  kind: z.enum(["jumped", "played", "correct", "incorrect"]),
+  playedMs: z.number().nullable().optional(),
+}) satisfies z.ZodType<FeedbackRequestBody>;

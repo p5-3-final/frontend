@@ -82,7 +82,8 @@ describe("ImageSearchInput", () => {
 
     expect(await screen.findByRole("list", { name: "검색 결과" })).toBeVisible();
     expect(searchByImage).toHaveBeenCalledTimes(1);
-    expect(searchRequests(requests)).toEqual([]);
+    // 이동 기록(feedback) 말고는 search-service를 다시 부르지 않는다.
+    expect(searchRequests(requests).filter((path) => !path.endsWith("/feedback"))).toEqual([]);
     stopRecording();
   });
 

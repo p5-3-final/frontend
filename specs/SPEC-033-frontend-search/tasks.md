@@ -47,7 +47,7 @@ updated: 2026-11-06
 
 ## Phase 6: US-5 맞음·틀림 (P2)
 
-- [ ] T014 [R-11] 이동 `jumped`, 5초 넘게 재생 `played`(재생 길이), 맞음·틀림을 결과마다 한 번씩 기록 — 테스트 `S/components/FeedbackButtons.test.tsx`, `S/hooks/usePlayedFeedback.test.tsx`, `src/pages/SearchFlow.test.tsx`, 구현 `S/components/FeedbackButtons.tsx`, `S/hooks/usePlayedFeedback.ts`, `S/api/useMomentFeedback.ts`
+- [x] T014 [R-11] 이동 `jumped`, 5초 넘게 재생 `played`(재생 길이), 맞음·틀림을 결과마다 한 번씩 기록 — 테스트 `S/components/FeedbackButtons.test.tsx`, `S/hooks/usePlayedFeedback.test.tsx`, `src/pages/SearchFlow.test.tsx`, 구현 `S/components/FeedbackButtons.tsx`, `S/hooks/usePlayedFeedback.ts`, `S/api/useMomentFeedback.ts`
 
 ## Phase 7: 마무리
 
