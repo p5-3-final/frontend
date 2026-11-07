@@ -2,6 +2,7 @@ import { Button } from "../../../shared/ui/Button";
 import { useVideoInspect } from "../hooks/useVideoInspect";
 import { SOURCE_ZONE_KINDS } from "../model/inspectSchemas";
 import { AnalysisError } from "./AnalysisError";
+import { FrameTrackList } from "./FrameTrackList";
 import { InspectResults } from "./InspectResults";
 import { ZoneEditorPanel } from "./ZoneEditorPanel";
 
@@ -29,6 +30,7 @@ export function VideoInspectPanel() {
           </>
         )}
       </div>
+      {inspect.overlayOn && !inspect.editingZones && <FrameTrackList />}
       {inspect.editingZones ? <ZoneSection /> : <InspectSection />}
     </div>
   );
