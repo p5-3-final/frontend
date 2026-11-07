@@ -8,6 +8,7 @@ import {
   RequireOperator,
   ReviewDetail,
   ReviewQueue,
+  StagesView,
 } from "../features/quality";
 
 /**
@@ -26,6 +27,7 @@ export function QualityPage() {
           <Route path="golden-sets/:setId" element={<GoldenSetDetail />} />
           <Route path="runs" element={<EvaluationRunList />} />
           <Route path="runs/:runId" element={<EvaluationRunDetail />} />
+          <Route path="stages" element={<StagesView />} />
           <Route path="*" element={<Navigate to="/quality/review" replace />} />
         </Routes>
       </div>

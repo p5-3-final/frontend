@@ -46,8 +46,8 @@ updated: 2026-11-07
 
 ## Phase 5: US-4 처리 단계 지연 보기 (P2)
 
-- [ ] T016 [R-14] 영상 ID로 단계 분해 표(합계 내림차순), 404면 "측정 기록 없음(90일 보존)" — 테스트 `Q/components/stages/SourceStageReport.test.tsx`, 구현 `Q/components/stages/SourceStageReport.tsx`, `Q/api/useSourceStageReport.ts`
-- [ ] T017 [R-15] 단계·기간·버전 키·값으로 추이를 조회해 날짜별 p50·p95 선 그래프(SVG)와 표, 90일을 넘으면 요청 없이 이유 — 테스트 `Q/model/chartScale.test.ts`, `Q/model/trendQuery.test.ts`, `Q/components/stages/StageTrend.test.tsx`, 구현 `Q/model/{chartScale,trendQuery}.ts`, `Q/components/stages/{StageTrend,TrendChart}.tsx`, `Q/api/useStageTrend.ts`
+- [x] T016 [R-14] 영상 ID로 단계 분해 표(합계 내림차순), 404면 "측정 기록 없음(90일 보존)" — 테스트 `Q/components/stages/SourceStageReport.test.tsx`, 구현 `Q/components/stages/SourceStageReport.tsx`, `Q/api/useSourceStageReport.ts`
+- [x] T017 [R-15] 단계·기간·버전 키·값으로 추이를 조회해 날짜별 p50·p95 선 그래프(SVG)와 표, 90일을 넘으면 요청 없이 이유 — 테스트 `Q/model/chartScale.test.ts`, `Q/model/trendQuery.test.ts`, `Q/components/stages/StageTrend.test.tsx`, 구현 `Q/model/{chartScale,trendQuery}.ts`, `Q/components/stages/{StageTrend,TrendChart}.tsx`, `Q/api/useStageTrend.ts`
 
 ## Phase 6: US-5 데이터셋 가져오기 (P2)
 
@@ -65,7 +65,7 @@ updated: 2026-11-07
 ## Phase 7: v5.1 추가(계약 묶음 4.0.0)
 
 - [x] T025 [R-21] `reviewReason`(열린 목록·이름·안내), 검토 큐 사유 필터, 상세의 재분석 안내 — 테스트 `reviewReason.test.ts`, `ReviewFilters.test.tsx`, `ReviewDetail.test.tsx`, 구현 `Q/model/reviewReason.ts`, `Q/components/review/ReviewFilters.tsx`, `Q/components/review/ReviewDetail.tsx`, `src/shared/lib/messages.ts`
-- [ ] T026 [R-22] `useAlertReport`와 처리 단계 탭의 긴급 알림 지표(p50·p95·dismissed 비율·미해결) — 테스트 `AlertReportPanel.test.tsx`, 구현 `Q/api/useAlertReport.ts`, `Q/components/stages/AlertReportPanel.tsx`, `mocks/quality.ts`
+- [x] T026 [R-22] `useAlertReport`와 처리 단계 탭의 긴급 알림 지표(p50·p95·dismissed 비율·미해결) — 테스트 `AlertReportPanel.test.tsx`, 구현 `Q/api/useAlertReport.ts`, `Q/components/stages/AlertReportPanel.tsx`, `mocks/quality.ts`
 
 ## 완료 조건 (Definition of Done)
 
