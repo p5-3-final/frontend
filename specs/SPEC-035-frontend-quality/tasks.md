@@ -40,9 +40,9 @@ updated: 2026-11-07
 
 ## Phase 4: US-3 Gate 실패 원인 보기 (P1)
 
-- [ ] T013 [R-12] 평가 실행 목록: 받은 시각 내림차순, Golden Set·버전·종류·트리거·Gate 결과(통과·실패·기준 없음), Golden Set 거르기 — 테스트 `Q/components/runs/EvaluationRunList.test.tsx`, 구현 `Q/components/runs/EvaluationRunList.tsx`, `Q/api/useEvaluationRuns.ts`
-- [ ] T014 [R-13] 평가 실행 상세: 버전 정보, Gate 결과, 실패 지표(이름·유형·기준값·실행값·차이)를 맨 위 강조, 그 아래 전체 지표를 이름·유형 순 — 테스트 `Q/model/gate.test.ts`, `Q/components/runs/EvaluationRunDetail.test.tsx`, 구현 `Q/model/gate.ts`, `Q/components/runs/EvaluationRunDetail.tsx`, `Q/api/useEvaluationRun.ts`
-- [ ] T015 [R-11] "기준으로 지정"으로 그 실행의 Golden Set 기준 실행을 바꾸고, 409면 다른 세트의 실행이라는 안내 — 테스트 `EvaluationRunDetail.test.tsx`, 구현 `Q/api/useSetBaseline.ts`, `EvaluationRunDetail.tsx`
+- [x] T013 [R-12] 평가 실행 목록: 받은 시각 내림차순, Golden Set·버전·종류·트리거·Gate 결과(통과·실패·기준 없음), Golden Set 거르기 — 테스트 `Q/components/runs/EvaluationRunList.test.tsx`, 구현 `Q/components/runs/EvaluationRunList.tsx`, `Q/api/useEvaluationRuns.ts`
+- [x] T014 [R-13] 평가 실행 상세: 버전 정보, Gate 결과, 실패 지표(이름·유형·기준값·실행값·차이)를 맨 위 강조, 그 아래 전체 지표를 이름·유형 순 — 테스트 `Q/model/gate.test.ts`, `Q/components/runs/EvaluationRunDetail.test.tsx`, 구현 `Q/model/gate.ts`, `Q/components/runs/EvaluationRunDetail.tsx`, `Q/api/useEvaluationRun.ts`
+- [x] T015 [R-11] "기준으로 지정"으로 그 실행의 Golden Set 기준 실행을 바꾸고, 409면 다른 세트의 실행이라는 안내 — 테스트 `EvaluationRunDetail.test.tsx`, 구현 `Q/api/useSetBaseline.ts`, `EvaluationRunDetail.tsx`
 
 ## Phase 5: US-4 처리 단계 지연 보기 (P2)
 

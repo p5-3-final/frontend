@@ -4,3 +4,5 @@ export { ReviewDetail } from "./components/review/ReviewDetail";
 export { ReviewQueue } from "./components/review/ReviewQueue";
 export { GoldenSetDetail } from "./components/golden/GoldenSetDetail";
 export { GoldenSetList } from "./components/golden/GoldenSetList";
+export { EvaluationRunDetail } from "./components/runs/EvaluationRunDetail";
+export { EvaluationRunList } from "./components/runs/EvaluationRunList";

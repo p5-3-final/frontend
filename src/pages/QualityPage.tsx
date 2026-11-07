@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from "react-router";
 import {
+  EvaluationRunDetail,
+  EvaluationRunList,
   GoldenSetDetail,
   GoldenSetList,
   QualityTabs,
@@ -22,6 +24,8 @@ export function QualityPage() {
           <Route path="review/:itemId" element={<ReviewDetail />} />
           <Route path="golden-sets" element={<GoldenSetList />} />
           <Route path="golden-sets/:setId" element={<GoldenSetDetail />} />
+          <Route path="runs" element={<EvaluationRunList />} />
+          <Route path="runs/:runId" element={<EvaluationRunDetail />} />
           <Route path="*" element={<Navigate to="/quality/review" replace />} />
         </Routes>
       </div>
