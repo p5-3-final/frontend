@@ -5,6 +5,7 @@ import { renderAnalysisDetail } from "../../tests/analysisDetail";
 import { readyPlayer } from "../../tests/inspect";
 import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../../mocks/handlers";
 import { http, HttpResponse } from "msw";
+import { retainedVideoBody, retentionHandlers, sessionHandlers } from "../../mocks/media";
 import { renderRoute } from "../../tests/render";
 import { renderSearch } from "../../tests/searchScreen";
 import { server } from "../../tests/server";
@@ -173,6 +174,45 @@ describe("키보드 조작", () => {
     await user.keyboard("{Enter}");
 
     expect(video.currentTime).toBe(100);
+  });
+
+  it("[SPEC-034 T017] 업로드 화면의 세션 고르기와 역할 고르기를 Tab과 방향키로 쓴다", async () => {
+    server.use(handlers.me(), ...sessionHandlers(), ...mediaHandlers());
+    startSession("access-1");
+    const { user } = renderRoute("/analysis?sessionId=0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f");
+    const select = await screen.findByRole("combobox", { name: "작업 세션" });
+    await within(select).findByRole("option", { name: "3번 라인 방호벽 교체" });
+
+    // jsdom은 Tailwind의 hidden(display: none)을 모르므로 숨긴 파일 입력 다음인 고르기에서 시작한다.
+    select.focus();
+    await user.tab();
+    const before = screen.getByRole("radio", { name: "작업 전" });
+    expect(before).toHaveFocus();
+    await user.keyboard(" ");
+    expect(before).toBeChecked();
+    await user.keyboard("{ArrowRight}");
+
+    expect(screen.getByRole("radio", { name: "작업 중" })).toBeChecked();
+  });
+
+  it("[SPEC-034 T017] 보존 철회를 Enter로 열고 확인 창의 철회까지 키보드로 누른다", async () => {
+    const videoId = "0192f0d2-0000-7000-8000-000000000001";
+    server.use(handlers.me(), ...retentionHandlers({ retained: [retainedVideoBody({ videoId })] }));
+    startSession("access-1");
+    const { user } = renderRoute("/settings");
+    const revoke = await screen.findByRole("button", { name: `${videoId} 철회` });
+
+    revoke.focus();
+    await user.keyboard("{Enter}");
+    const dialog = await screen.findByRole("dialog", { name: "학습용 보존 철회" });
+    const confirm = within(dialog).getByRole("button", { name: "철회" });
+    for (let step = 0; step < 10 && !confirm.matches(":focus"); step++) {
+      await user.tab();
+    }
+    expect(confirm).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByText("보존 중인 삭제 영상이 없습니다.")).toBeVisible();
   });
 
   it("[SPEC-033 R-1] [SPEC-033 R-11] 키보드만으로 검색하고 결과를 틀림으로 표시한 뒤 그 장면으로 간다", async () => {

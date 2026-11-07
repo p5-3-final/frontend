@@ -48,6 +48,14 @@ describe("messageForCode", () => {
   });
 
   it.each([
+    ["MEDIA_SESSION_NOT_FOUND", "세션을 찾을 수 없습니다."],
+    ["MEDIA_SESSION_FULL", "세션에는 영상을 100개까지 넣을 수 있습니다."],
+    ["MEDIA_RETAINED_VIDEO_NOT_FOUND", "이미 철회했거나 보존 기간이 끝난 영상입니다."],
+  ])("[SPEC-034 R-12] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
+  it.each([
     ["QUALITY_FORBIDDEN", "이 화면을 볼 권한이 없습니다."],
     ["QUALITY_REVIEW_ALREADY_ASSIGNED", "이미 다른 사람이 맡았습니다."],
     ["QUALITY_REVIEW_ALREADY_LABELED", "이미 라벨된 항목입니다."],

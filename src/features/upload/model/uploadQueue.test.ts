@@ -111,3 +111,71 @@ describe("uploadQueue", () => {
     expect(getUploads()).toEqual([]);
   });
 });
+
+describe("uploadQueue 작업 세션", () => {
+  it("[SPEC-034 R-6] 업로드 대상(세션·역할)을 주면 업로드 자리 요청에 sessionId·role을 싣는다", async () => {
+    // server.use는 앞에 넣으므로 기록 핸들러를 기본 media 응답 뒤에 등록한다.
+    mediaServer();
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(MEDIA_API, async ({ request }) => {
+        bodies.push(await request.clone().json());
+        return undefined;
+      }),
+    );
+    const target = { sessionId: "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f", role: "AFTER" } as const;
+
+    addFiles([fileOf("a.mp4"), fileOf("b.mov")], target);
+    await vi.waitFor(() => {
+      expect(getUploads().every((item) => item.status === "done")).toBe(true);
+    });
+
+    expect(bodies).toEqual([
+      expect.objectContaining({ fileName: "a.mp4", ...target }),
+      expect.objectContaining({ fileName: "b.mov", ...target }),
+    ]);
+  });
+
+  it("[SPEC-034 R-6] 대상이 없으면 sessionId·role을 보내지 않는다", async () => {
+    // server.use는 앞에 넣으므로 기록 핸들러를 기본 media 응답 뒤에 등록한다.
+    mediaServer();
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(MEDIA_API, async ({ request }) => {
+        bodies.push(await request.clone().json());
+        return undefined;
+      }),
+    );
+
+    addFiles([fileOf("a.mp4")]);
+    await vi.waitFor(() => {
+      expect(getUploads()[0]?.status).toBe("done");
+    });
+
+    expect(bodies[0]).not.toHaveProperty("sessionId");
+    expect(bodies[0]).not.toHaveProperty("role");
+  });
+
+  it("[SPEC-034 R-6] 세션이 가득 차면(MEDIA_SESSION_FULL) 그 파일은 실패로 끝나고 이유를 보인다", async () => {
+    server.use(
+      http.post(MEDIA_API, () =>
+        HttpResponse.json(
+          { type: "about:blank", title: "Conflict", status: 409, code: "MEDIA_SESSION_FULL" },
+          { status: 409 },
+        ),
+      ),
+    );
+
+    addFiles([fileOf("a.mp4")], {
+      sessionId: "0192f0e0-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+      role: "BEFORE",
+    });
+
+    await vi.waitFor(() => {
+      expect(getUploads()[0]).toMatchObject({
+        status: "failed",
+        message: "세션에는 영상을 100개까지 넣을 수 있습니다.",
+      });
+    });
+  });
+});

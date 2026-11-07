@@ -150,3 +150,117 @@ export function streamHandlers(fixture: StreamFixture = {}) {
     ),
   ];
 }
+
+// ── SPEC-034 카메라·세션 관리(계약 stream-service.yaml 카메라 API 예시) ──
+export type CameraBody = Schemas["Camera"];
+export const CAMERA_ID = "0192fb00-0000-7000-8000-000000000020";
+
+export function cameraBody(overrides: Partial<CameraBody> = {}): CameraBody {
+  return {
+    cameraId: CAMERA_ID,
+    ownerId: "27e8fd1d-d3ae-42f2-bb55-ff6f9c8661dc",
+    name: "A동 크레인",
+    rtspSecretRef: "cameras/a-dong-crane/rtsp",
+    profileVersion: "ingest-default@1",
+    status: "LIVE",
+    activeSessionId: STREAM_SESSION_ID,
+    createdAt: "2026-11-06T09:00:00Z",
+    ...overrides,
+  };
+}
+
+export interface CameraFixture {
+  cameras?: CameraBody[];
+  /** 카메라별 세션 이력(최근 것부터) */
+  sessions?: SessionBody[];
+}
+
+/**
+ * 카메라 API. 등록·start·stop이 바꾼 값은 다음 조회에도 보인다.
+ * 활성 세션이 있는 카메라에 start하면 계약대로 409 `STREAM_SESSION_ALREADY_ACTIVE`, 열려 있지 않은 세션을 stop하면 409 `STREAM_SESSION_NOT_LIVE`다.
+ */
+export function cameraHandlers(fixture: CameraFixture = {}) {
+  let cameras = fixture.cameras ?? [cameraBody()];
+  let sessions = fixture.sessions ?? [sessionBody()];
+  let started = 0;
+  const findCamera = (cameraId: unknown) => cameras.find((camera) => camera.cameraId === cameraId);
+  const replaceCamera = (camera: CameraBody) => {
+    cameras = cameras.map((item) => (item.cameraId === camera.cameraId ? camera : item));
+  };
+  return [
+    http.get(`${STREAM_API}/cameras`, ({ request }) =>
+      HttpResponse.json(pageOf(cameras, new URL(request.url))),
+    ),
+    http.post(`${STREAM_API}/cameras`, async ({ request }) => {
+      const body: unknown = await request.json();
+      if (
+        typeof body !== "object" ||
+        body === null ||
+        !("name" in body) ||
+        !("rtspSecretRef" in body) ||
+        !("profileVersion" in body)
+      ) {
+        return problem(400, "STREAM_INVALID_REQUEST");
+      }
+      const camera = cameraBody({
+        cameraId: `0192fb00-0000-7000-8000-${String(cameras.length + 100).padStart(12, "0")}`,
+        name: String(body.name),
+        rtspSecretRef: String(body.rtspSecretRef),
+        profileVersion: String(body.profileVersion),
+        status: "IDLE",
+        activeSessionId: null,
+      });
+      cameras = [...cameras, camera];
+      return HttpResponse.json(camera, { status: 201 });
+    }),
+    http.get(`${STREAM_API}/cameras/:cameraId`, ({ params }) => {
+      const camera = findCamera(params.cameraId);
+      return camera === undefined ? problem(404, "STREAM_NOT_FOUND") : HttpResponse.json(camera);
+    }),
+    http.get(`${STREAM_API}/cameras/:cameraId/sessions`, ({ params, request }) =>
+      HttpResponse.json(
+        pageOf(
+          sessions.filter((session) => session.cameraId === params.cameraId),
+          new URL(request.url),
+        ),
+      ),
+    ),
+    http.post(`${STREAM_API}/cameras/:cameraId/sessions`, ({ params }) => {
+      const camera = findCamera(params.cameraId);
+      if (camera === undefined) {
+        return problem(404, "STREAM_NOT_FOUND");
+      }
+      if (camera.activeSessionId !== null) {
+        return problem(409, "STREAM_SESSION_ALREADY_ACTIVE");
+      }
+      started++;
+      const id = `0192fb00-0000-7000-8000-${String(started + 200).padStart(12, "0")}`;
+      const session = sessionBody({
+        sessionId: id,
+        sourceId: id,
+        cameraId: camera.cameraId,
+        status: "STARTING",
+        startedAt: "2026-11-07T10:00:00Z",
+      });
+      sessions = [session, ...sessions];
+      replaceCamera({ ...camera, status: "STARTING", activeSessionId: id });
+      return HttpResponse.json(session, { status: 201 });
+    }),
+    http.delete(`${STREAM_API}/sessions/:sessionId`, ({ params }) => {
+      const session = sessions.find((item) => item.sessionId === params.sessionId);
+      if (session === undefined) {
+        return problem(404, "STREAM_NOT_FOUND");
+      }
+      if (session.status === "STOPPING" || session.status === "CLOSED") {
+        return problem(409, "STREAM_SESSION_NOT_LIVE");
+      }
+      const stopping = { ...session, status: "STOPPING" as const };
+      sessions = sessions.map((item) => (item.sessionId === session.sessionId ? stopping : item));
+      const camera = findCamera(session.cameraId);
+      if (camera !== undefined) {
+        replaceCamera({ ...camera, status: "STOPPING" });
+      }
+      return HttpResponse.json(stopping, { status: 202 });
+    }),
+  ];
+}

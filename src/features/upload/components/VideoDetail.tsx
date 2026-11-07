@@ -16,6 +16,7 @@ import type { Video } from "../model/schemas";
 import { isPlayable, NOT_PLAYABLE_REASONS, VIDEO_STATUS_NAMES } from "../model/videoStatus";
 import { DeleteVideoDialog } from "./DeleteVideoDialog";
 import { OriginalPlayer } from "./OriginalPlayer";
+import { RetentionConsentToggle } from "./RetentionConsentToggle";
 
 export interface VideoDetailProps {
   videoId: string;
@@ -116,6 +117,7 @@ function VideoDetailBody({
       )}
       {children}
       <VideoFacts video={video} />
+      <RetentionConsentToggle video={video} />
       {deleting && (
         <DeleteVideoDialog
           video={video}

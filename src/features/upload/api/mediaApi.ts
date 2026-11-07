@@ -48,3 +48,11 @@ export function getVideoPlayback(videoId: string) {
 export function deleteVideo(videoId: string) {
   return apiRequestNoContent(`${VIDEOS}/${videoId}`, { method: "DELETE" });
 }
+
+/** 영상의 학습용 보존 동의 바꾸기(operationId updateVideoRetentionConsent). 소유자만 바꿀 수 있다. */
+export function updateVideoRetentionConsent(videoId: string, consent: boolean) {
+  return apiRequest(`${VIDEOS}/${videoId}/retention-consent`, videoSchema, {
+    method: "PUT",
+    body: { consent },
+  });
+}

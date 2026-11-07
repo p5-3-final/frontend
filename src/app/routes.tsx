@@ -3,6 +3,8 @@ import { GuestOnly, HOME_PATH, RequireAuth } from "../features/auth";
 import { AppLayout } from "./layout/AppLayout";
 import { MAIN_MENU, SETTINGS_MENU } from "./layout/menu";
 import { ANALYSIS_ROUTES } from "./featureRoutes/analysisRoutes";
+import { SESSIONS_ROUTES } from "./featureRoutes/sessionsRoutes";
+import { SETTINGS_ROUTES } from "./featureRoutes/settingsRoutes";
 import { SEARCH_ROUTES } from "./featureRoutes/searchRoutes";
 import { STREAM_ROUTES } from "./featureRoutes/streamRoutes";
 import { QUALITY_ROUTES } from "./featureRoutes/qualityRoutes";
@@ -14,6 +16,8 @@ import { QUALITY_ROUTES } from "./featureRoutes/qualityRoutes";
 const FEATURE_ROUTES: RouteObject[] = [
   ...ANALYSIS_ROUTES,
   ...STREAM_ROUTES,
+  ...SESSIONS_ROUTES,
+  ...SETTINGS_ROUTES,
   ...SEARCH_ROUTES,
   ...QUALITY_ROUTES,
 ];

@@ -13,7 +13,7 @@ const STORAGE_CORS = {
 const SINGLE_MAX_BYTES = 100;
 const PART_SIZE_BYTES = 50;
 
-interface FakeVideo {
+export interface FakeVideo {
   id: string;
   ownerId: string;
   fileName: string;
@@ -24,6 +24,14 @@ interface FakeVideo {
   uploadedAt: string | null;
   session: { sessionId: string; role: "BEFORE" | "DURING" | "AFTER" } | null;
   retentionConsent: boolean;
+}
+
+const ROLES = ["BEFORE", "DURING", "AFTER"] as const;
+
+// SPEC-034 R-6: 세션·역할을 함께 보내면 그 세션에 넣는다.
+function sessionOf(sessionId: unknown, role: unknown): FakeVideo["session"] {
+  const known = ROLES.find((candidate) => candidate === role);
+  return typeof sessionId === "string" && known !== undefined ? { sessionId, role: known } : null;
 }
 
 /**
@@ -105,7 +113,7 @@ export async function useFakeMedia(page: Page) {
         status: "UPLOADING",
         createdAt: new Date(Date.UTC(2026, 10, 3, 0, nextId)).toISOString(),
         uploadedAt: null,
-        session: null,
+        session: sessionOf(input.sessionId, input.role),
         retentionConsent: false,
       };
       videos.push(video);
@@ -176,5 +184,5 @@ export async function useFakeMedia(page: Page) {
     await route.fulfill({ status: 405 });
   });
 
-  return { storage };
+  return { storage, videos };
 }
