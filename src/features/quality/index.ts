@@ -7,3 +7,5 @@ export { GoldenSetList } from "./components/golden/GoldenSetList";
 export { EvaluationRunDetail } from "./components/runs/EvaluationRunDetail";
 export { EvaluationRunList } from "./components/runs/EvaluationRunList";
 export { StagesView } from "./components/stages/StagesView";
+export { DatasetImportDetail } from "./components/datasets/DatasetImportDetail";
+export { DatasetsView } from "./components/datasets/DatasetsView";

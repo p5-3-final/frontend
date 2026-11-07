@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from "react-router";
 import {
+  DatasetImportDetail,
+  DatasetsView,
   EvaluationRunDetail,
   EvaluationRunList,
   GoldenSetDetail,
@@ -28,6 +30,8 @@ export function QualityPage() {
           <Route path="runs" element={<EvaluationRunList />} />
           <Route path="runs/:runId" element={<EvaluationRunDetail />} />
           <Route path="stages" element={<StagesView />} />
+          <Route path="datasets" element={<DatasetsView />} />
+          <Route path="datasets/imports/:importId" element={<DatasetImportDetail />} />
           <Route path="*" element={<Navigate to="/quality/review" replace />} />
         </Routes>
       </div>

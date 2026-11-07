@@ -51,10 +51,10 @@ updated: 2026-11-07
 
 ## Phase 6: US-5 데이터셋 가져오기 (P2)
 
-- [ ] T018 [R-16] 매니페스트 경로·평가 비율·분할 시드로 가져오기 시작, 409면 "같은 매니페스트를 가져오는 중" — 테스트 `Q/components/datasets/CreateImportForm.test.tsx`, 구현 `Q/components/datasets/CreateImportForm.tsx`, `Q/model/importSchema.ts`, `Q/api/useCreateDatasetImport.ts`
-- [ ] T019 [R-17] 진행 중인 가져오기·내보내기가 있으면 5초마다 다시 불러오고, 끝나면 멈춤 — 테스트 `Q/model/polling.test.ts`, `Q/components/datasets/DatasetImports.test.tsx`(가짜 타이머), 구현 `Q/model/polling.ts`, `Q/components/datasets/DatasetImports.tsx`, `Q/api/{useDatasetImports,useFeatureExport}.ts`
-- [ ] T020 [R-18] 가져오기 상세: 상태, 개수, 만든 Golden Set 버전(세트 상세 링크), 오류 목록 — 테스트 `Q/components/datasets/DatasetImportDetail.test.tsx`, 구현 `Q/components/datasets/DatasetImportDetail.tsx`, `Q/api/useDatasetImport.ts`
-- [ ] T021 [R-19] 특징 내보내기: Golden Set·기간(최대 90일) 중 하나만 받도록 입력을 막고 시작, 완료되면 파일 경로·줄 수·영상 수 — 테스트 `Q/components/datasets/FeatureExportPanel.test.tsx`, 구현 `Q/components/datasets/FeatureExportPanel.tsx`, `Q/model/exportSchema.ts`, `Q/api/useCreateFeatureExport.ts`
+- [x] T018 [R-16] 매니페스트 경로·평가 비율·분할 시드로 가져오기 시작, 409면 "같은 매니페스트를 가져오는 중" — 테스트 `Q/components/datasets/CreateImportForm.test.tsx`, 구현 `Q/components/datasets/CreateImportForm.tsx`, `Q/model/importSchema.ts`, `Q/api/useCreateDatasetImport.ts`
+- [x] T019 [R-17] 진행 중인 가져오기·내보내기가 있으면 5초마다 다시 불러오고, 끝나면 멈춤 — 테스트 `Q/model/polling.test.ts`, `Q/components/datasets/DatasetImports.test.tsx`(가짜 타이머), 구현 `Q/model/polling.ts`, `Q/components/datasets/DatasetImports.tsx`, `Q/api/{useDatasetImports,useFeatureExport}.ts`
+- [x] T020 [R-18] 가져오기 상세: 상태, 개수, 만든 Golden Set 버전(세트 상세 링크), 오류 목록 — 테스트 `Q/components/datasets/DatasetImportDetail.test.tsx`, 구현 `Q/components/datasets/DatasetImportDetail.tsx`, `Q/api/useDatasetImport.ts`
+- [x] T021 [R-19] 특징 내보내기: Golden Set·기간(최대 90일) 중 하나만 받도록 입력을 막고 시작, 완료되면 파일 경로·줄 수·영상 수 — 테스트 `Q/components/datasets/FeatureExportPanel.test.tsx`, 구현 `Q/components/datasets/FeatureExportPanel.tsx`, `Q/model/exportSchema.ts`, `Q/api/useCreateFeatureExport.ts`
 
 ## Phase 7: 마무리
 
