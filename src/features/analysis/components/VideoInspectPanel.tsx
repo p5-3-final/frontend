@@ -12,9 +12,21 @@ export function VideoInspectPanel() {
     <div className="flex flex-col gap-3">
       <div role="toolbar" aria-label="영상 도구" className="flex flex-wrap gap-2">
         {!inspect.editingZones && (
-          <Button variant="secondary" className="h-9" onClick={inspect.openZoneEditor}>
-            위험구역 편집
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              className="h-9 aria-pressed:border-accent aria-pressed:text-accent"
+              aria-pressed={inspect.overlayOn}
+              onClick={() => {
+                inspect.setOverlayOn(!inspect.overlayOn);
+              }}
+            >
+              오버레이
+            </Button>
+            <Button variant="secondary" className="h-9" onClick={inspect.openZoneEditor}>
+              위험구역 편집
+            </Button>
+          </>
         )}
       </div>
       {inspect.editingZones ? <ZoneSection /> : <InspectSection />}

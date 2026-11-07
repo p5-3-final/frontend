@@ -45,8 +45,8 @@ updated: 2026-11-07
 
 ## Phase 5: US-4 오버레이 (P2)
 
-- [ ] T015 [R-1] 오버레이를 켜면 현재·다음 10초 구간을 미리 받고 가장 가까운 탐지 시각의 박스와 클래스를 그림 — 테스트 `P/model/overlayFrame.test.ts`, `P/components/OverlayLayer.test.tsx`, 구현 `P/model/overlayFrame.ts`, `P/components/OverlayLayer.tsx`, `A/api/useSourceOverlay.ts`
-- [ ] T016 [R-2] `hasEvent` 트랙 강조, 켜고 끄기는 기본 꺼짐이고 영상을 바꾸면 다시 꺼짐 — 테스트 `OverlayLayer.test.tsx`, 구현 `P/components/{OverlayLayer,OverlayToggle}.tsx`
+- [x] T015 [R-1] 오버레이를 켜면 현재·다음 10초 구간을 미리 받고 가장 가까운 탐지 시각의 박스와 클래스를 그림 — 테스트 `P/model/overlayFrame.test.ts`, `P/components/OverlayLayer.test.tsx`, 구현 `P/model/overlayFrame.ts`, `P/components/OverlayLayer.tsx`, `A/api/useSourceOverlay.ts`
+- [x] T016 [R-2] `hasEvent` 트랙 강조, 켜고 끄기는 기본 꺼짐이고 영상을 바꾸면 다시 꺼짐 — 테스트 `OverlayLayer.test.tsx`, 구현 `P/components/{OverlayLayer,OverlayToggle}.tsx`
 
 ## Phase 6: 마무리
 
