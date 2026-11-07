@@ -1,8 +1,10 @@
 import { Clapperboard, LoaderCircle, TriangleAlert } from "lucide-react";
+import { useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { useGroundingClip } from "../api/useGroundingClip";
 import { useGroundingLiveStatus } from "../hooks/useGroundingLiveStatus";
 import type { MomentResult } from "../model/schemas";
+import { GroundingClipDialog } from "./GroundingClipDialog";
 
 export interface GroundingSlotProps {
   moment: MomentResult;
@@ -18,6 +20,7 @@ export function GroundingSlot({ moment }: GroundingSlotProps) {
   const { groundingId } = moment.grounding;
   const status = useGroundingLiveStatus(groundingId, moment.grounding.status);
   const clip = useGroundingClip(groundingId, status === "READY");
+  const [open, setOpen] = useState(false);
 
   if (status === "NONE") {
     return null;
@@ -45,9 +48,27 @@ export function GroundingSlot({ moment }: GroundingSlotProps) {
     return <p className={STATUS_CLASS}>주석 클립을 불러오는 중</p>;
   }
   return (
-    <Button variant="secondary" className="h-9 self-start px-3 text-sm">
-      <Clapperboard aria-hidden="true" className="size-4" />
-      주석 클립 보기
-    </Button>
+    <>
+      <Button
+        variant="secondary"
+        className="h-9 self-start px-3 text-sm"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        <Clapperboard aria-hidden="true" className="size-4" />
+        주석 클립 보기
+      </Button>
+      {open && (
+        <GroundingClipDialog
+          clip={clip.data}
+          clipUrl={clip.data.clipUrl}
+          clipStartMs={moment.startMs}
+          onClose={() => {
+            setOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 }
