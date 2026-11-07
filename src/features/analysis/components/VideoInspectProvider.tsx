@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { PlayerController } from "../../player";
 import { useInspectPoint } from "../api/useInspectPoint";
+import { useSourceZoneEditor } from "../hooks/useSourceZoneEditor";
 import {
   VideoInspectContext,
   type InspectState,
@@ -26,6 +27,7 @@ export function VideoInspectProvider({
   const [overlayOn, setOverlayOn] = useState(false);
   const [editingZones, setEditingZones] = useState(false);
   const mutation = useInspectPoint(sourceId);
+  const zoneEditor = useSourceZoneEditor(sourceId, editingZones);
 
   const inspect = toInspectState(mutation);
   const value: VideoInspect = {
@@ -41,8 +43,11 @@ export function VideoInspectProvider({
       setEditingZones(true);
     },
     closeZoneEditor: () => {
+      // 저장하지 않은 편집은 버린다. 다시 열면 저장된 구역부터 시작한다.
+      zoneEditor.discard();
       setEditingZones(false);
     },
+    zoneEditor,
     inspect,
     runInspect: (point) => {
       mutation.mutate(point);

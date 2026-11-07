@@ -20,6 +20,9 @@
   --color-danger: #ef4444;
   --color-danger-soft: #3a1418;
   --color-success: #34d399;
+  /* 구역 종류 색(SPEC-032 R-10). 위험구역은 danger, 적치구역은 warning을 쓴다. */
+  --color-zone-aisle: #60a5fa;
+  --color-zone-general: #94a3b8;
 }
 
 @layer base {
