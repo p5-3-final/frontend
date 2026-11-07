@@ -10,6 +10,7 @@ import {
 import { Panel } from "../../../shared/ui/Panel";
 import { useTrack } from "../api/useTrack";
 import { useTrackLiveRefresh } from "../hooks/useTrackLiveRefresh";
+import { TrackQuestions } from "./TrackQuestions";
 import type { Track, TrackAttribute } from "../model/inspectSchemas";
 
 export interface TrackPanelProps {
@@ -51,6 +52,7 @@ export function TrackPanel({ sourceId, track: initial, controller, onClose }: Tr
         </button>
       </div>
       <AttributeSection track={track} />
+      <TrackQuestions sourceId={sourceId} trackId={track.trackId} controller={controller} />
     </Panel>
   );
 }

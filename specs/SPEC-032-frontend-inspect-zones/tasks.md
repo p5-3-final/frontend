@@ -39,9 +39,9 @@ updated: 2026-11-07
 
 ## Phase 4: US-2 객체에 질문 (P2)
 
-- [ ] T012 [R-7] 1~200자 질문을 현재 시각과 함께 보내고 "답을 기다리는 중"으로 이력에 추가 — 테스트 `A/components/TrackQuestions.test.tsx`, 구현 `A/components/TrackQuestions.tsx`, `A/api/useAskTrack.ts`, `A/model/schemas.ts`(질문 폼)
-- [ ] T013 [R-8] 그 requestId로 `track.analyzed`(question)가 오면 결과를 불러와 답·판정 상태, `answerable: false`면 "화면만으로는 답할 수 없음", 실패면 실패 안내 — 테스트 `TrackQuestions.test.tsx`, 구현 `A/api/useTrackQuestion.ts`, `TrackQuestions.tsx`
-- [ ] T014 [R-9] 429면 이력에 넣지 않고 잠시 뒤 다시 하라는 안내 — 테스트 `TrackQuestions.test.tsx`, 구현 `TrackQuestions.tsx`, `messages.ts`
+- [x] T012 [R-7] 1~200자 질문을 현재 시각과 함께 보내고 "답을 기다리는 중"으로 이력에 추가 — 테스트 `A/components/TrackQuestions.test.tsx`, 구현 `A/components/TrackQuestions.tsx`, `A/api/useAskTrack.ts`, `A/model/schemas.ts`(질문 폼)
+- [x] T013 [R-8] 그 requestId로 `track.analyzed`(question)가 오면 결과를 불러와 답·판정 상태, `answerable: false`면 "화면만으로는 답할 수 없음", 실패면 실패 안내 — 테스트 `TrackQuestions.test.tsx`, 구현 `A/api/useTrackQuestion.ts`, `TrackQuestions.tsx`
+- [x] T014 [R-9] 429면 이력에 넣지 않고 잠시 뒤 다시 하라는 안내 — 테스트 `TrackQuestions.test.tsx`, 구현 `TrackQuestions.tsx`, `messages.ts`
 
 ## Phase 5: US-4 오버레이 (P2)
 
