@@ -25,11 +25,35 @@ describe("messageForCode", () => {
   });
 
   it.each([
+    ["SEARCH_QUERY_INVALID", "검색어를 1~200자로 입력해 주세요."],
+    ["SEARCH_IMAGE_INVALID", "jpg, png, webp 이미지를 5MB 이하로 올려 주세요."],
+    [
+      "SEARCH_NOT_INDEXED",
+      "아직 검색할 수 있게 준비되지 않았습니다. 분석이 끝난 뒤 다시 시도해 주세요.",
+    ],
+    ["SEARCH_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
+    ["SEARCH_MOMENT_NOT_FOUND", "검색 결과를 찾을 수 없습니다."],
+    ["SEARCH_GROUNDING_NOT_FOUND", "주석 클립을 찾을 수 없습니다."],
+  ])("[SPEC-033 R-13] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
+  it.each([
     ["ANALYSIS_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
     ["ANALYSIS_EVENT_NOT_FOUND", "이벤트를 찾을 수 없습니다."],
     ["ANALYSIS_FORBIDDEN", "운영자만 이벤트를 확인·기각할 수 있습니다."],
     ["ANALYSIS_UNAVAILABLE", "분석 결과를 잠시 불러올 수 없습니다. 다시 시도해 주세요."],
   ])("[SPEC-031 R-17] %s에는 정한 문구를 쓴다", (code, message) => {
+    expect(messageForCode(code)).toBe(message);
+  });
+
+  it.each([
+    ["QUALITY_FORBIDDEN", "이 화면을 볼 권한이 없습니다."],
+    ["QUALITY_REVIEW_ALREADY_ASSIGNED", "이미 다른 사람이 맡았습니다."],
+    ["QUALITY_REVIEW_ALREADY_LABELED", "이미 라벨된 항목입니다."],
+    ["QUALITY_GOLDEN_EMPTY", "초안 항목이 없어 확정할 수 없습니다."],
+    ["QUALITY_IMPORT_IN_PROGRESS", "같은 매니페스트를 가져오는 중입니다."],
+  ])("[SPEC-035 R-20] %s에는 정한 문구를 쓴다", (code, message) => {
     expect(messageForCode(code)).toBe(message);
   });
 

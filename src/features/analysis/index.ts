@@ -9,3 +9,5 @@ export { VideoInspectProvider } from "./components/VideoInspectProvider";
 export { ZoneEditor } from "./components/ZoneEditor";
 export { zoneSaveErrorMessage } from "./hooks/useSourceZoneEditor";
 export type { EditableZone, ZoneInput, ZoneKind } from "./model/zoneDraft";
+export { VideoQuestionPanel } from "./components/VideoQuestionPanel";
+export { EVENT_TYPES, vlmAnalysisSchema, type VlmAnalysis } from "./model/schemas";

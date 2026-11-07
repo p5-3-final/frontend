@@ -7,7 +7,7 @@ import { problem } from "./handlers";
 import { inspectHandlers, type InspectFixture } from "./inspect";
 
 type Schemas = components["schemas"];
-export type EventSummaryBody = Schemas["EventSummary"] & { unverifiedReason?: string | null };
+export type EventSummaryBody = Schemas["EventSummary"];
 export type EventPageBody =
   operations["listSourceEvents"]["responses"]["200"]["content"]["application/json"];
 export type EventDetailBody = Omit<Schemas["EventDetail"], "analysis" | "event"> & {

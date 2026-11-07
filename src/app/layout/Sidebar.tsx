@@ -1,4 +1,5 @@
 import { NavLink } from "react-router";
+import { useMe } from "../../features/auth";
 import { MAIN_MENU, SETTINGS_MENU, type MenuItem } from "./menu";
 
 function MenuLink({ item, onNavigate }: { item: MenuItem; onNavigate?: () => void }) {
@@ -28,9 +29,14 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
+  const { data: me } = useMe();
+  // 역할이 필요한 메뉴는 내 정보를 받기 전에도 숨긴다(SPEC-035 R-1).
+  const visibleMenu = MAIN_MENU.filter(
+    (item) => item.requiredRole === undefined || (me?.roles.includes(item.requiredRole) ?? false),
+  );
   return (
     <nav aria-label="주 메뉴" className="flex h-full flex-col gap-1 p-3">
-      {MAIN_MENU.map((item) => (
+      {visibleMenu.map((item) => (
         <MenuLink key={item.path} item={item} onNavigate={onNavigate} />
       ))}
       <div className="mt-auto border-t border-line pt-3">

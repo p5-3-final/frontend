@@ -8,3 +8,5 @@ export { videoDetailPath } from "./model/paths";
 export { useLeaveWarning } from "./hooks/useLeaveWarning";
 export { videoQueryKeys } from "./model/queryKeys";
 export { onVideosChanged } from "./model/uploadQueue";
+export { useVideos } from "./api/useVideos";
+export { videoDetailQuery } from "./api/useVideo";
