@@ -65,15 +65,18 @@ updated: 2026-11-07
 | --- | --- |
 | `src/shared/api/client.ts` | `RequestOptions.body`에 `FormData`를 받으면 `Content-Type`을 붙이지 않고 그대로 보낸다(경계 문자열은 브라우저가 붙인다) |
 | `src/shared/lib/messages.ts` | `SEARCH_*` 오류 문구, `degraded` 이유·해석 방법·찾은 경로 이름 |
-| `S/model/` | `schemas.ts`(`MomentSearchResult`, `AnswerResult`, `GroundingClip`, 질의 폼·URL 쿼리), `queryKeys.ts`, `degraded.ts`, `imageRules.ts`, `searchParams.ts`(URL ↔ 검색 조건) |
-| `S/api/` | `searchApi.ts`, `useMomentSearch`, `useImageSearch`(mutation), `useAnswerQuestion`, `useGroundingClip`, `useMomentFeedback`, `useVideoNames` |
+| `S/model/` | `schemas.ts`(`MomentSearchResult`, `AnswerResult`, `GroundingClip`), `searchParams.ts`(URL ↔ 검색 조건), `searchForm.ts`(폼 스키마), `queryKeys.ts`, `degraded.ts`, `imageRules.ts`, `searchError.ts`(오류를 입력 옆·안내·다시 시도로 나눔), `format.ts`, `frames.ts`(가장 가까운 프레임), `jumpState.ts`(이동 상태), `paths.ts` |
+| `S/api/` | `searchApi.ts`, `useMomentSearch`, `useImageSearch`(mutation), `useLastImageSearch`, `useAnswerQuestion`(mutation), `useGroundingClip`, `useMomentFeedback`, `useVideoNames`, `useReadyVideos` |
 | `S/hooks/` | `useGroundingLiveStatus`(`grounding.completed` 구독), `usePlayedFeedback`(5초 넘게 재생하면 `played`) |
-| `S/components/` | `SearchForm`, `ImageSearchInput`, `SearchResultHeader`, `MomentResults`, `MomentResultItem`, `GroundingSlot`, `GroundingClipDialog`, `FeedbackButtons` |
-| `S/index.ts` | `useAnswerQuestion`, `usePlayedFeedback`, 이동 상태 형식(`SearchJumpState`) |
+| `S/components/` | `SearchScreen`(URL 조건·요청 조립), `SearchForm`, `ImageSearchInput`, `SearchOutcome`(검색 중·안내·다시 시도·결과), `SearchResultHeader`, `MomentResults`, `MomentResultItem`, `GroundingSlot`, `GroundingClipDialog`, `FeedbackButtons` |
+| `S/index.ts` | `SearchScreen`, `useAnswerQuestion`, `usePlayedFeedback`, `degradedMessage`, `formatRange`, `sourceSearchPath`, 이동 상태 형식(`SearchJumpState`) |
 | `A/components/VideoQuestionPanel.tsx` | 영상 상세 "영상에 질문" 패널 |
-| `src/pages/SearchPage.tsx`, `src/app/routes.tsx` | `/search` 라우트(lazy). ComingSoon 목록에서 뺀다 |
-| `src/pages/VideoDetailPage.tsx` | `VideoQuestionPanel`과 `usePlayedFeedback` 조립, "이 영상에서 검색" 링크(`/search?scope=source&sourceId=`) |
-| `mocks/search.ts`, `tests/e2e/fakeSearch.ts` | 계약 예시 픽스처와 핸들러, `grounding.completed` 알림 |
+| `src/pages/SearchPage.tsx`, `src/app/routes.tsx` | `/search` 화면 조립. `FEATURE_ROUTES`에 `SEARCH_ROUTES`를 더해 ComingSoon 목록에서 빠진다 |
+| `src/pages/VideoDetailPage.tsx` | `VideoQuestionPanel`, `useSeekParam`, `usePlayedFeedback` 조립. "이 영상에서 검색" 링크(`/search?scope=source&sourceId=`)는 패널 머리에 둔다 |
+| `src/features/player/hooks/useSeekParam.ts` | 영상 상세 `?t=<ms>`면 그 시각에서 시작한다(R-12) |
+| `src/features/upload` | `videoDetailPath(id, { seekMs })`가 `?t=`를 붙인다. 검색이 쓰도록 `useVideos`, `videoDetailQuery`(같은 query key)를 내보낸다 |
+| `src/app/featureRoutes/searchRoutes.tsx` | `/search` 라우트(lazy) |
+| `mocks/search.ts`, `tests/searchScreen.ts`, `tests/e2e/fakeSearch.ts`, `mocks/browser.ts` | 계약 예시 픽스처와 핸들러, `grounding.completed` 알림, 검색 화면 테스트 도우미, mock 모드 시연 |
 
 ### 데이터 모델
 
@@ -88,7 +91,7 @@ updated: 2026-11-07
 ### 검색 화면 (R-1~R-4, R-7, R-12, R-13)
 
 - URL 쿼리: `?q=&scope=source|all&sourceId=&precise=1`. `searchParams.ts`가 Zod로 검증한다(q 1~200자, sourceId uuid). 질의를 URL에 두는 이유: 뒤로 가기·새로고침으로 같은 결과를 보고(R-12), URL 이외의 브라우저 저장소에는 남기지 않는다(NFR-2).
-- 폼(React Hook Form + Zod): 질의 입력, 범위 라디오(이 영상·내 영상 전체), "이 영상"이면 영상 고르기 `<select>`(내 영상 `listVideos` 중 `READY`), 정밀 검색 체크박스(전체 범위면 꺼지고 막힘, R-7), 검색 버튼, 이미지 올리기 버튼. 보내면 URL만 바꾸고, 요청은 URL에서 읽은 조건으로 한다.
+- 폼(React Hook Form + Zod): 직접 검색해 URL을 바꿀 때는 폼을 다시 그리지 않아 입력 칸 포커스가 남는다. 뒤로·앞으로 가기(POP)로 조건이 바뀔 때만 URL 값으로 다시 채운다. 질의 입력, 범위 라디오(이 영상·내 영상 전체), "이 영상"이면 영상 고르기 `<select>`(내 영상 `listVideos` 첫 쪽 20개 중 `READY`. 목록에 없는 `sourceId`로 오면 그 영상 이름을 따로 읽어 고른 상태로 보인다), 정밀 검색 체크박스(전체 범위면 꺼지고 막힘, R-7), 검색 버튼, 이미지 올리기 버튼. 보내면 URL만 바꾸고, 요청은 URL에서 읽은 조건으로 한다.
 - 요청: `useMomentSearch(params)`
   - 이 영상: `searchSourceMoments(sourceId, q, precise)`
   - 전체: `searchAllMoments(q)`
@@ -97,8 +100,8 @@ updated: 2026-11-07
 - `notFound`(R-3): 목록 위에 "찾지 못했습니다."를 먼저 보이고, 결과 목록은 "참고 결과" 제목 아래 흐리게(`opacity`) 그린다.
 - 결과 행(R-1): 썸네일(`loading="lazy"`, NFR-1), 구간(`mm:ss–mm:ss`), "유사도 0.82"(확률·퍼센트로 쓰지 않는다), 찾은 경로(`matchedBy`: 시각·텍스트·이미지). 받은 순서대로 그리고 다시 정렬하지 않는다. 전체 범위면 영상 이름(R-7).
 - 영상 이름(R-7): 응답에 이름이 없어 결과의 고유 `sourceId`마다 `getVideo`를 부른다(`useQueries`, upload `videoQueryKeys.detail` 키를 함께 써서 캐시 공유). 도착 전에는 "영상 이름 불러오는 중", 실패하면 "이름을 불러오지 못한 영상". 요청 수 문제는 보고에 적는다.
-- 이동(R-12): 행의 "이 장면 보기"를 누르면 `sendMomentFeedback(jumped)` 뒤 `videoDetailPath(sourceId, { seekMs })`로 이동하고, 이동 상태(`location.state`)에 `{ momentId }`를 넣어 영상 상세가 재생 시간을 기록하게 한다.
-- 오류(R-13): 400이면 질의 입력 옆에 `code` 문구(`SEARCH_QUERY_INVALID`), 404 `SEARCH_NOT_INDEXED`면 "아직 검색할 수 있게 준비되지 않았습니다.", `SEARCH_SOURCE_NOT_FOUND`면 영상을 찾을 수 없다는 안내, 5xx·네트워크 오류면 "다시 시도"(`refetch`).
+- 이동(R-12): 행의 "이 장면 보기" 링크를 누르면 `sendMomentFeedback(jumped)`를 보내고 `videoDetailPath(sourceId, { seekMs })`(`?t=`)로 이동한다. 이동 상태(`location.state`)에 `{ searchMomentId }`를 넣어 영상 상세가 재생 시간을 기록하게 한다.
+- 오류(R-13, `searchError.ts`): 400이면 질의 입력 옆에 `code` 문구(`SEARCH_QUERY_INVALID`), 404 `SEARCH_NOT_INDEXED`면 "아직 검색할 수 있게 준비되지 않았습니다.", `SEARCH_SOURCE_NOT_FOUND`면 영상을 찾을 수 없다는 안내, 5xx·네트워크 오류면 "다시 시도"(`refetch`).
 
 ### 주석 클립 (R-5, R-6)
 
@@ -115,7 +118,7 @@ updated: 2026-11-07
 
 ### 영상에 질문 (R-9, R-10)
 
-- 영상 상세의 `VideoQuestionPanel`: 질문 입력(1~200자) → `useAnswerQuestion(sourceId, q)`(`answerSourceQuestion`, 버튼을 눌렀을 때만 요청). 서버가 15초까지 걸릴 수 있어 "답을 만드는 중"을 보이고 같은 질문을 다시 보내지 않게 버튼을 막는다.
+- 영상 상세의 `VideoQuestionPanel`: 질문 입력(1~200자) → `useAnswerQuestion(sourceId)`(`answerSourceQuestion` mutation, 버튼을 눌렀을 때만 요청). 404(`SEARCH_NOT_INDEXED` 등)는 `code` 문구로 안내한다. 서버가 15초까지 걸릴 수 있어 "답을 만드는 중"을 보이고 같은 질문을 다시 보내지 않게 버튼을 막는다.
 - 결과: 답, 판정 상태(`confirmed` 확인됨, `unverified` 미확인), 근거 구간 목록(썸네일·구간, 누르면 `controller.seek(seekMs)`), 관련 이벤트(유형·시각·설명, 누르면 `seek(seekMs)`), 한계(`limitations`) 목록.
 - `answer`가 null(R-10): 답 자리에 "답을 만들지 못했고 근거만 보여 줍니다."와 근거. `degraded`가 있으면 이유도 함께.
 
@@ -124,7 +127,8 @@ updated: 2026-11-07
 - `jumped`: 결과에서 이동할 때 한 번.
 - `played`: 영상 상세가 `location.state.momentId`를 받으면 `usePlayedFeedback(momentId, controller)`가 재생 중 누적 시간(일시정지·이동 제외)을 세다가 5초를 넘는 순간 `played`(`playedMs`)를 한 번 보낸다.
 - `correct`·`incorrect`: 결과 행의 맞음·틀림 버튼(`aria-pressed`). 누르면 표시를 먼저 바꾸고 기록을 한 번 보낸다. 같은 결과에서 다시 누르면 보내지 않는다.
-- 한 번만 보낸 것을 결과(`momentId`·종류)마다 메모리 `Set`에 기억한다. 기록 실패는 화면 동작을 막지 않는다(표시는 유지).
+- 한 번만 보낸 것을 결과(`momentId`·종류)마다 메모리 `Set`에 기억한다. `Set`은 앱의 QueryClient마다 하나(`WeakMap`)라 로그아웃·새로고침이나 테스트마다 새로 시작한다. 기록 실패는 화면 동작을 막지 않는다(표시는 유지). 맞음·틀림 표시는 보낸 기록에서 처음 값을 정해 영상 상세에 갔다 와도 남는다.
+- 재생 시간은 플레이어 위치 변화 중 재생 중이고 2초 이하인 걸음만 더한다. 그보다 크면 이동(seek)으로 본다.
 
 ## 5. 대안과 선택 이유
 
@@ -140,7 +144,7 @@ updated: 2026-11-07
 ## 6. 테스트 전략
 
 - 단위: `searchParams`(URL 검증·기본값), `degraded`(이유별 문구), `imageRules`(jpg·png·webp, 5MB 경계, gif 거절), 응답 스키마(계약 예시 파싱).
-- 컴포넌트: Testing Library + MSW, `[SPEC-033 R-n] ...`. 알림은 SPEC-031 `mocks/notifications.ts`로 `grounding.completed`를 밀어 넣는다. 이미지는 `userEvent.upload`. 재생 시간은 `<video>`에 `timeupdate`·`play`·`pause`를 일으키고 가짜 타이머로 센다.
+- 컴포넌트: Testing Library + MSW, `[SPEC-033 R-n] ...`. 알림은 SPEC-031 `mocks/notifications.ts`로 `grounding.completed`를 밀어 넣는다. 이미지는 jsdom의 `FormData`·`File`을 테스트 환경 `fetch`(undici)가 보내지 못해 `searchMomentsByImage`를 API 함수 경계에서 바꿔 확인하고, multipart 전송은 E2E에서 확인한다. 재생 시간은 `<video>`에 `timeupdate`·`play`·`pause`를 일으키고 가짜 타이머로 센다.
 - 흐름: `src/pages/SearchFlow.test.tsx`에서 검색 → 결과 → 영상 상세(`?t=`) → 뒤로 → 요청 수가 그대로인지(MSW 호출 수) 확인한다.
 - E2E(Playwright): 문장 검색 → 결과 → 주석 클립 READY → 클립 창, 결과 누르면 상세 이동, 영상 질문(US-1·US-2·US-4, P1), 결과 50개 그리기 200ms(NFR-1), 360px 가로 스크롤 없음.
 

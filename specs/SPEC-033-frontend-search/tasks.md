@@ -1,7 +1,7 @@
 ---
 spec: SPEC-033
 repo: frontend
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Tasks: SPEC-033 검색 화면(문장·이미지 장면 찾기, 주석 클립)과 영상 질문(Video RAG) — frontend
@@ -54,11 +54,11 @@ updated: 2026-11-06
 - [x] T015 [NFR-2] 질의·서명 주소(썸네일·클립)가 URL 밖의 브라우저 저장소와 콘솔에 남지 않음 — 테스트 `S/api/searchSecrets.test.tsx`
 - [x] T016 [NFR-1] E2E: 문장 검색 → 결과 → 주석 클립 READY → 클립 재생, 결과에서 상세 이동, 영상 질문, 결과 50개 응답 뒤 200ms, 화면 밖 썸네일은 요청하지 않음, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/search.spec.ts`, 가짜 API `tests/e2e/fakeSearch.ts`
 - [x] T017 키보드만으로 검색 → 결과 이동 → 맞음·틀림 — 테스트 `src/app/Keyboard.test.tsx`
-- [ ] T018 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README, mock 모드 시연으로 성공 지표 확인
+- [x] T018 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README, mock 모드 시연으로 성공 지표 확인
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
-- [ ] typecheck, lint, format:check, test, e2e 통과
-- [ ] plan.md와 실제 구현이 일치함
+- [x] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
+- [x] typecheck, lint, format:check, test, e2e 통과
+- [x] plan.md와 실제 구현이 일치함
 - [ ] docs 레포 spec 상태 갱신 (`Implementing` / `Done`)
