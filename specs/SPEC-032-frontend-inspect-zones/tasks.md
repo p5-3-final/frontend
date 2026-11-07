@@ -35,7 +35,7 @@ updated: 2026-11-07
 - [x] T008 [P] [R-11] 저장 조건 검사: 꼭짓점 3~32개, 자기 교차 없음, 이름 1~100자·중복 없음, 구역 20개 이하와 위반 이유 — 테스트 `A/model/zoneRules.test.ts`, 구현 `A/model/zoneRules.ts`
 - [x] T009 [R-11] 편집 조작: 클릭으로 꼭짓점 추가, 끌기로 옮기기, 꼭짓점·구역 지우기, 이름·종류 입력, 키보드 이동, 위반이면 저장 막고 이유 표시 — 테스트 `ZoneEditor.test.tsx`, 구현 `ZoneEditor.tsx`, `A/components/ZoneForm.tsx`
 - [x] T010 [R-12] 저장하면 목록 전체를 보내고 "다음 분석부터 반영됨(재분석 필요)", 400은 서버 이유, 403은 권한 없음 — 테스트 `ZoneEditor.test.tsx`, 구현 `A/api/usePutSourceZones.ts`, `ZoneEditor.tsx`, `messages.ts`
-- [ ] T011 [R-13] 구역 조회 결과 `reanalysisNeeded: true`면 요약 패널에 재분석 필요 안내 — 테스트 `A/components/SummaryPanel.test.tsx`, 구현 `A/components/SummaryPanel.tsx`
+- [x] T011 [R-13] 구역 조회 결과 `reanalysisNeeded: true`면 요약 패널에 재분석 필요 안내 — 테스트 `A/components/SummaryPanel.test.tsx`, 구현 `A/components/SummaryPanel.tsx`
 
 ## Phase 4: US-2 객체에 질문 (P2)
 

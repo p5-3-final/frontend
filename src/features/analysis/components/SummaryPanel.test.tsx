@@ -1,7 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { sourceSummaryBody } from "../../../../mocks/analysis";
+import { analysisHandlers, sourceSummaryBody } from "../../../../mocks/analysis";
+import { renderAnalysisDetail } from "../../../../tests/analysisDetail";
 import { createPlayerController } from "../../player";
 import { sourceSummarySchema } from "../model/schemas";
 import { SummaryPanel } from "./SummaryPanel";
@@ -90,5 +91,22 @@ describe("SummaryPanel", () => {
     );
     expect(screen.getByText("예산·상한 초과로 판정하지 않은 이벤트 3건")).toBeVisible();
     expect(screen.getByText("운영자가 재분석하면 다시 판정합니다.")).toBeVisible();
+  });
+});
+
+describe("SummaryPanel 구역 재분석 안내", () => {
+  it("[SPEC-032 R-13] 구역 조회 결과가 reanalysisNeeded이면 재분석이 필요하다고 안내한다", async () => {
+    renderAnalysisDetail(analysisHandlers({ inspect: { reanalysisNeeded: true } }));
+
+    const panel = await screen.findByRole("region", { name: "분석 요약" });
+    expect(await within(panel).findByText("구역이 바뀌어 재분석이 필요합니다.")).toBeVisible();
+  });
+
+  it("[SPEC-032 R-13] 구역이 그대로면 재분석 안내가 없다", async () => {
+    renderAnalysisDetail(analysisHandlers());
+
+    const panel = await screen.findByRole("region", { name: "분석 요약" });
+    await screen.findByRole("list", { name: "이벤트 목록" });
+    expect(within(panel).queryByText("구역이 바뀌어 재분석이 필요합니다.")).not.toBeInTheDocument();
   });
 });
