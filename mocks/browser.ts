@@ -1,5 +1,5 @@
 // 개발용 mock 모드(VITE_API_MOCKING=true, plan 4절 "개발용 mock 모드", D-25).
-// analysis·notification·stream은 다른 담당자 서비스라 아직 없으므로, 단위 테스트와 같은 계약 예시 핸들러로 응답한다.
+// analysis·notification·stream·quality는 다른 담당자 서비스라 아직 없으므로, 단위 테스트와 같은 계약 예시 핸들러로 응답한다.
 // auth·media는 실제 서비스(api-gateway)로 보낸다(onUnhandledFrame: "bypass").
 import { http, HttpResponse } from "msw";
 import { setupWorker } from "msw/browser";
@@ -15,6 +15,7 @@ import {
   SSE_TICKET_API,
   sourceCompletedBody,
 } from "./notifications";
+import { qualityHandlers } from "./quality";
 import { streamHandlers } from "./stream";
 
 // 시연: 처음 연 영상은 분석 중으로 시작해 몇 초 뒤 완료 알림을 받고 결과가 그려진다(spec 7절 성공 지표).
@@ -88,4 +89,9 @@ const demoHandlers = [
 ];
 
 /** 앞에 둔 핸들러가 먼저 적용된다. 시연 핸들러가 기본 분석 응답보다 앞이다. */
-export const worker = setupWorker(...demoHandlers, ...analysisHandlers(), ...streamHandlers());
+export const worker = setupWorker(
+  ...demoHandlers,
+  ...analysisHandlers(),
+  ...streamHandlers(),
+  ...qualityHandlers({ advanceOnRead: true }),
+);

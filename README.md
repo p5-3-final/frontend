@@ -54,6 +54,11 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 | `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제, 분석 결과(요약·이벤트·위험·스냅샷). `?event=<id>`로 이벤트 상세를 연다 |
 | `/events` | 내 영상 전체 이벤트(종류·심각도·판정·검토·기간 거르기) |
 | `/stream/sessions/:sessionId` | 실시간 세션: 열려 있으면 현재 위험·긴급 알림·타임라인, 닫히면 분석 결과 |
+| `/quality/review`, `/quality/review/:itemId` | 품질(OPERATOR만): 검토 큐와 검토 상세(맡기·라벨·저장 후 다음·Golden Set에 넣기) |
+| `/quality/golden-sets`, `/quality/golden-sets/:setId` | Golden Set 목록·만들기, 상세(초안·확정 버전·버전 확정) |
+| `/quality/runs`, `/quality/runs/:runId` | 평가 실행 목록, 상세(Gate 실패 지표·기준 실행 지정) |
+| `/quality/stages` | 처리 단계: 영상별 단계 분해, 단계 추이 그래프, 긴급 알림 지표 |
+| `/quality/datasets`, `/quality/datasets/imports/:importId` | 데이터셋 가져오기·진행 상태, 가져오기 상세, 특징 내보내기 |
 | `/search`, `/history`, `/settings` | 준비 중 |
 
 ## 영상 업로드
@@ -80,9 +85,15 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
   - 화면은 `useNotification(types, handler, { sourceId })`로 필요한 종류만 받는다. 알림을 받으면 해당 조회를 다시 읽는다(진행률은 화면에 바로 반영한다).
 - 라이브 HLS는 Safari처럼 HLS를 바로 재생하는 브라우저에서만 재생된다. Chromium 재생은 HLS 라이브러리 도입 결정 뒤에 지원한다.
 
+## 품질 화면
+
+- quality-service(`/api/v1/quality/...`)를 쓴다. 메뉴와 화면은 OPERATOR에게만 보이고, 권한은 서버가 다시 검사한다(403이면 권한 없음 안내).
+- 품질 화면은 lazy 묶음 하나(`pages/QualityPage`)라 USER의 첫 화면 코드에 들어가지 않는다.
+- 진행 중인 가져오기·내보내기는 5초마다 다시 읽는다. 계약에 내보내기 목록 API가 없어 이 화면에서 시작한 내보내기만 보이고 화면을 떠나면 목록이 사라진다.
+
 ## mock 모드
 
-아직 없는 서비스(analysis·notification·stream)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
+아직 없는 서비스(analysis·notification·stream·quality)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
 
 ```bash
 VITE_API_MOCKING=true pnpm dev

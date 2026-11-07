@@ -32,8 +32,12 @@ export const REVIEW_STATES = ["UNREVIEWED", "CONFIRMED", "DISMISSED"] as const;
 export const reviewStateSchema = z.enum(REVIEW_STATES);
 export type ReviewState = z.infer<typeof reviewStateSchema>;
 
-/** `unverified`인 이유. analysis 계약에는 아직 없는 v5.1 필드라 선택 필드로 받는다(SPEC-031 R-23, 생산자 확인 필요). */
-export const unverifiedReasonSchema = z.string();
+/** `unverified`인 이유(계약 EventSummary.unverifiedReason, v5.1 선택 필드, SPEC-031 R-23). 없으면 사유 없음이다. */
+export const unverifiedReasonSchema = z.enum([
+  "budget_exceeded",
+  "model_unavailable",
+  "call_cap_reached",
+]);
 
 const pageMetaSchema = z.object({
   page: z.number(),
@@ -62,7 +66,7 @@ export const eventSummarySchema = z.object({
   thumbnailUrl: z.string().nullable(),
   mergedInto: z.string().nullable(),
   origin: z.enum(["candidate", "rule", "inventory"]),
-  unverifiedReason: unverifiedReasonSchema.nullable().optional(),
+  unverifiedReason: unverifiedReasonSchema.optional(),
 }) satisfies z.ZodType<Schemas["EventSummary"]>;
 export type EventSummary = z.infer<typeof eventSummarySchema>;
 
@@ -184,8 +188,8 @@ export const TIMELINE_KINDS = [
 ] as const;
 
 /**
- * 계약 SourceSummary. `partial`·`missingCounts`는 analysis 계약에 아직 없는 v5.1 필드라 선택 필드로 받는다
- * (SPEC-031 R-22, source.completed의 같은 이름 필드, 생산자 확인 필요).
+ * 계약 SourceSummary. `partial`·`missingCounts`는 v5.1 선택 필드다
+ * (SPEC-031 R-22, source.completed의 같은 이름 필드).
  */
 export const sourceSummarySchema = z.object({
   sourceId: z.string(),
