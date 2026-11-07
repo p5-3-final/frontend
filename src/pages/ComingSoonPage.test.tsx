@@ -7,7 +7,6 @@ import { startSession } from "../shared/api/session";
 
 describe("ComingSoonPage", () => {
   it.each([
-    ["/search", "검색"],
     ["/history", "분석 이력"],
     ["/settings", "설정"],
   ])("[SPEC-002 R-15] %s는 메뉴 이름과 준비 중이라는 안내를 보여 준다", async (path, title) => {

@@ -78,6 +78,55 @@ export const SESSION_ROLE_NAMES = {
 export const ANALYSIS_LOAD_FAILED_MESSAGE = "분석 결과를 불러오지 못했습니다.";
 export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 
+// ── SPEC-033 검색 ──
+export const SEARCH_QUERY_MESSAGE = "검색어를 1~200자로 입력해 주세요.";
+export const SEARCH_IMAGE_MESSAGE = "jpg, png, webp 이미지를 5MB 이하로 올려 주세요.";
+export const SEARCH_IMAGE_MISSING_MESSAGE =
+  "이미지 검색 결과가 없습니다. 이미지를 다시 올려 주세요.";
+export const SEARCH_FAILED_MESSAGE = "검색하지 못했습니다. 다시 시도해 주세요.";
+export const SEARCH_SOURCE_REQUIRED_MESSAGE = "검색할 영상을 골라 주세요.";
+
+/** 질의 해석 방법(계약 MomentSearchResult.parseMethod) 이름(SPEC-033 R-2) */
+export const PARSE_METHOD_NAMES = {
+  "industrial-rule": "산업 현장 규칙으로 해석",
+  "english-phrase": "영어 문장 그대로 해석",
+  llm: "AI로 해석",
+  "safe-fallback": "기본 규칙으로 해석",
+  image: "이미지로 검색",
+} as const;
+
+export const SEARCH_APPEARANCE_NOTICE = "장면 외형 기준 검색입니다.";
+export const SEARCH_REUSED_NOTICE = "저장된 결과를 다시 보여 줍니다.";
+export const SEARCH_NOT_FOUND_MESSAGE = "찾지 못했습니다.";
+
+/** 축소 응답 이유(계약 Degraded.reason)별 안내(SPEC-033 R-4) */
+export const DEGRADED_MESSAGES = {
+  rerank_timeout: "정밀 검색이 제시간에 끝나지 않아 기본 순위로 보여 줍니다.",
+  circuit_open: "정밀 검색을 잠시 쓸 수 없어 기본 순위로 보여 줍니다.",
+  precise_quota_exceeded: "정밀 검색 사용 한도를 넘어 기본 순위로 보여 줍니다.",
+  ai_unavailable: "AI 기능을 쓸 수 없어 텍스트 검색 결과만 보여 줍니다.",
+} as const;
+
+export const QUESTION_MESSAGE = "질문을 1~200자로 입력해 주세요.";
+export const ANSWER_MISSING_MESSAGE = "답을 만들지 못했고 근거만 보여 줍니다.";
+/** 영상 질문 답의 판정 상태(계약 AnswerResult.status) 이름(SPEC-033 R-9) */
+export const ANSWER_STATUS_NAMES = { confirmed: "확인됨", unverified: "미확인" } as const;
+
+export const VIDEO_NAME_LOADING = "영상 이름 불러오는 중";
+export const VIDEO_NAME_FAILED = "이름을 불러오지 못한 영상";
+
+/** 찾은 경로(계약 MomentResult.matchedBy) 이름 */
+export const MATCHED_BY_NAMES = { visual: "시각", text: "텍스트", image: "이미지" } as const;
+
+const SEARCH_MESSAGES: Readonly<Record<string, string>> = {
+  SEARCH_QUERY_INVALID: SEARCH_QUERY_MESSAGE,
+  SEARCH_IMAGE_INVALID: SEARCH_IMAGE_MESSAGE,
+  SEARCH_NOT_INDEXED: "아직 검색할 수 있게 준비되지 않았습니다. 분석이 끝난 뒤 다시 시도해 주세요.",
+  SEARCH_SOURCE_NOT_FOUND: ANALYSIS_NOT_FOUND_MESSAGE,
+  SEARCH_MOMENT_NOT_FOUND: "검색 결과를 찾을 수 없습니다.",
+  SEARCH_GROUNDING_NOT_FOUND: "주석 클립을 찾을 수 없습니다.",
+};
+
 // ── SPEC-035 품질 화면 ──
 /** OPERATOR가 아니거나 품질 API가 403일 때(SPEC-035 R-1, R-20) */
 export const QUALITY_FORBIDDEN_MESSAGE = "이 화면을 볼 권한이 없습니다.";
@@ -120,6 +169,7 @@ const ANALYSIS_MESSAGES: Readonly<Record<string, string>> = {
 
 const MESSAGES: Readonly<Record<string, string>> = {
   ...ANALYSIS_MESSAGES,
+  ...SEARCH_MESSAGES,
   ...QUALITY_MESSAGES,
   AUTH_EMAIL_DUPLICATED: "이미 가입된 이메일입니다.",
   AUTH_INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",

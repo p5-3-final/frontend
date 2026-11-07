@@ -5,6 +5,7 @@ import { renderAnalysisDetail } from "../../tests/analysisDetail";
 import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../../mocks/handlers";
 import { http, HttpResponse } from "msw";
 import { renderRoute } from "../../tests/render";
+import { renderSearch } from "../../tests/searchScreen";
 import { server } from "../../tests/server";
 import { endSession, startSession } from "../shared/api/session";
 
@@ -171,5 +172,41 @@ describe("키보드 조작", () => {
     await user.keyboard("{Enter}");
 
     expect(video.currentTime).toBe(100);
+  });
+
+  it("[SPEC-033 R-1] [SPEC-033 R-11] 키보드만으로 검색하고 결과를 틀림으로 표시한 뒤 그 장면으로 간다", async () => {
+    const { user, router, stopRecording } = renderSearch();
+    const query = await screen.findByRole("searchbox", { name: "검색어" });
+
+    query.focus();
+    await user.keyboard("안전모{Enter}");
+    const list = await screen.findByRole("list", { name: "검색 결과" });
+    const link = within(list).getByRole("link", { name: "00:40–00:50 장면 보기" });
+    // 검색한 뒤에도 입력 칸에 포커스가 남는다. 검색 버튼, 범위, 이미지 칸을 지나 첫 결과의 링크·맞음·틀림 순서로 간다.
+    expect(query).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "검색" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("radio", { name: "내 영상 전체" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByLabelText("이미지로 찾기")).toHaveFocus();
+    await user.tab();
+    expect(link).toHaveFocus();
+    await user.tab();
+    expect(within(list).getByRole("button", { name: "맞음" })).toHaveFocus();
+    await user.tab();
+    const incorrect = within(list).getByRole("button", { name: "틀림" });
+    expect(incorrect).toHaveFocus();
+    await user.keyboard(" ");
+    expect(incorrect).toHaveAttribute("aria-pressed", "true");
+
+    await user.tab({ shift: true });
+    await user.tab({ shift: true });
+    expect(link).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByRole("heading", { name: "crane.mp4" })).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?t=38000");
+    stopRecording();
   });
 });

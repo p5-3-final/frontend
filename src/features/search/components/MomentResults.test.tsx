@@ -1,0 +1,193 @@
+import { screen, waitFor, within } from "@testing-library/react";
+import { http, HttpResponse } from "msw";
+import { MEDIA_API, problem } from "../../../../mocks/handlers";
+import { describe, expect, it } from "vitest";
+import {
+  momentBody,
+  momentSearchBody,
+  SEARCH_API,
+  SEARCH_SOURCE_ID,
+} from "../../../../mocks/search";
+import { renderSearch, searchPath } from "../../../../tests/searchScreen";
+
+const SOURCE_PATH = searchPath({
+  q: "안전모 안 쓴 작업자",
+  scope: "source",
+  sourceId: SEARCH_SOURCE_ID,
+});
+
+describe("MomentResults", () => {
+  it("[SPEC-033 R-1] 받은 순서대로 썸네일·구간·유사도·찾은 경로를 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: {
+        sourceSearch: momentSearchBody({
+          results: [
+            momentBody({
+              momentId: "0192f320-0000-5000-8000-000000000002",
+              startMs: 90000,
+              endMs: 100000,
+              similarity: 0.2,
+              matchedBy: ["text"],
+            }),
+            momentBody({ similarity: 0.31 }),
+          ],
+        }),
+      },
+    });
+
+    const list = await screen.findByRole("list", { name: "검색 결과" });
+    const items = within(list).getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    const [first, second] = items;
+    if (first === undefined || second === undefined) {
+      throw new Error("결과 두 개가 필요하다");
+    }
+    // 서버 순서를 다시 정렬하지 않는다(유사도가 낮은 것이 먼저 와도 그대로).
+    expect(within(first).getByText("01:30–01:40")).toBeVisible();
+    expect(within(first).getByText("유사도 0.20")).toBeVisible();
+    expect(within(first).getByText("텍스트")).toBeVisible();
+    expect(within(second).getByText("00:40–00:50")).toBeVisible();
+    expect(within(second).getByText("유사도 0.31")).toBeVisible();
+    expect(within(second).getByText("시각·텍스트")).toBeVisible();
+    expect(within(second).getByRole("img", { name: "00:40–00:50 장면" })).toHaveAttribute(
+      "loading",
+      "lazy",
+    );
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-2] 결과 위에 대상어·해석 방법과 장면 외형 기준 안내를 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH);
+
+    const header = await screen.findByRole("region", { name: "검색 결과 안내" });
+    expect(within(header).getByText("person without a hard hat")).toBeVisible();
+    expect(within(header).getByText("산업 현장 규칙으로 해석")).toBeVisible();
+    expect(within(header).getByText("장면 외형 기준 검색입니다.")).toBeVisible();
+    expect(within(header).queryByText("저장된 결과를 다시 보여 줍니다.")).not.toBeInTheDocument();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-2] 재사용 결과이면 그 표시를 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: { sourceSearch: momentSearchBody({ reused: true }) },
+    });
+
+    expect(await screen.findByText("저장된 결과를 다시 보여 줍니다.")).toBeVisible();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-3] notFound면 찾지 못함을 먼저 보이고 결과는 참고 결과로 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: { sourceSearch: momentSearchBody({ notFound: true }) },
+    });
+
+    const notFound = await screen.findByText("찾지 못했습니다.");
+    const reference = screen.getByRole("list", { name: "참고 결과" });
+    // 문서 순서상 "찾지 못함"이 목록보다 앞이다.
+    expect(
+      notFound.compareDocumentPosition(reference) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(within(reference).getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.queryByRole("list", { name: "검색 결과" })).not.toBeInTheDocument();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-4] degraded면 이유에 맞는 안내를 결과 위에 보인다", async () => {
+    const { stopRecording } = renderSearch(SOURCE_PATH, {
+      fixture: {
+        sourceSearch: momentSearchBody({ degraded: { reason: "precise_quota_exceeded" } }),
+      },
+    });
+
+    const header = await screen.findByRole("region", { name: "검색 결과 안내" });
+    expect(
+      within(header).getByText("정밀 검색 사용 한도를 넘어 기본 순위로 보여 줍니다."),
+    ).toBeVisible();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-7] 내 영상 전체 결과에는 결과마다 영상 이름을 보이고 영상마다 한 번만 묻는다", async () => {
+    const OTHER_ID = "0192f0d2-0000-7000-8000-000000000003";
+    const { requests, stopRecording } = renderSearch(searchPath({ q: "지게차", scope: "all" }), {
+      fixture: {
+        allSearch: momentSearchBody({
+          scope: "all",
+          precise: false,
+          results: [
+            momentBody({ momentId: "0192f320-0000-5000-8000-000000000011" }),
+            momentBody({ momentId: "0192f320-0000-5000-8000-000000000012", sourceId: OTHER_ID }),
+            momentBody({
+              momentId: "0192f320-0000-5000-8000-000000000013",
+              startMs: 90000,
+              endMs: 95000,
+            }),
+          ],
+        }),
+      },
+    });
+
+    const list = await screen.findByRole("list", { name: "검색 결과" });
+    expect(await within(list).findAllByText("crane.mp4")).toHaveLength(2);
+    expect(within(list).getByText("other.mp4")).toBeVisible();
+    const detailRequests = requests.filter((url) => /\/media\/videos\/[^/]+$/.test(url.pathname));
+    expect(detailRequests.map((url) => url.pathname).sort()).toEqual(
+      [`/api/v1/media/videos/${OTHER_ID}`, `/api/v1/media/videos/${SEARCH_SOURCE_ID}`].sort(),
+    );
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-7] 영상 이름을 불러오지 못하면 그 결과에 안내를 보인다", async () => {
+    const { stopRecording } = renderSearch(searchPath({ q: "지게차", scope: "all" }), {
+      extra: [http.get(`${MEDIA_API}/:id`, () => problem(503, "MEDIA_UNAVAILABLE"))],
+    });
+
+    expect(await screen.findByText("이름을 불러오지 못한 영상")).toBeVisible();
+    stopRecording();
+  });
+
+  it("[SPEC-033 R-13] 400이면 질의 입력 옆에 이유를 보인다", async () => {
+    renderSearch(SOURCE_PATH, {
+      extra: [
+        http.get(`${SEARCH_API}/sources/:id/moments`, () => problem(400, "SEARCH_QUERY_INVALID")),
+      ],
+    }).stopRecording();
+
+    const input = await screen.findByRole("searchbox", { name: "검색어" });
+    await waitFor(() => {
+      expect(input).toHaveAccessibleDescription("검색어를 1~200자로 입력해 주세요.");
+    });
+    expect(screen.queryByRole("button", { name: "다시 시도" })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    [
+      "SEARCH_NOT_INDEXED",
+      "아직 검색할 수 있게 준비되지 않았습니다. 분석이 끝난 뒤 다시 시도해 주세요.",
+    ],
+    ["SEARCH_SOURCE_NOT_FOUND", "영상을 찾을 수 없습니다."],
+  ])("[SPEC-033 R-13] 404 %s면 그 안내를 보인다", async (code, message) => {
+    renderSearch(SOURCE_PATH, {
+      extra: [http.get(`${SEARCH_API}/sources/:id/moments`, () => problem(404, code))],
+    }).stopRecording();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
+  });
+
+  it("[SPEC-033 R-13] 5xx·네트워크 오류면 다시 시도 버튼을 보이고 누르면 다시 묻는다", async () => {
+    let calls = 0;
+    const { user, stopRecording } = renderSearch(SOURCE_PATH, {
+      extra: [
+        http.get(`${SEARCH_API}/sources/:id/moments`, () => {
+          calls++;
+          return calls === 1 ? HttpResponse.error() : HttpResponse.json(momentSearchBody());
+        }),
+      ],
+    });
+
+    await user.click(await screen.findByRole("button", { name: "다시 시도" }));
+
+    expect(await screen.findByRole("list", { name: "검색 결과" })).toBeVisible();
+    expect(calls).toBe(2);
+    stopRecording();
+  });
+});

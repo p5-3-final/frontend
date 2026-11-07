@@ -1,6 +1,12 @@
 import { useParams } from "react-router";
-import { AnalysisResults, useEventSelection, useTimelineMarkers } from "../features/analysis";
-import { usePlayerController } from "../features/player";
+import {
+  AnalysisResults,
+  useEventSelection,
+  useTimelineMarkers,
+  VideoQuestionPanel,
+} from "../features/analysis";
+import { usePlayerController, useSeekParam } from "../features/player";
+import { usePlayedFeedback } from "../features/search";
 import { VideoDetail } from "../features/upload";
 
 /**
@@ -10,6 +16,10 @@ import { VideoDetail } from "../features/upload";
 export function VideoDetailPage() {
   const { videoId = "" } = useParams();
   const controller = usePlayerController();
+  // 검색 결과에서 오면 `?t=`의 시각에서 시작한다(SPEC-033 R-12).
+  useSeekParam(controller);
+  // 검색 결과에서 왔으면 5초 넘게 재생했을 때 그 결과의 재생을 기록한다(SPEC-033 R-11).
+  usePlayedFeedback(controller);
   const markers = useTimelineMarkers(videoId);
   const selection = useEventSelection(controller);
   return (
@@ -20,6 +30,7 @@ export function VideoDetailPage() {
       onMarkerSelect={selection.open}
     >
       <AnalysisResults sourceId={videoId} controller={controller} />
+      <VideoQuestionPanel sourceId={videoId} controller={controller} />
     </VideoDetail>
   );
 }
