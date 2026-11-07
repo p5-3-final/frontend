@@ -58,9 +58,9 @@ updated: 2026-11-07
 
 ## Phase 7: 마무리
 
-- [ ] T022 [NFR-1] [NFR-2] E2E: 맡기 → 라벨 → 저장 후 다음(저장 응답 뒤 300ms 안에 다음 항목), Golden Set 넣기 → 버전 확정, Gate 실패 표시, 추이 그래프, USER 첫 화면이 품질 묶음을 받지 않음 — 테스트 `tests/e2e/quality.spec.ts`, 가짜 API `tests/e2e/fakeQuality.ts`
-- [ ] T023 키보드만으로 맡기 → 라벨 입력 → 저장 후 다음, 확인 창 — 테스트 `src/app/Keyboard.test.tsx`
-- [ ] T024 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README, 로컬 compose의 quality-service(또는 mock 모드) 시연으로 성공 지표 확인
+- [x] T022 [NFR-1] [NFR-2] E2E: 맡기 → 라벨 → 저장 후 다음(저장 응답 뒤 300ms 안에 다음 항목), Golden Set 넣기 → 버전 확정, Gate 실패 표시, 추이 그래프, USER 첫 화면이 품질 묶음을 받지 않음 — 테스트 `tests/e2e/quality.spec.ts`, 가짜 API `tests/e2e/fakeQuality.ts`
+- [x] T023 키보드만으로 맡기 → 라벨 입력 → 저장 후 다음, 확인 창 — 테스트 `Q/QualityKeyboard.test.tsx`
+- [x] T024 계약과 구현 일치 확인(생성 타입 diff 없음, 픽스처 typecheck), README, 로컬 compose의 quality-service(또는 mock 모드) 시연으로 성공 지표 확인
 
 ## Phase 7: v5.1 추가(계약 묶음 4.0.0)
 
@@ -69,7 +69,7 @@ updated: 2026-11-07
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
-- [ ] typecheck, lint, format:check, test, e2e 통과
-- [ ] plan.md와 실제 구현이 일치함
+- [x] 이 레포가 담당하는 모든 R-*, NFR-*의 테스트 통과
+- [x] typecheck, lint, format:check, test, e2e 통과
+- [x] plan.md와 실제 구현이 일치함
 - [ ] docs 레포 spec 상태 갱신 (`Implementing` / `Done`)
