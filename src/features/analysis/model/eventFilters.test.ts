@@ -27,7 +27,7 @@ describe("eventFilters", () => {
       { verificationStatus: "unverified", unverifiedReason: "budget_exceeded" },
       { verificationStatus: "unverified", unverifiedReason: "call_cap_reached" },
       { verificationStatus: "unverified", unverifiedReason: "model_unavailable" },
-      { verificationStatus: "unverified", unverifiedReason: null },
+      { verificationStatus: "unverified" },
       { verificationStatus: "confirmed" },
     ] as const;
     expect(

@@ -446,6 +446,11 @@ export interface components {
             url: string;
         };
         EventSummary: {
+            /**
+             * @description verificationStatus가 unverified인 이유(v5.1, event.analyzed.unverifiedReason 그대로). 없으면 사유 없음. 생산자 analysis-api 확인 필요 (SPEC-031 R-23)
+             * @enum {string}
+             */
+            unverifiedReason?: "budget_exceeded" | "model_unavailable" | "call_cap_reached";
             /** Format: uuid */
             eventId: string;
             /** Format: uuid */
@@ -556,6 +561,21 @@ export interface components {
             items: components["schemas"]["Snapshot"][];
         };
         SourceSummary: {
+            /** @description 개수 대조 재시도 상한 뒤 빠진 이벤트가 있는 채로 집계됨(v5.1, source.completed.partial 그대로). 없으면 false. 생산자 analysis-api 확인 필요 (SPEC-031 R-22) */
+            partial?: boolean;
+            /** @description partial일 때 빠진 수(source.completed.missingCounts 그대로) */
+            missingCounts?: {
+                events?: number;
+                tracks?: number;
+            };
+            /** @description 활성 결과의 발행 차수(source.completed.revision). 없으면 1 */
+            revision?: number;
+            /** @description 활성 분석 버전에서 unverified로 남은 이벤트 수를 사유별로 센 값(v5.1). 화면이 첫 쪽만 세지 않게 한다. 생산자 analysis-api 확인 필요 (SPEC-031 R-23) */
+            unverifiedCounts?: {
+                budget_exceeded?: number;
+                call_cap_reached?: number;
+                model_unavailable?: number;
+            };
             /** Format: uuid */
             sourceId: string;
             /**

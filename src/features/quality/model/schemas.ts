@@ -43,7 +43,8 @@ export type ReviewLabel = z.infer<typeof reviewLabelSchema>;
 
 /**
  * 계약 ReviewItem. `reason`은 열린 목록(ADR-0014)이라 문자열로 받는다.
- * `analysis`는 계약이 `type: object`로만 둬 생성 타입이 `Record<string, never>`이므로 열린 객체로 받고,
+ * `analysis`는 계약이 `type: object`로만 둬 생성 타입이 `Record<string, never>`이므로 열린 객체로 받고
+ * (판정 결과가 없는 항목은 null, 계약 5.0.0),
  * 화면에 쓰기 전에 analysis의 2차 스키마(`vlmAnalysisSchema`)로 한 번 더 해석한다.
  */
 export const reviewItemSchema = z.object({
@@ -59,7 +60,7 @@ export const reviewItemSchema = z.object({
   reviewReasons: z.array(z.string()),
   evidenceFrameKeys: z.array(z.string()),
   evidenceFrameUrls: z.array(z.string()),
-  analysis: z.record(z.string(), z.unknown()),
+  analysis: z.record(z.string(), z.unknown()).nullable(),
   status: reviewStatusSchema,
   assigneeId: z.string().nullable(),
   assignedAt: z.string().nullable(),
@@ -67,7 +68,7 @@ export const reviewItemSchema = z.object({
   labeledAt: z.string().nullable(),
   createdAt: z.string(),
 }) satisfies z.ZodType<
-  Omit<Schemas["ReviewItem"], "analysis"> & { analysis: Record<string, unknown> }
+  Omit<Schemas["ReviewItem"], "analysis"> & { analysis: Record<string, unknown> | null }
 >;
 export type ReviewItem = z.infer<typeof reviewItemSchema>;
 
@@ -175,7 +176,8 @@ export const evaluationRunSchema = z.object({
         name: z.string(),
         eventType: z.string().nullable(),
         baseline: z.number(),
-        value: z.number(),
+        // 계약 5.0.0: 기준 실행에만 있는 지표(이번 실행에서 빠짐)면 null이다(SPEC-029 R-18).
+        value: z.number().nullable(),
       }),
     ),
   }),

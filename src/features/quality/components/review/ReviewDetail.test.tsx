@@ -52,6 +52,16 @@ describe("ReviewDetail", () => {
     recorder.stop();
   });
 
+  it("[SPEC-035 R-4] 판정 결과가 없는 항목(analysis null)은 판정 없음으로 보인다", async () => {
+    renderQuality(DETAIL_PATH, {
+      fixture: { reviewItems: [{ ...ASSIGNED, reason: "alert_dismissed", analysis: null }] },
+    });
+
+    const result = await screen.findByRole("region", { name: "판정 결과" });
+    expect(within(result).getByText("판정 없음")).toBeVisible();
+    expect(result).toHaveTextContent("rule+vlm+escalate");
+  });
+
   it("[SPEC-035 R-4] 근거 프레임이 없으면 없다고 보인다", async () => {
     renderQuality(DETAIL_PATH, {
       fixture: { reviewItems: [{ ...ASSIGNED, evidenceFrameUrls: [], evidenceFrameKeys: [] }] },

@@ -7,7 +7,7 @@ import { problem } from "./handlers";
 
 type Schemas = components["schemas"];
 export type ReviewItemBody = Omit<Schemas["ReviewItem"], "analysis"> & {
-  analysis: Record<string, unknown>;
+  analysis: Record<string, unknown> | null;
 };
 export type GoldenSetBody = Schemas["GoldenSet"];
 export type GoldenSetEntryBody = Schemas["GoldenSetEntry"];

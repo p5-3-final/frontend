@@ -140,7 +140,7 @@ export function countBudgetSkipped(events: readonly EventSummary[]): number {
   return events.filter(
     (event) =>
       event.verificationStatus === "unverified" &&
-      event.unverifiedReason != null &&
+      event.unverifiedReason !== undefined &&
       BUDGET_REASONS.has(event.unverifiedReason),
   ).length;
 }

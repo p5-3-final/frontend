@@ -30,7 +30,8 @@ function errorMessage(error: Error | null): string | undefined {
 }
 
 function JudgmentResult({ item }: { item: ReviewItem }) {
-  const analysis = vlmAnalysisSchema.safeParse(item.analysis);
+  // 계약 5.0.0: 판정 결과가 없는 항목(미판정 알림 기각 등)은 analysis가 null이다.
+  const analysis = item.analysis === null ? null : vlmAnalysisSchema.safeParse(item.analysis);
   return (
     <Panel title="판정 결과">
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
@@ -39,7 +40,13 @@ function JudgmentResult({ item }: { item: ReviewItem }) {
           {eventTypeName(item.eventType)} · {formatMediaTime(item.startMs)} ~{" "}
           {formatMediaTime(item.endMs)}
         </dd>
-        {analysis.success ? (
+        {analysis === null && (
+          <>
+            <dt className="text-muted">판정 결과</dt>
+            <dd>판정 없음</dd>
+          </>
+        )}
+        {analysis?.success === true && (
           <>
             <dt className="text-muted">설명</dt>
             <dd>{analysis.data.description ?? "-"}</dd>
@@ -56,7 +63,8 @@ function JudgmentResult({ item }: { item: ReviewItem }) {
             <dt className="text-muted">판정 상태</dt>
             <dd>{VERIFICATION_NAMES[analysis.data.verificationStatus]}</dd>
           </>
-        ) : (
+        )}
+        {analysis?.success === false && (
           <>
             <dt className="text-muted">판정 결과</dt>
             <dd>판정 결과를 읽을 수 없습니다.</dd>
