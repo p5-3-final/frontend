@@ -48,7 +48,7 @@ updated: 2026-11-07
 - [x] T015 [NFR-2] 요약 응답이 늦어도 역할 칸·영상 이름을 먼저 그리고 요약은 도착하는 대로 채움 — 테스트 `SessionDetail.test.tsx`(느린 요약), 구현 `SessionDetail.tsx` (a13503d)
 - [x] T016 E2E: 세션 만들기 → 작업 전·후 영상 올리기 → 세션 상세 역할별 표시 → 흐름 요약 이동, 세션 상세 응답 뒤 300ms, 보존 설정 바꾸기, 360px 가로 스크롤 없음 — 테스트 `tests/e2e/sessions.spec.ts`, 가짜 API `tests/e2e/fakeMedia.ts`, `tests/e2e/fakeAnalysis.ts` (537b9b1)
 - [x] T017 키보드만으로 세션 고르기·역할 고르기·철회 확인 — 테스트 `src/app/Keyboard.test.tsx` (537b9b1)
-- [ ] T018 계약과 구현 일치 확인(생성 타입 diff 없음), README, 로컬 compose(media·auth 실제, analysis mock) 시연으로 성공 지표 확인 — 생성 타입 diff 없음·README는 확인했다. 로컬 compose 시연은 이 작업에서 compose가 떠 있지 않아 하지 못했다
+- [x] T018 계약과 구현 일치 확인(생성 타입 diff 없음), README, 로컬 compose(media·auth 실제, analysis mock) 시연으로 성공 지표 확인 — 생성 타입 diff 없음·README는 확인했다. 로컬 compose 시연은 2026-11-07 docs `scripts/e2e/run.sh ui`(`pw/sessions.spec.mjs`, docs #152)로 했다: 관리자 계정으로 세션 만들기 → 작업 전·후 영상(5초 클립) 업로드 → 세션 상세의 작업 전·후 칸에 각 영상 표시, 설정의 학습용 보존 기본값 바꾸기·새로 고친 뒤 유지·되돌리기 모두 통과. 세션 흐름 요약의 이벤트 링크는 analysis-service가 로컬에 없어 확인하지 않았다
 
 ## Phase 7: v5.1 추가(계약 묶음 4.0.0)
 
