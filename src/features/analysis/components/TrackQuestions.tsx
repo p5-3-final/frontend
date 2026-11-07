@@ -56,10 +56,11 @@ export function TrackQuestions({ sourceId, trackId, controller }: TrackQuestions
       { question: values.question, tMs: controller.getCurrentMs() },
       {
         onSuccess: (accepted) => {
-          setHistory((previous) => [
-            { requestId: accepted.requestId, question: values.question },
-            ...previous,
-          ]);
+          setHistory((previous) =>
+            previous.some((item) => item.requestId === accepted.requestId)
+              ? previous
+              : [{ requestId: accepted.requestId, question: values.question }, ...previous],
+          );
           reset();
         },
       },

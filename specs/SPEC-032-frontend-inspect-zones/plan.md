@@ -197,3 +197,20 @@ sequenceDiagram
 
 - R-15: 트랙 패널은 그 트랙의 이벤트(`listSourceEvents`를 `trackId`로 읽음) 중 `confirmed`인 `ppe_missing`이 있으면 그 이벤트의 `analysis`(누락 보호구)를 보호구 상태로 먼저 표시하고, `track_attribute`의 `ppeState`는 "속성 분석" 보조 줄로 내린다. 확정 이벤트가 없으면 지금처럼 속성 값만 표시한다. 우선순위 계산은 순수 함수 `ppeStatus`다.
 - R-16: `ZoneEditor`를 저장 함수(`onSave(zones)`)와 배경 프레임 주소를 props로 받게 나눈다. 업로드 영상은 지금처럼 `putSourceZones`, 카메라는 `putCameraZones`(`PUT /api/v1/stream/cameras/{cameraId}/zones`)를 넘긴다. 카메라 배경은 카메라 상세의 최근 프레임 주소(SPEC-036)이고 없으면 빈 배경에 그린다. 저장 성공 뒤 "다음 세션부터 적용됨"을 표시한다(활성 세션은 stream-service가 `reload_profile`로 받는다). 꼭짓점·이름 규칙(R-11)은 같은 `zoneRules`를 쓴다.
+
+## 10. 구현 반영(2026-11-07)
+
+구현하면서 4절·9절과 달라진 점이다. 요구사항과 계약은 바뀌지 않았다.
+
+- 상태 배치: 층(플레이어 `overlay`)과 패널(플레이어 아래)이 같은 조회·편집 상태를 읽어야 해서 `A/components/VideoInspectProvider`(상태)·`VideoInspectLayers`(층)·`VideoInspectPanel`(도구 막대와 패널)로 나눴다. 페이지는 셋을 조립만 한다. 영상을 바꾸면 `key`로 새로 만들어 오버레이가 다시 꺼진다(R-2).
+- 플레이어 층: `VideoPlayer`가 표시 영역을 계산해(`useVideoContentRect`) 그 위에 `overlay`를 놓고, 층은 `usePlayerLayer()`로 화면 좌표를 0~1 좌표로 바꾼다. 층은 기본으로 클릭을 받지 않는다.
+- 파일 이름: 다른 작업자와 충돌을 줄이려고 SPEC-032 스키마는 `A/model/inspectSchemas.ts`, API 함수는 `A/api/inspectApi.ts`, 픽스처는 `mocks/inspect.ts`에 따로 뒀다. 카메라 구역은 `S/model/cameraZones.ts`, `S/api/cameraZonesApi.ts`, `mocks/cameraZones.ts`다.
+- 오버레이 그리기: 층은 플레이어 조작 창구만 받으므로 `requestVideoFrameCallback` 대신 `requestAnimationFrame`으로 재생 위치를 읽는다(`P/hooks/useFrameTime`). 그리기 시간은 화면 갱신 시작부터 DOM 반영까지를 `overlay-draw`로 남긴다. 이벤트 트랙은 색·굵기와 함께 "· 이벤트" 글자로도 구분한다.
+- 구역 편집: 편집 상태는 순수 함수(`A/model/zoneDraft.ts`)로 바꾸고, 그리기 층 `ZoneCanvas`와 패널 `ZoneEditorPanel`(plan의 `ZoneForm`)을 나눴다. 업로드 영상은 둘을 플레이어 위·아래에 따로 놓고, 플레이어가 없는 카메라는 배경 프레임·저장 함수를 props로 받는 `ZoneEditor`를 쓴다(R-16).
+  - 꼭짓점은 `<circle>` 대신 위치를 지정한 `<button aria-label="꼭짓점 n">`이다. SVG를 비율대로 늘려도 원이 찌그러지지 않고, 키보드 초점과 이름을 그대로 쓴다.
+  - 구역 이름·종류는 입력할 때마다 모든 구역에 걸친 규칙(이름 중복 등)을 다시 보므로 React Hook Form 대신 편집 상태에 바로 둔다. 검사는 `zoneRules`가 한다.
+  - 키보드 "꼭짓점 추가"는 오른쪽·아래·왼쪽·위로 돌아 네 번이면 저장할 수 있는 사각형이 된다.
+  - 400 `ANALYSIS_ZONE_INVALID`의 서버 이유를 보이려고 `shared/api/problem.ts`의 `ApiError`에 `detail`을 더했다.
+- R-15: 계약 `listSourceEvents`에 trackId 거르기가 없어 `eventType=ppe_missing&verificationStatus=confirmed`로 서버에서 줄이고 트랙은 화면에서 고른다(`A/model/ppeStatus.ts`).
+- R-16 계약 차이: 카메라 구역은 꼭짓점이 `[x, y]` 배열이고 종류에 `storage`(적치구역)가 더 있으며, 새 구역 ID는 클라이언트가 UUID로 만든다(`replaceCameraZones`). 저장 조건은 업로드 영상과 같은 `zoneRules`(꼭짓점 32개·구역 20개)를 써서 계약 상한(64개·100개)보다 좁다. 카메라 최근 프레임 주소는 계약 Camera에 아직 없어 `frameUrl` props로 받고, 없으면 빈 배경에 그린다. 카메라 화면에 붙이는 일은 카메라 화면 spec(SPEC-034)이 한다.
+- 키보드 대안(T018): 일시정지에 오버레이가 켜져 있으면 지금 프레임의 박스를 "트랙 목록" 버튼으로 보인다(`A/components/FrameTrackList`).

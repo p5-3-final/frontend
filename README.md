@@ -77,7 +77,7 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 - 알림은 로그인하면 한 번 연결한다(`startNotifications`). 단기 티켓(`POST /api/v1/auth/sse-tickets`)을 받아 `GET /api/v1/notify/stream?ticket=`을 `fetch` 스트림으로 읽는다(EventSource는 헤더를 보낼 수 없어 쓰지 않는다).
   - 끊기면 1초부터 30초까지 늘려 가며 새 티켓으로 다시 연결하고 `Last-Event-ID`로 놓친 메시지를 받는다. 45초 동안 아무것도 오지 않으면 끊고 다시 연결한다.
   - 최근 100건(60초 이내)을 보관해, 늦게 열린 화면도 `replayBuffered`로 받아 볼 수 있다. 로그아웃하면 연결과 보관분을 지운다.
-  - 화면은 `useNotification(types, handler, { sourceId })`로 필요한 종류만 받는다. 알림을 받으면 해당 조회를 다시 읽는다(진행률은 화면에 바로 반영한다).
+  - 화면은 `useNotification(types, handler, { sourceId })`로 필요한 종류만 받는다. 요청 뒤 알림이 응답보다 먼저 올 수 있는 화면(클릭 조회·객체 질문, SPEC-032)은 `replayBuffered`로 받아 둔 알림도 함께 본다. 알림을 받으면 해당 조회를 다시 읽는다(진행률은 화면에 바로 반영한다).
 - 라이브 HLS는 Safari처럼 HLS를 바로 재생하는 브라우저에서만 재생된다. Chromium 재생은 HLS 라이브러리 도입 결정 뒤에 지원한다.
 
 ## mock 모드
@@ -90,6 +90,7 @@ VITE_API_MOCKING=true pnpm dev
 
 - MSW 서비스 워커(`mocks/public/mockServiceWorker.js`)는 mock 모드에서만 제공한다. 배포 빌드에는 들어가지 않는다.
 - 처음 연 영상은 "분석 중"으로 시작해 진행률 알림을 몇 번 받은 뒤 완료 알림과 함께 결과를 보인다. 핸들러는 `mocks/browser.ts`에 있다.
+- 영상을 멈추고 사람을 누르면 "속성 분석 중"이 보이고, 다음 알림 주기에 `track.analyzed`가 와서 속성이 채워진다. 객체 질문도 같은 방식으로 답이 온다. 구역 편집(저장 → 재분석 안내)과 오버레이도 계약 예시로 동작한다(SPEC-032).
 - MSW를 올리면(`pnpm up msw`) `pnpm exec msw init mocks/public`으로 워커 파일을 다시 만든다.
 
 ## 문서
