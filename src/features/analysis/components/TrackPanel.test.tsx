@@ -1,7 +1,12 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
-import { ANALYSIS_API, ANALYSIS_SOURCE_ID, analysisHandlers } from "../../../../mocks/analysis";
+import {
+  ANALYSIS_API,
+  ANALYSIS_SOURCE_ID,
+  analysisHandlers,
+  eventSummaryBody,
+} from "../../../../mocks/analysis";
 import {
   INSPECT_REQUEST_ID,
   INSPECT_TRACK_ID,
@@ -169,5 +174,39 @@ describe("TrackPanel 실시간 갱신", () => {
 
     const panel = await screen.findByRole("region", { name: "트랙 정보" });
     expect(await within(panel).findByRole("group", { name: "안전모" })).toHaveTextContent("미착용");
+  });
+});
+
+describe("TrackPanel 보호구 상태", () => {
+  it("[SPEC-032 R-15] 트랙에 확정된 보호구 미착용 이벤트가 있으면 이벤트 결과를 먼저 보이고 속성은 보조로 내린다", async () => {
+    const { user } = renderAnalysisDetail(
+      analysisHandlers({ inspect: { inspect: inspectResultBody({ track: trackBody() }) } }),
+    );
+    await readyPlayer();
+    await clickFrame(user);
+
+    const panel = await screen.findByRole("region", { name: "트랙 정보" });
+    const status = await within(panel).findByRole("group", { name: "보호구 상태" });
+    expect(status).toHaveTextContent("미착용 확정");
+    expect(status).toHaveTextContent("크레인 하부에서 작업자가 안전모 없이 자재를 옮깁니다.");
+    expect(within(panel).getByRole("heading", { name: "속성 분석(보조)" })).toBeVisible();
+  });
+
+  it("[SPEC-032 R-15] 확정 이벤트가 없으면 속성 값만 보호구 상태로 보인다", async () => {
+    const { user } = renderAnalysisDetail(
+      analysisHandlers({
+        events: [eventSummaryBody({ verificationStatus: "unverified" })],
+        inspect: { inspect: inspectResultBody({ track: trackBody() }) },
+      }),
+    );
+    await readyPlayer();
+    await clickFrame(user);
+
+    const panel = await screen.findByRole("region", { name: "트랙 정보" });
+    expect(await within(panel).findByRole("group", { name: "안전모" })).toHaveTextContent("미착용");
+    expect(within(panel).queryByRole("group", { name: "보호구 상태" })).not.toBeInTheDocument();
+    expect(
+      within(panel).queryByRole("heading", { name: "속성 분석(보조)" }),
+    ).not.toBeInTheDocument();
   });
 });

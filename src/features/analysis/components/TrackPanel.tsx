@@ -8,10 +8,12 @@ import {
   workerRoleName,
 } from "../../../shared/lib/messages";
 import { Panel } from "../../../shared/ui/Panel";
+import { useSourceEvents } from "../api/useSourceEvents";
 import { useTrack } from "../api/useTrack";
 import { useTrackLiveRefresh } from "../hooks/useTrackLiveRefresh";
 import { TrackQuestions } from "./TrackQuestions";
 import type { Track, TrackAttribute } from "../model/inspectSchemas";
+import { CONFIRMED_PPE_QUERY, ppeStatus, type PpeStatus } from "../model/ppeStatus";
 
 export interface TrackPanelProps {
   sourceId: string;
@@ -24,6 +26,9 @@ export interface TrackPanelProps {
 export function TrackPanel({ sourceId, track: initial, controller, onClose }: TrackPanelProps) {
   const { data: track } = useTrack(initial.trackId, initial);
   useTrackLiveRefresh(sourceId, initial.trackId);
+  // R-15: 이벤트 목록을 못 읽으면 속성 값만 보인다(보조 정보가 주 정보로 올라온다).
+  const ppeEvents = useSourceEvents(sourceId, CONFIRMED_PPE_QUERY);
+  const ppe = ppeStatus(ppeEvents.data?.pages.flatMap((page) => page.items) ?? [], initial.trackId);
   return (
     <Panel
       title="트랙 정보"
@@ -51,9 +56,29 @@ export function TrackPanel({ sourceId, track: initial, controller, onClose }: Tr
           {`${formatMediaTime(track.startMs)} ~ ${formatMediaTime(track.endMs)}`}
         </button>
       </div>
+      {ppe.source === "event" && <PpeEventStatus status={ppe} />}
+      {ppe.source === "event" && (
+        <h3 className="text-xs font-semibold text-muted">속성 분석(보조)</h3>
+      )}
       <AttributeSection track={track} />
       <TrackQuestions sourceId={sourceId} trackId={track.trackId} controller={controller} />
     </Panel>
+  );
+}
+
+function PpeEventStatus({ status }: { status: Extract<PpeStatus, { source: "event" }> }) {
+  return (
+    <div
+      role="group"
+      aria-label="보호구 상태"
+      className="flex flex-col gap-0.5 rounded-lg border border-danger/40 bg-danger-soft px-3 py-2"
+    >
+      <p className="text-xs text-muted">보호구 상태</p>
+      <p className="text-sm font-semibold text-danger">
+        {`미착용 확정 · 이벤트 ${formatMediaTime(status.event.startMs)}`}
+      </p>
+      {status.event.description !== null && <p className="text-sm">{status.event.description}</p>}
+    </div>
   );
 }
 

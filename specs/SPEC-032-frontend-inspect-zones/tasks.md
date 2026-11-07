@@ -56,7 +56,7 @@ updated: 2026-11-07
 
 ## Phase 7: v5.1 추가(계약 묶음 4.0.0)
 
-- [ ] T020 [R-15] `ppeStatus`(확정 `ppe_missing` 우선, 없으면 속성 값)와 트랙 패널 표시 — 테스트 `ppeStatus.test.ts`, `TrackPanel.test.tsx`, 구현 `A/model/ppeStatus.ts`, `A/components/TrackPanel.tsx`
+- [x] T020 [R-15] `ppeStatus`(확정 `ppe_missing` 우선, 없으면 속성 값)와 트랙 패널 표시 — 테스트 `ppeStatus.test.ts`, `TrackPanel.test.tsx`, 구현 `A/model/ppeStatus.ts`, `A/components/TrackPanel.tsx`
 - [ ] T021 [R-16] `ZoneEditor` props 분리, `CameraZoneEditor`와 카메라 구역 훅, 저장 뒤 안내 — 테스트 `ZoneEditor.test.tsx`, `CameraZoneEditor.test.tsx`, 구현 `A/components/ZoneEditor.tsx`, `S/components/CameraZoneEditor.tsx`, `S/api/useCameraZones.ts`, `S/api/usePutCameraZones.ts`, `mocks/stream.ts`
 
 ## 완료 조건 (Definition of Done)
