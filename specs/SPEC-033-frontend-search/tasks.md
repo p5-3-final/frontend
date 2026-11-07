@@ -43,7 +43,7 @@ updated: 2026-11-06
 
 ## Phase 5: US-3 이미지로 찾기 (P2)
 
-- [ ] T013 [R-8] jpg·png·webp 5MB 이하면 범위와 함께 이미지 검색, 벗어나면 요청 없이 이유. 돌아오면 마지막 결과를 다시 보임 — 테스트 `S/model/imageRules.test.ts`, `S/components/ImageSearchInput.test.tsx`, 구현 `S/model/imageRules.ts`, `S/components/ImageSearchInput.tsx`, `S/api/useImageSearch.ts`
+- [x] T013 [R-8] jpg·png·webp 5MB 이하면 범위와 함께 이미지 검색, 벗어나면 요청 없이 이유. 돌아오면 마지막 결과를 다시 보임 — 테스트 `S/model/imageRules.test.ts`, `S/components/ImageSearchInput.test.tsx`, 구현 `S/model/imageRules.ts`, `S/components/ImageSearchInput.tsx`, `S/api/useImageSearch.ts`
 
 ## Phase 6: US-5 맞음·틀림 (P2)
 

@@ -7,10 +7,15 @@ import { Button } from "../../../shared/ui/Button";
 import { videoDetailQuery } from "../../upload";
 import { useReadyVideos } from "../api/useReadyVideos";
 import { searchFormSchema, toCriteria, type SearchFormValues } from "../model/searchForm";
+import { ImageSearchInput } from "./ImageSearchInput";
 import { QUERY_MAX_LENGTH, type TextSearchCriteria } from "../model/searchParams";
 
 export interface SearchFormProps {
   defaultValues: SearchFormValues;
+  /** 서버가 이미지를 거절한 이유(400) */
+  imageError?: string | undefined;
+  /** 이미지를 고르면 지금 고른 범위와 함께 부른다(SPEC-033 R-8). */
+  onImageSelect: (image: File, sourceId: string | undefined) => void;
   /** 서버가 질의를 거절한 이유(400). 질의 입력 옆에 보인다(SPEC-033 R-13). */
   queryError?: string | undefined;
   onSubmit: (criteria: TextSearchCriteria) => void;
@@ -20,7 +25,13 @@ const FIELD_CLASS =
   "h-11 rounded-lg border border-line bg-surface px-3 text-content outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 aria-invalid:border-danger";
 
 /** 문장 검색 조건 입력(SPEC-033 R-1, R-7). 보내면 URL만 바꾸고, 요청은 URL에서 읽은 조건으로 한다. */
-export function SearchForm({ defaultValues, queryError, onSubmit }: SearchFormProps) {
+export function SearchForm({
+  defaultValues,
+  queryError,
+  imageError,
+  onImageSelect,
+  onSubmit,
+}: SearchFormProps) {
   const ids = { q: useId(), qError: useId(), source: useId(), sourceError: useId() };
   const {
     register,
@@ -111,6 +122,11 @@ export function SearchForm({ defaultValues, queryError, onSubmit }: SearchFormPr
           정밀 검색
         </label>
       </div>
+      <ImageSearchInput
+        sourceId={scope === "all" ? undefined : sourceId === "" ? null : sourceId}
+        serverError={imageError}
+        onSelect={onImageSelect}
+      />
     </form>
   );
 }

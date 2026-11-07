@@ -81,6 +81,8 @@ export const ANALYSIS_NOT_FOUND_MESSAGE = "영상을 찾을 수 없습니다.";
 // ── SPEC-033 검색 ──
 export const SEARCH_QUERY_MESSAGE = "검색어를 1~200자로 입력해 주세요.";
 export const SEARCH_IMAGE_MESSAGE = "jpg, png, webp 이미지를 5MB 이하로 올려 주세요.";
+export const SEARCH_IMAGE_MISSING_MESSAGE =
+  "이미지 검색 결과가 없습니다. 이미지를 다시 올려 주세요.";
 export const SEARCH_FAILED_MESSAGE = "검색하지 못했습니다. 다시 시도해 주세요.";
 export const SEARCH_SOURCE_REQUIRED_MESSAGE = "검색할 영상을 골라 주세요.";
 
