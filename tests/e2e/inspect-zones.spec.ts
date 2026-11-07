@@ -51,8 +51,12 @@ test("[SPEC-032 R-3] [SPEC-032 R-4] [SPEC-032 R-5] [SPEC-032 NFR-2] 멈춘 화�
 
   // 패널이 처음 보인 시각을 페이지 안에서 잰다(Playwright 대기 간격을 빼려고).
   await page.evaluate(() => {
+    // 리소스 시간 기록은 기본 250개까지만 쌓인다. dev 서버 모듈 요청으로 차 있으면 조회 요청이 기록되지 않으므로 클릭 전에 비운다.
+    performance.clearResourceTimings();
     const observer = new MutationObserver(() => {
-      if (document.querySelector("section[aria-labelledby] h2")?.textContent === "트랙 정보") {
+      // 같은 화면에 다른 패널(SPEC-033 영상 질문 등)이 있으므로 첫 section이 아니라 제목으로 찾는다.
+      const headings = document.querySelectorAll("section[aria-labelledby] h2");
+      if ([...headings].some((heading) => heading.textContent === "트랙 정보")) {
         Reflect.set(window, "__panelShownAt", performance.now());
         observer.disconnect();
       }
