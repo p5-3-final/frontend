@@ -25,8 +25,23 @@ export interface ZoneEditorPanelProps {
   onClose?: () => void;
 }
 
-// 키보드로 꼭짓점을 더할 때 마지막 꼭짓점에서 떨어뜨리는 거리(0~1 좌표)
-const KEYBOARD_VERTEX_OFFSET = 0.05;
+// 키보드로 꼭짓점을 더할 때 마지막 꼭짓점에서 옮기는 방향(0~1 좌표). 오른쪽·아래·왼쪽·위를 돌아
+// 한 줄로 늘어서지 않게 해서, 네 번 누르면 바로 저장할 수 있는 사각형이 된다.
+const KEYBOARD_STEPS = [
+  { x: 0.1, y: 0 },
+  { x: 0, y: 0.1 },
+  { x: -0.1, y: 0 },
+  { x: 0, y: -0.1 },
+] as const;
+
+function nextKeyboardVertex(polygon: readonly { x: number; y: number }[]) {
+  const last = polygon.at(-1);
+  if (last === undefined) {
+    return { x: 0.5, y: 0.5 };
+  }
+  const step = KEYBOARD_STEPS[(polygon.length - 1) % KEYBOARD_STEPS.length] ?? KEYBOARD_STEPS[0];
+  return { x: last.x + step.x, y: last.y + step.y };
+}
 
 /** 구역 목록·이름·종류·꼭짓점 조작과 저장(SPEC-032 R-11, R-12). 조건을 어기면 저장을 막고 이유를 보인다. */
 export function ZoneEditorPanel({
@@ -42,7 +57,6 @@ export function ZoneEditorPanel({
   const zone = selectedZone(draft);
   const kindId = useId();
   const reasonsId = useId();
-  const last = zone?.polygon.at(-1);
   return (
     <Panel
       title="위험구역 편집"
@@ -126,13 +140,7 @@ export function ZoneEditorPanel({
               variant="secondary"
               className="h-9"
               onClick={() => {
-                onAction({
-                  type: "addVertex",
-                  point:
-                    last === undefined
-                      ? { x: 0.5, y: 0.5 }
-                      : { x: last.x + KEYBOARD_VERTEX_OFFSET, y: last.y + KEYBOARD_VERTEX_OFFSET },
-                });
+                onAction({ type: "addVertex", point: nextKeyboardVertex(zone.polygon) });
               }}
             >
               꼭짓점 추가

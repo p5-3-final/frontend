@@ -5,5 +5,6 @@ export const streamQueryKeys = {
   live: (sessionId: string) => [...streamQueryKeys.session(sessionId), "live"] as const,
   state: (sessionId: string) => [...streamQueryKeys.live(sessionId), "state"] as const,
   events: (sessionId: string) => [...streamQueryKeys.live(sessionId), "events"] as const,
+  cameraZones: (cameraId: string) => [...streamQueryKeys.all, "camera", cameraId, "zones"] as const,
   alerts: (sessionId: string) => [...streamQueryKeys.live(sessionId), "alerts"] as const,
 };

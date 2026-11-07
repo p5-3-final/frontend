@@ -6,3 +6,6 @@ export { SeverityBadge } from "./components/SeverityBadge";
 export { VideoInspectLayers } from "./components/VideoInspectLayers";
 export { VideoInspectPanel } from "./components/VideoInspectPanel";
 export { VideoInspectProvider } from "./components/VideoInspectProvider";
+export { ZoneEditor } from "./components/ZoneEditor";
+export { zoneSaveErrorMessage } from "./hooks/useSourceZoneEditor";
+export type { EditableZone, ZoneInput, ZoneKind } from "./model/zoneDraft";

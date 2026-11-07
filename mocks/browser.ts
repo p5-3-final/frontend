@@ -15,6 +15,7 @@ import {
   SSE_TICKET_API,
   sourceCompletedBody,
 } from "./notifications";
+import { cameraZoneHandlers } from "./cameraZones";
 import { streamHandlers } from "./stream";
 
 // 시연: 처음 연 영상은 분석 중으로 시작해 몇 초 뒤 완료 알림을 받고 결과가 그려진다(spec 7절 성공 지표).
@@ -88,4 +89,9 @@ const demoHandlers = [
 ];
 
 /** 앞에 둔 핸들러가 먼저 적용된다. 시연 핸들러가 기본 분석 응답보다 앞이다. */
-export const worker = setupWorker(...demoHandlers, ...analysisHandlers(), ...streamHandlers());
+export const worker = setupWorker(
+  ...demoHandlers,
+  ...analysisHandlers(),
+  ...streamHandlers(),
+  ...cameraZoneHandlers(),
+);
