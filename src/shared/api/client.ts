@@ -5,6 +5,7 @@ import { getAccessToken, refreshSession } from "./session";
 
 export interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  /** JSON으로 보낼 값. `FormData`면 그대로 보낸다(multipart 경계 문자열은 브라우저가 붙인다). */
   body?: unknown;
   /** 요청을 중단할 때 쓴다(예: 업로드 취소). */
   signal?: AbortSignal;
@@ -46,6 +47,13 @@ export async function apiRequestNoContent(path: string, options?: RequestOptions
   await send(path, options);
 }
 
+function toBody(body: unknown): BodyInit | undefined {
+  if (body === undefined) {
+    return undefined;
+  }
+  return body instanceof FormData ? body : JSON.stringify(body);
+}
+
 async function send(
   path: string,
   options: RequestOptions = {},
@@ -56,13 +64,14 @@ async function send(
   if (token !== undefined) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  if (options.body !== undefined) {
+  const isForm = options.body instanceof FormData;
+  if (options.body !== undefined && !isForm) {
     headers.set("Content-Type", "application/json");
   }
   const response = await fetch(`${API_BASE_URL}${withQuery(path, options.query)}`, {
     method: options.method ?? "GET",
     headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body: toBody(options.body),
     credentials: "include",
     signal: options.signal,
   });

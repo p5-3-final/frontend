@@ -51,14 +51,19 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 | --- | --- |
 | `/login`, `/signup` | 로그인, 회원가입 |
 | `/analysis` | 영상 분석(로그인 후 첫 화면): 영상 업로드(작업 세션·역할 고르기)와 내 영상 목록·삭제. `?sessionId=<id>`로 그 세션을 고른 채 연다 |
-| `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제, 학습용 보존 동의(소유자), 분석 결과(요약·이벤트·위험·스냅샷). `?event=<id>`로 이벤트 상세를, `?t=<ms>`로 그 시각을 연다 |
+| `/analysis/videos/:videoId` | 영상 상세: 파일 정보, 원본 재생·내려받기, 삭제, 학습용 보존 동의(소유자), 분석 결과(요약·이벤트·위험·스냅샷), 영상에 질문. `?event=<id>`로 이벤트 상세를, `?t=<ms>`로 그 시각에서 연다 |
 | `/events` | 내 영상 전체 이벤트(종류·심각도·판정·검토·기간 거르기) |
 | `/stream/sessions/:sessionId` | 실시간 세션: 열려 있으면 현재 위험·긴급 알림·타임라인(라이브 HLS는 hls.js로 재생), 닫히면 분석 결과 |
 | `/history` | 분석 이력: 작업 세션 목록·만들기 |
 | `/history/sessions/:sessionId` | 작업 세션 상세: 역할(작업 전·중·후)별 영상과 분석 요약, 세션 흐름 요약 |
 | `/history/cameras`, `/history/cameras/:cameraId` | 카메라 목록·등록, 수집 시작·중지, 24시간 회전으로 이어진 세션 이력 |
 | `/settings` | 설정: 학습용 보존 기본값, 보존 중인 삭제 영상 철회 |
-| `/search` | 준비 중 |
+| `/search` | 검색: 문장·이미지로 장면 찾기(이 영상·내 영상 전체, 정밀 검색), 주석 클립, 맞음·틀림. 조건은 `?q=&scope=&sourceId=&precise=1`, 이미지 검색은 `?image=last` |
+| `/quality/review`, `/quality/review/:itemId` | 품질(OPERATOR만): 검토 큐와 검토 상세(맡기·라벨·저장 후 다음·Golden Set에 넣기) |
+| `/quality/golden-sets`, `/quality/golden-sets/:setId` | Golden Set 목록·만들기, 상세(초안·확정 버전·버전 확정) |
+| `/quality/runs`, `/quality/runs/:runId` | 평가 실행 목록, 상세(Gate 실패 지표·기준 실행 지정) |
+| `/quality/stages` | 처리 단계: 영상별 단계 분해, 단계 추이 그래프, 긴급 알림 지표 |
+| `/quality/datasets`, `/quality/datasets/imports/:importId` | 데이터셋 가져오기·진행 상태, 가져오기 상세, 특징 내보내기 |
 
 ## 영상 업로드
 
@@ -81,12 +86,26 @@ pnpm gen:api                        # docs 레포 계약 → src/api/generated (
 - 알림은 로그인하면 한 번 연결한다(`startNotifications`). 단기 티켓(`POST /api/v1/auth/sse-tickets`)을 받아 `GET /api/v1/notify/stream?ticket=`을 `fetch` 스트림으로 읽는다(EventSource는 헤더를 보낼 수 없어 쓰지 않는다).
   - 끊기면 1초부터 30초까지 늘려 가며 새 티켓으로 다시 연결하고 `Last-Event-ID`로 놓친 메시지를 받는다. 45초 동안 아무것도 오지 않으면 끊고 다시 연결한다.
   - 최근 100건(60초 이내)을 보관해, 늦게 열린 화면도 `replayBuffered`로 받아 볼 수 있다. 로그아웃하면 연결과 보관분을 지운다.
-  - 화면은 `useNotification(types, handler, { sourceId })`로 필요한 종류만 받는다. 알림을 받으면 해당 조회를 다시 읽는다(진행률은 화면에 바로 반영한다).
+  - 화면은 `useNotification(types, handler, { sourceId })`로 필요한 종류만 받는다. 요청 뒤 알림이 응답보다 먼저 올 수 있는 화면(클릭 조회·객체 질문, SPEC-032)은 `replayBuffered`로 받아 둔 알림도 함께 본다. 알림을 받으면 해당 조회를 다시 읽는다(진행률은 화면에 바로 반영한다).
 - 라이브 HLS는 Safari처럼 HLS를 바로 재생하는 브라우저에서만 재생된다. Chromium 재생은 HLS 라이브러리 도입 결정 뒤에 지원한다.
+
+## 검색과 영상 질문
+
+- search-service(`/api/v1/search/...`) 계약은 생산자 확인 전 초안(0.1.0)이다. 화면은 결과 순서를 다시 정렬하지 않고, 점수는 "유사도"로만 보인다.
+- 같은 조건의 문장 검색은 30분 동안 다시 묻지 않는다(정밀 검색은 사용자별 상한이 있다). 영상 상세에 갔다 돌아오면 캐시된 결과를 그린다.
+- 내 영상 전체 결과의 영상 이름은 검색 응답에 없어 고유 영상마다 `getVideo`를 부른다(결과 50개면 최대 50번, 영상 상세와 캐시 공유).
+- 상위 3개 결과의 주석 클립은 알림 `grounding.completed`로 상태를 바꾼다. 프레임 시각(`frames[].ptsMs`)은 원본 영상 기준으로 해석한다.
+- 이미지 검색은 jpg·png·webp 5MB 이하만 올린다. jsdom에서는 파일 업로드 본문을 보낼 수 없어 단위 테스트는 API 함수 경계에서 확인하고, multipart 전송은 E2E로 확인한다.
+
+## 품질 화면
+
+- quality-service(`/api/v1/quality/...`)를 쓴다. 메뉴와 화면은 OPERATOR에게만 보이고, 권한은 서버가 다시 검사한다(403이면 권한 없음 안내).
+- 품질 화면은 lazy 묶음 하나(`pages/QualityPage`)라 USER의 첫 화면 코드에 들어가지 않는다.
+- 진행 중인 가져오기·내보내기는 5초마다 다시 읽는다. 계약에 내보내기 목록 API가 없어 이 화면에서 시작한 내보내기만 보이고 화면을 떠나면 목록이 사라진다.
 
 ## mock 모드
 
-아직 없는 서비스(analysis·notification·stream)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
+아직 없는 서비스(analysis·notification·stream·search·quality)를 계약 예시 응답으로 대신해 화면을 확인한다. auth·media는 실제 api-gateway로 보낸다.
 
 ```bash
 VITE_API_MOCKING=true pnpm dev
@@ -94,6 +113,8 @@ VITE_API_MOCKING=true pnpm dev
 
 - MSW 서비스 워커(`mocks/public/mockServiceWorker.js`)는 mock 모드에서만 제공한다. 배포 빌드에는 들어가지 않는다.
 - 처음 연 영상은 "분석 중"으로 시작해 진행률 알림을 몇 번 받은 뒤 완료 알림과 함께 결과를 보인다. 핸들러는 `mocks/browser.ts`에 있다.
+- 영상을 멈추고 사람을 누르면 "속성 분석 중"이 보이고, 다음 알림 주기에 `track.analyzed`가 와서 속성이 채워진다. 객체 질문도 같은 방식으로 답이 온다. 구역 편집(저장 → 재분석 안내)과 오버레이도 계약 예시로 동작한다(SPEC-032).
+- 영상 안 검색 결과의 주석 클립은 다음 알림 주기(1.5초)에 READY로 바뀐다.
 - MSW를 올리면(`pnpm up msw`) `pnpm exec msw init mocks/public`으로 워커 파일을 다시 만든다.
 
 ## 문서

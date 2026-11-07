@@ -11,3 +11,11 @@ export {
   SOURCE_EVENTS_PAGE_SIZE,
 } from "./api/analysisApi";
 export type { EventSummary, Risk, SourceSummary } from "./model/schemas";
+export { VideoInspectLayers } from "./components/VideoInspectLayers";
+export { VideoInspectPanel } from "./components/VideoInspectPanel";
+export { VideoInspectProvider } from "./components/VideoInspectProvider";
+export { ZoneEditor } from "./components/ZoneEditor";
+export { zoneSaveErrorMessage } from "./hooks/useSourceZoneEditor";
+export type { EditableZone, ZoneInput, ZoneKind } from "./model/zoneDraft";
+export { VideoQuestionPanel } from "./components/VideoQuestionPanel";
+export { EVENT_TYPES, vlmAnalysisSchema, type VlmAnalysis } from "./model/schemas";

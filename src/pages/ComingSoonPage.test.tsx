@@ -1,21 +1,14 @@
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { handlers } from "../../mocks/handlers";
-import { renderRoute } from "../../tests/render";
-import { server } from "../../tests/server";
-import { startSession } from "../shared/api/session";
+import { ComingSoonPage } from "./ComingSoonPage";
 
 describe("ComingSoonPage", () => {
-  // 분석 이력·설정은 SPEC-034에서 화면이 생겼다.
-  it.each([["/search", "검색"]])(
-    "[SPEC-002 R-15] %s는 메뉴 이름과 준비 중이라는 안내를 보여 준다",
-    async (path, title) => {
-      server.use(handlers.me());
-      startSession("access-1");
-      renderRoute(path);
+  // SPEC-031~035로 사이드바 메뉴가 모두 화면을 갖게 되어 경로로 띄울 준비 중 메뉴가 없다.
+  // 메뉴가 새로 생기면 routes.tsx가 이 화면을 쓰므로 화면 자체를 검증한다.
+  it("[SPEC-002 R-15] 메뉴 이름과 준비 중이라는 안내를 보여 준다", () => {
+    render(<ComingSoonPage title="새 메뉴" />);
 
-      expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument();
-      expect(screen.getByText("준비 중인 기능입니다.")).toBeInTheDocument();
-    },
-  );
+    expect(screen.getByRole("heading", { name: "새 메뉴" })).toBeInTheDocument();
+    expect(screen.getByText("준비 중인 기능입니다.")).toBeInTheDocument();
+  });
 });

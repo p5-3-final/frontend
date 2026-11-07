@@ -4,9 +4,10 @@ import { http, HttpResponse } from "msw";
 import { z } from "zod";
 import type { components, operations } from "../src/api/generated/analysis-service";
 import { problem } from "./handlers";
+import { inspectHandlers, type InspectFixture } from "./inspect";
 
 type Schemas = components["schemas"];
-export type EventSummaryBody = Schemas["EventSummary"] & { unverifiedReason?: string | null };
+export type EventSummaryBody = Schemas["EventSummary"];
 export type EventPageBody =
   operations["listSourceEvents"]["responses"]["200"]["content"]["application/json"];
 export type EventDetailBody = Omit<Schemas["EventDetail"], "analysis" | "event"> & {
@@ -221,6 +222,8 @@ export interface AnalysisFixture {
   details?: EventDetailBody[];
   risks?: RiskBody[];
   snapshots?: Schemas["Snapshot"][];
+  /** SPEC-032 오버레이·클릭 조회·구역 응답 */
+  inspect?: InspectFixture;
 }
 
 /**
@@ -291,5 +294,6 @@ export function analysisHandlers(fixture: AnalysisFixture = {}) {
         ? problem(404, "ANALYSIS_EVENT_NOT_FOUND")
         : HttpResponse.json(detail);
     }),
+    ...inspectHandlers(fixture.inspect),
   ];
 }

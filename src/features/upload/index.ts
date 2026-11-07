@@ -11,3 +11,5 @@ export { onVideosChanged } from "./model/uploadQueue";
 export { VIDEO_STATUS_NAMES } from "./model/videoStatus";
 export type { UploadTarget } from "./model/schemas";
 export type { ResolveUploadTarget } from "./model/enqueueFiles";
+export { useVideos } from "./api/useVideos";
+export { videoDetailQuery } from "./api/useVideo";

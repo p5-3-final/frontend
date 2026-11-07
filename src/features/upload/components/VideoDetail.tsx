@@ -27,6 +27,8 @@ export interface VideoDetailProps {
   /** 진행 막대 위 이벤트 표시(SPEC-031 R-4) */
   markers?: readonly TimelineMarker[];
   onMarkerSelect?: (id: string) => void;
+  /** 영상 위 층(SPEC-032 오버레이·클릭 조회·구역 편집) */
+  overlay?: ReactNode;
 }
 
 // URL의 영상 ID는 사용자가 바꿀 수 있는 입력이라 UUID 형식만 서버에 묻는다(SPEC-006 R-12).
@@ -58,6 +60,7 @@ function VideoDetailBody({
   children,
   markers,
   onMarkerSelect,
+  overlay,
 }: VideoDetailProps) {
   const { data: video, error, isPending } = useVideo(videoId);
   const navigate = useNavigate();
@@ -105,6 +108,7 @@ function VideoDetailBody({
           controller={controller}
           markers={markers}
           onMarkerSelect={onMarkerSelect}
+          overlay={overlay}
         />
       ) : (
         <p className="rounded-xl border border-line bg-panel p-4 text-sm text-muted">

@@ -5,7 +5,9 @@ import { MAIN_MENU, SETTINGS_MENU } from "./layout/menu";
 import { ANALYSIS_ROUTES } from "./featureRoutes/analysisRoutes";
 import { SESSIONS_ROUTES } from "./featureRoutes/sessionsRoutes";
 import { SETTINGS_ROUTES } from "./featureRoutes/settingsRoutes";
+import { SEARCH_ROUTES } from "./featureRoutes/searchRoutes";
 import { STREAM_ROUTES } from "./featureRoutes/streamRoutes";
+import { QUALITY_ROUTES } from "./featureRoutes/qualityRoutes";
 
 /**
  * 로그인한 레이아웃 안의 화면. 기능(spec)마다 `featureRoutes/<기능>Routes.tsx`에 배열을 두고 여기서 합친다.
@@ -16,6 +18,8 @@ const FEATURE_ROUTES: RouteObject[] = [
   ...STREAM_ROUTES,
   ...SESSIONS_ROUTES,
   ...SETTINGS_ROUTES,
+  ...SEARCH_ROUTES,
+  ...QUALITY_ROUTES,
 ];
 
 // 아직 기능이 없는 메뉴(SPEC-002 R-15). 화면이 생긴 메뉴는 자동으로 빠진다.

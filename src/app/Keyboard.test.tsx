@@ -2,10 +2,12 @@ import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { analysisHandlers, eventSummaryBody, eventDetailBody } from "../../mocks/analysis";
 import { renderAnalysisDetail } from "../../tests/analysisDetail";
+import { readyPlayer } from "../../tests/inspect";
 import { handlers, MEDIA_API, mediaHandlers, videoBody, videoPageBody } from "../../mocks/handlers";
 import { http, HttpResponse } from "msw";
 import { retainedVideoBody, retentionHandlers, sessionHandlers } from "../../mocks/media";
 import { renderRoute } from "../../tests/render";
+import { renderSearch } from "../../tests/searchScreen";
 import { server } from "../../tests/server";
 import { endSession, startSession } from "../shared/api/session";
 
@@ -211,5 +213,87 @@ describe("키보드 조작", () => {
     await user.keyboard("{Enter}");
 
     expect(await screen.findByText("보존 중인 삭제 영상이 없습니다.")).toBeVisible();
+  });
+
+  it("[SPEC-033 R-1] [SPEC-033 R-11] 키보드만으로 검색하고 결과를 틀림으로 표시한 뒤 그 장면으로 간다", async () => {
+    const { user, router, stopRecording } = renderSearch();
+    const query = await screen.findByRole("searchbox", { name: "검색어" });
+
+    query.focus();
+    await user.keyboard("안전모{Enter}");
+    const list = await screen.findByRole("list", { name: "검색 결과" });
+    const link = within(list).getByRole("link", { name: "00:40–00:50 장면 보기" });
+    // 검색한 뒤에도 입력 칸에 포커스가 남는다. 검색 버튼, 범위, 이미지 칸을 지나 첫 결과의 링크·맞음·틀림 순서로 간다.
+    expect(query).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "검색" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("radio", { name: "내 영상 전체" })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByLabelText("이미지로 찾기")).toHaveFocus();
+    await user.tab();
+    expect(link).toHaveFocus();
+    await user.tab();
+    expect(within(list).getByRole("button", { name: "맞음" })).toHaveFocus();
+    await user.tab();
+    const incorrect = within(list).getByRole("button", { name: "틀림" });
+    expect(incorrect).toHaveFocus();
+    await user.keyboard(" ");
+    expect(incorrect).toHaveAttribute("aria-pressed", "true");
+
+    await user.tab({ shift: true });
+    await user.tab({ shift: true });
+    expect(link).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByRole("heading", { name: "crane.mp4" })).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?t=38000");
+    stopRecording();
+  });
+});
+
+describe("키보드 조작 SPEC-032", () => {
+  it("[SPEC-032 R-3] 일시정지에 오버레이를 켜면 트랙 목록 버튼으로 같은 조회를 한다", async () => {
+    const { user } = renderAnalysisDetail(analysisHandlers());
+    await readyPlayer(40.2);
+    const toggle = screen.getByRole("button", { name: "오버레이" });
+    toggle.focus();
+    await user.keyboard("{Enter}");
+
+    const list = await screen.findByRole("list", { name: "트랙 목록" });
+    const track = within(list).getByRole("button", { name: "사람 · 이벤트 조회" });
+    track.focus();
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByRole("region", { name: "트랙 정보" })).toBeVisible();
+  });
+
+  it("[SPEC-032 R-11] 구역 편집을 키보드로 열고 새 구역의 꼭짓점을 더해 저장한다", async () => {
+    const { user } = renderAnalysisDetail(analysisHandlers());
+    await readyPlayer();
+    screen.getByRole("button", { name: "위험구역 편집" }).focus();
+    await user.keyboard("{Enter}");
+    const editor = await screen.findByRole("region", { name: "위험구역 편집" });
+
+    within(editor).getByRole("button", { name: "새 구역" }).focus();
+    await user.keyboard("{Enter}");
+    within(editor).getByLabelText("구역 이름").focus();
+    await user.keyboard("C동");
+    const add = within(editor).getByRole("button", { name: "꼭짓점 추가" });
+    add.focus();
+    await user.keyboard("{Enter}{Enter}{Enter}");
+    const vertex = within(screen.getByRole("group", { name: "구역 그리기" })).getByRole("button", {
+      name: "꼭짓점 3",
+    });
+    vertex.focus();
+    await user.keyboard("{ArrowDown}");
+    within(editor).getByRole("button", { name: "구역 저장" }).focus();
+    await user.keyboard("{Enter}");
+
+    expect(
+      await within(editor).findByText(
+        "구역을 저장했습니다. 다음 분석부터 반영됩니다(재분석 필요).",
+      ),
+    ).toBeVisible();
   });
 });
