@@ -262,7 +262,7 @@ sequenceDiagram
 - 실시간 세션은 업로드 영상과 다른 라우트 `/stream/sessions/:sessionId`로 연다(카메라 화면 SPEC-034에서 이동). `sessionId`는 `sourceId`와 같다(계약 설명). media 영상 상세는 바꾸지 않는다.
 - `useLiveSession`은 `getSession`으로 상태를 읽고, `LIVE`·`STARTING`·`STOPPING`이면 `state`·`events`·`alerts`를 10초마다 다시 읽는다(알림 연결이 끊겼을 때의 대비). `CLOSED`·`FAILED`가 되면 stream 조회를 멈추고 analysis API(SPEC-031 R-1~R-9의 훅)로 바꾼다. 재생은 `playback`의 HLS 주소를 `VideoPlayer`에 넘긴다.
 - 세션이 열려 있으면 `StreamSessionPage`가 `LiveSessionView`(stream 조회)를, 닫히면 `AnalysisResults`(analysis 조회)를 그린다. 두 응답 형식(`LiveEvent`·`SessionState`와 `EventSummary`·`Risk`)이 달라 `AnalysisResults`에 출처 props를 두면 모든 패널이 두 형식을 분기해야 하기 때문이다.
-- Chromium은 HLS를 바로 재생하지 못한다. HLS 라이브러리(hls.js 등)는 새 의존성이라 별도 결정 뒤 더한다.
+- Chromium은 HLS를 바로 재생하지 못한다. 사용자 결정(2026-11-07, 추천안)으로 `hls.js`(Apache-2.0)를 더했고, `P/model/hlsSource.ts`가 HLS 주소일 때만 동적 import해 붙인다(Safari는 기본 재생, 일반 영상은 `src` 그대로). 테스트는 `hlsSource.test.ts`(SPEC-034 PR에서 반영).
 
 ### 긴급 알림(R-20)
 

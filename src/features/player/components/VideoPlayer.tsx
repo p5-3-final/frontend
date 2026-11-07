@@ -1,7 +1,15 @@
-import { useRef, useState, type ReactNode, type SyntheticEvent } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type ReactNode,
+  type SyntheticEvent,
+} from "react";
 import { UNSUPPORTED_PLAYBACK_MESSAGE } from "../../../shared/lib/messages";
 import { Alert } from "../../../shared/ui/Alert";
 import { usePlayerController } from "../hooks/usePlayerController";
+import { attachSource, isHlsUrl } from "../model/hlsSource";
 import type { PlayerController } from "../model/playerController";
 import type { TimelineMarker } from "../model/types";
 import { PlayerControls } from "./PlayerControls";
@@ -48,11 +56,12 @@ export function VideoPlayer({
   // 새 주소로 바꾼 뒤 되돌릴 재생 위치. 화면에 그리는 값이 아니라 ref에 둔다.
   const resumeRef = useRef<{ time: number; playing: boolean } | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [refreshed, setRefreshed] = useState(false);
   const [unsupported, setUnsupported] = useState(false);
 
   // SPEC-006 R-11: <video>는 HTTP 상태를 알려 주지 않으므로 만료 여부는 만료 시각으로 판단하고, 새 주소는 한 번만 받는다.
-  const handleError = (event: SyntheticEvent<HTMLVideoElement>) => {
+  const handleFailure = (element: HTMLVideoElement) => {
     const expired =
       expiresAt !== undefined && Date.now() >= Date.parse(expiresAt) - EXPIRY_MARGIN_MS;
     if (refreshed || !expired || onExpired === undefined) {
@@ -60,7 +69,6 @@ export function VideoPlayer({
       setUnsupported(true);
       return;
     }
-    const element = event.currentTarget;
     resumeRef.current = { time: element.currentTime, playing: !element.paused };
     setRefreshed(true);
     onExpired();
@@ -80,7 +88,40 @@ export function VideoPlayer({
     }
   };
 
+  const hls = isHlsUrl(src);
+  // 오류 처리는 매번 최신 만료 시각을 읽어야 하지만, 그 때문에 재생기를 다시 붙이지는 않는다.
+  const handleFatal = useEffectEvent((element: HTMLVideoElement) => {
+    handleFailure(element);
+  });
+  // SPEC-031 R-19: 라이브 HLS는 Chromium에서 `src`만으로 재생되지 않아 hls.js를 붙인다(Safari는 기본 재생).
+  // 일반 영상은 지금처럼 `src` 속성으로 재생해 hls.js를 읽지 않는다.
+  useEffect(() => {
+    const element = videoRef.current;
+    if (!hls || element === null) {
+      return;
+    }
+    const controller = new AbortController();
+    let detach: () => void = () => undefined;
+    void attachSource(element, src, {
+      signal: controller.signal,
+      onFatalError: () => {
+        handleFatal(element);
+      },
+    }).then((release) => {
+      if (controller.signal.aborted) {
+        release();
+      } else {
+        detach = release;
+      }
+    });
+    return () => {
+      controller.abort();
+      detach();
+    };
+  }, [hls, src]);
+
   const attachVideo = (element: HTMLVideoElement | null) => {
+    videoRef.current = element;
     player.attach(element);
   };
 
@@ -109,10 +150,12 @@ export function VideoPlayer({
         <video
           ref={attachVideo}
           aria-label={label}
-          src={src}
+          src={hls ? undefined : src}
           playsInline
           preload="metadata"
-          onError={handleError}
+          onError={(event: SyntheticEvent<HTMLVideoElement>) => {
+            handleFailure(event.currentTarget);
+          }}
           onLoadedMetadata={handleLoadedMetadata}
           className="max-h-[70vh] w-full rounded-xl bg-black"
         />
